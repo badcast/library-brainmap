@@ -2,9 +2,8 @@
 #ifndef _ACROSS_IMPL_HPP_
 #define _ACROSS_IMPL_HPP_
 
-//TODO: Make Bi-Directional
+// TODO: Make Bi-Directional
 
-#include <queue>
 #include "across.hpp"
 
 #if not defined(ACROSS_TEMPLATE)
@@ -40,14 +39,6 @@ ACROSS_TEMPLATE
 class immune_system
 {
 public:
-    struct Capillaries
-    {
-        ACROSS_DEFINE *heart;
-        ISite center;
-        ISite target;
-        std::vector<ISite> connected;
-    };
-
     static std::uint32_t heuristic_pythagorean(const ISite &lhs, const ISite &rhs)
     {
         int dx = rhs.x - lhs.x;
@@ -57,7 +48,7 @@ public:
 
     static std::uint32_t heuristic_manhtattan(const ISite &lhs, const ISite &rhs)
     {
-        return static_cast<std::uint32_t>(abs(lhs.x - rhs.x) + abs(lhs.y - rhs.y));
+        return static_cast<std::uint32_t>(std::abs(lhs.x - rhs.x) + std::abs(lhs.y - rhs.y));
     }
 
     static std::uint32_t heuristic_chebyshev(const ISite &lhs, const ISite &rhs)

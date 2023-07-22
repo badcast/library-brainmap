@@ -66,7 +66,6 @@
 #include <stdexcept>
 #include <cstring>
 #include <algorithm>
-#include <queue>
 
 #define ACROSS_TEMPLATE template <typename ISite, typename INeuron>
 #define ACROSS_DEFINE basic_brain_map<ISite, INeuron>

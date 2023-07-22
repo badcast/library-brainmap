@@ -6,7 +6,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include/)
+include_directories(test/)
 
-message(STATUS "Building executer ...")
-add_executable(test include/across.hpp include/across_impl.hpp
-                    src/main-test.cpp)
+enable_testing()
+
+add_executable(test_indexer test/test1.cpp)
+add_executable(test_point_neight test/test2.cpp)
+add_executable(test_locker test/test3.cpp)
+
+add_test(NAME test1 COMMAND test_indexer)
+add_test(NAME test2 COMMAND test_point_neight)
+add_test(NAME test3 COMMAND test_locker)

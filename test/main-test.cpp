@@ -1,6 +1,4 @@
 #include <iostream>
-#include <thread>
-#include <mutex>
 
 #define private public
 #define protected public
