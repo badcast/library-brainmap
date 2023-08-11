@@ -39,25 +39,37 @@ ACROSS_TEMPLATE
 class immune_system
 {
 public:
-    static std::uint32_t heuristic_pythagorean(const ISite &lhs, const ISite &rhs)
+    /**
+     * Pythagorean distance.
+     */
+    static weight_t heuristic_pythagorean(weight_t dx, weight_t dy)
     {
-        int dx = rhs.x - lhs.x;
-        int dy = rhs.y - lhs.y;
-        return static_cast<std::uint32_t>(std::sqrt(dx * dx + dy * dy));
+        return dx * dx + dy * dy;
     }
-
-    static std::uint32_t heuristic_manhtattan(const ISite &lhs, const ISite &rhs)
+    /**
+     * Manhattan distance.
+     */
+    static weight_t heuristic_manhtattan(weight_t dx, weight_t dy)
     {
-        return static_cast<std::uint32_t>(std::abs(lhs.x - rhs.x) + std::abs(lhs.y - rhs.y));
+        return dx + dy;
     }
-
-    static std::uint32_t heuristic_chebyshev(const ISite &lhs, const ISite &rhs)
+    /**
+     * Chebyshev distance.
+     */
+    static weight_t heuristic_chebyshev(weight_t dx, weight_t dy)
     {
-        std::uint32_t dx = std::abs(lhs.x - rhs.x);
-        std::uint32_t dy = std::abs(lhs.y - rhs.y);
         return std::max(dx, dy);
     }
+    /**
+     * Octile distance.
+     */
+    static weight_t heuristic_octile(weight_t dx, weight_t dy)
+    {
+        constexpr float F = std::sqrt(2.f) - 1;
+        return (dx < dy) ? F * dx + dy : F * dy + dx;
+    }
 
+    // main comparator for hash_list
     static bool compare_neuron(const INeuron *lhs, const INeuron *rhs)
     {
         return lhs->f < rhs->f;
@@ -133,10 +145,10 @@ ACROSS_DEFINE::basic_brain_map(int xlength, int ylength)
     this->_xsize = xlength;
     this->_ysize = ylength;
 
-    // The Euclidean heuristic is set as default
-    set_heuristic(HeuristicMethod::Manhattan);
     // The Identity vector lines
     set_identity(MatrixIdentity::DiagonalMethod);
+    // The Pythagorean heuristic is set as default
+    set_heuristic(HeuristicMethod::Pythagorean);
     // Alloc
     _internal_realloc();
 }
@@ -223,6 +235,9 @@ ACROSS_TEMPLATE bool ACROSS_DEFINE::set_heuristic(HeuristicMethod method)
         case HeuristicMethod::Chebyshev:
             __heuristic__ = immune_system::heuristic_chebyshev;
             break;
+        case HeuristicMethod::Octile:
+            __heuristic__ = immune_system::heuristic_octile;
+            break;
         default:
             status = false;
             break;
@@ -239,6 +254,8 @@ HeuristicMethod ACROSS_DEFINE::get_heuristic()
         return HeuristicMethod::Manhattan;
     else if(__heuristic__ == immune_system::heuristic_chebyshev)
         return HeuristicMethod::Chebyshev;
+    else if(__heuristic__ == immune_system::heuristic_octile)
+        return HeuristicMethod::Octile;
     else
         return HeuristicMethod::Invalid;
 }
@@ -337,8 +354,7 @@ bool ACROSS_DEFINE::has_lock(const ISite &range)
 ACROSS_TEMPLATE
 bool ACROSS_DEFINE::contains(const ISite &range)
 {
-    // return not(range.x > _xsize || range.y > _ysize || range.x < 0 || range.y < 0);
-    return (range.x < _xsize && range.y < _ysize && range.x > ~0 && range.y > ~0);
+    return (static_cast<std::uint32_t>(range.x) < _xsize && static_cast<std::uint32_t>(range.y) < _ysize && range.x > ~0 && range.y > ~0);
 }
 
 ACROSS_TEMPLATE
@@ -512,7 +528,6 @@ bool ACROSS_DEFINE::find(navigate_result<ListType> &navigationResult, INeuron *f
     ISite first_site = get_point(firstNeuron), last_site = get_point(lastNeuron), self_site, current_site;
 
     navigationResult.status = NavigationStatus::Closed;
-    navigationResult.connections.clear();
 
     BLOCK_SITE
     navigationResult.from = first_site;
@@ -523,8 +538,9 @@ bool ACROSS_DEFINE::find(navigate_result<ListType> &navigationResult, INeuron *f
     BLOCK_END
 
     firstNeuron->g = 0;
-    firstNeuron->h = __heuristic__(first_site, last_site);
-    firstNeuron->f = firstNeuron->h + firstNeuron->g;
+    firstNeuron->h = __heuristic__(first_site.x - last_site.x, first_site.y - last_site.y);
+    firstNeuron->f = firstNeuron->h;
+    firstNeuron->parent = nullptr;
 
     openList.insert(firstNeuron);
 
@@ -536,17 +552,25 @@ bool ACROSS_DEFINE::find(navigate_result<ListType> &navigationResult, INeuron *f
         if(current == lastNeuron)
         {
             navigationResult.status = NavigationStatus::Opened;
+
+            int size = 0;
+            while(current && ++size)
+                current = current->parent;
+
+            current = *cur_iter;
+            navigationResult.connections.resize(size);
             while(current)
             {
+                --size;
                 BLOCK_SITE
-                navigationResult.connections.emplace_back(std::move(get_point(current)));
+                navigationResult.connections[size] = std::move(get_point(current));
                 BLOCK_NEURON
-                navigationResult.connections.emplace_back(std::move(current));
+                navigationResult.connections[size] = std::move(current);
                 BLOCK_END
                 current = current->parent;
             }
-            std::reverse(std::begin(navigationResult.connections), std::end(navigationResult.connections));
-            break; // close and combine finded connections
+            // close and combine finded connections
+            break;
         }
         openList.erase(cur_iter);
         // change to closied list
@@ -556,13 +580,13 @@ bool ACROSS_DEFINE::find(navigate_result<ListType> &navigationResult, INeuron *f
 
         for(int s = 0; s < identity.length; ++s)
         {
-            // Получаем ближайшие нейроны
+            // Get the closest neurons
             self_site.x = current_site.x + identity.horizontal[s];
             self_site.y = current_site.y + identity.vertical[s];
             self = get(self_site);
             // self is exits
+            // self is not are closed list
             // self is not locked
-            // self filter flag contained
             if(self == nullptr || self->flags == NEURON_CAPTURE_CLOSED_LIST || has_lock(self_site))
             {
                 continue;
@@ -571,26 +595,29 @@ bool ACROSS_DEFINE::find(navigate_result<ListType> &navigationResult, INeuron *f
             int newG = current->g + identity.g_weight[s]; // get weight
             if(self->flags == NEURON_CAPTURE_OPEN_LIST)
             {
+                // Изменяем захваченный нейрон.
                 if(newG < self->g)
                 {
-                    cur_iter = std::find(std::begin(openList), std::end(openList), self);
-                    openList.erase(cur_iter);
-                    /*self->parent = current;
-                    self->g = newG;
-                    self->h = __heuristic__(self_site, last_site);
-                    self->f = self->g + self->h; // compute total weight
-                    openList.insert(self);*/
+                    auto pair_range = openList.equal_range(self);
+                    openList.erase(std::find(pair_range.first, pair_range.second, self));
                 }
                 else
                     continue;
             }
-            // Capture unresearched Neuron
-            // Захватываем нейтральный нейрон и помещаем ее в открытый список
-            self->flags = NEURON_CAPTURE_OPEN_LIST;
+            else
+                // Capture unresearched Neuron
+                // Захватываем нейтральный нейрон и помещаем ее в открытый список
+                self->flags = NEURON_CAPTURE_OPEN_LIST;
+
             self->parent = current;
+
             self->g = newG;
-            self->h = __heuristic__(self_site, last_site);
-            self->f = self->g + self->h; // compute total weight
+            // calculate heuristic
+            self->h = __heuristic__(self_site.x - last_site.x, self_site.y - last_site.y);
+            // compute total weight
+            self->f = self->g + self->h;
+
+            // Capture
             openList.insert(self);
         }
     }

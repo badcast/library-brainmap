@@ -134,28 +134,4 @@ void test2()
     }
 }
 
-void test3()
-{
-    Brain::neuron_type *n1, *n2;
-    Brain::site_type t1;
-    std::size_t errors = 0;
-    int s;
-    cout << "Test #3 - neightbours:" << endl;
 
-    for(n1 = map.front(), n2 = map.back(); n1 <= n2; ++n1)
-    {
-        for(s = 0; s < map.identity.length; ++s)
-        {
-            t1 = map.get_point(n1);
-            t1.x += map.identity.horizontal[s];
-            t1.y += map.identity.vertical[s];
-
-            int x = 0;
-        }
-    }
-
-    if(errors == 0)
-    {
-        cout << "Iterated complete. Have no error." << endl;
-    }
-}

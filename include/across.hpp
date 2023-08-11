@@ -92,10 +92,11 @@ namespace across
         Invalid = -1,
         Pythagorean = 0,
         Manhattan = 1,
-        Chebyshev = 2
+        Chebyshev = 2,
+        Octile = 3
     };
 
-    typedef std::uint32_t weight_t;
+    typedef int weight_t;
 
     struct the_neuron
     {
@@ -207,7 +208,7 @@ namespace across
 
     protected:
         INeuron *neurons;
-        weight_t (*__heuristic__)(const ISite &, const ISite &);
+        weight_t (*__heuristic__)(weight_t dx, weight_t dy);
         int _seg_off;
         int _xsize, _ysize;
 
