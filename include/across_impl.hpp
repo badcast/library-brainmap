@@ -156,7 +156,7 @@ ACROSS_DEFINE::basic_brain_map(int xlength, int ylength)
 ACROSS_TEMPLATE
 void ACROSS_DEFINE::_internal_realloc()
 {
-    int xlength = _xsize, ylength = _ysize;
+    std::size_t xlength = _xsize, ylength = _ysize;
 
     if(this->neurons != nullptr)
     {
