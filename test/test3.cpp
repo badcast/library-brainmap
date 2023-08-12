@@ -3,7 +3,7 @@
 int main()
 {
 
-    cout << "Test #2 - lock read/write:" << endl;
+    cout << "Lock read/write:" << endl;
     for(n1 = map.front(), n2 = map.back(); n1 <= n2; ++n1)
     {
         if(map.has_lock(n1))

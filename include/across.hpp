@@ -6,51 +6,6 @@
  * C++17 minimum required
  * License: GPLv3
  *
- * ENG
- *
- *      The fastest and most preferable type of heuristic can depend on the specific problem, input data, and requirements. Each heuristic
- * function has its own characteristics and can be effective in certain situations. However, in general, the heuristic that more accurately
- * estimates the remaining cost and better guides the search algorithm will be preferable.
- *
- * Here are some general recommendations for choosing a heuristic function:
- *
- *     Pythagore distance: This heuristic is often effective and preferable when movement between states is unconstrained and obstacle-free.
- *It is based on the geometric distance between points and can be a good choice for tasks where accuracy and execution speed are important.
- *
- *     Manhattan distance: This heuristic works well in grid-based environments where movement is limited to horizontal and vertical
- * directions. It is usually straightforward to compute and can be effective for tasks where obstacles and constraints have geometric
- * limitations.
- *
- *     Chebyshev distance: This heuristic uses the maximum difference between coordinates and works well when diagonal as well as
- * horizontal/vertical movements are allowed. It can be useful for tasks where diagonal movements are possible or when differences in the
- *cost of movements in different directions need to be considered.
- *
- * It is important to perform testing and compare the performance of different heuristic functions on your specific data to choose the most
- * suitable one for your task.
- *
- * RUS
- *
- *     Самый быстрый и предпочтительный тип эвристики может зависеть от конкретной задачи, входных данных и требований. Каждая эвристическая
- * функция имеет свои особенности и может быть эффективной в определенных ситуациях. Однако, в общем случае, эвристика, которая более точно
- * оценивает оставшуюся стоимость и лучше направляет алгоритм поиска, будет предпочтительной.
- *
- * Вот некоторые общие рекомендации для выбора эвристической функции:
- *
- *     Фифагорово расстояние (Euclidean distance): Эта эвристика обычно является эффективной и предпочтительной, когда движение между
- * состояниями осуществляется без ограничений и без препятствий. Она основана на геометрическом расстоянии между точками и может быть
- *хорошим выбором для задач, где точность и скорость выполнения важны.
- *
- *     Расстояние по Манхэттену (Manhattan distance): Эта эвристика хорошо работает в сеточных средах, где движение осуществляется только по
- * горизонтали и вертикали. Она обычно проста в вычислении и может быть эффективной для задач, где преграды и препятствия имеют
- *геометрические ограничения.
- *
- *     Расстояние Чебышева (Chebyshev distance): Эта эвристика использует максимальную разность между координатами и хорошо работает в
- *случаях, когда разрешены перемещения по диагонали и горизонтали/вертикали. Она может быть полезной для задач, где возможны перемещения по
- *диагонали или когда нужно учесть различия в стоимости перемещений в разных направлениях.
- *
- * Важно провести тестирование и сравнить производительность разных эвристических функций на ваших конкретных данных, чтобы выбрать наиболее
- * подходящую для вашей задачи.
- *
  *  ** see HeuristicMethod
  *  ** basic_across_map::set_heuristic(HeuristicMethod)
  *

@@ -19,7 +19,7 @@
 using namespace std;
 using namespace across;
 
-Brain map = across::Brain(100, 100); // sizes with 10 * 10 = 100 neurons
+Brain map = Brain(100, 100); // sizes with 10 * 10 = 100 neurons
 
 std::size_t maxIterate = map.size();
 

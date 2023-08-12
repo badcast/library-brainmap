@@ -1,0 +1,14 @@
+#############################################
+#####   Pkg-Config file for libacross   #####
+#############################################
+
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${libdir}/across
+
+Name: libacross
+Version: @PROJECT_VERSION@
+Description: libacross - the libacross path finder with across implementation
+Libs: -L${libdir}
+Cflags: -I${includedir}

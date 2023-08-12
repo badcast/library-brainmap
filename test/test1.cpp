@@ -1,7 +1,7 @@
 #include "test_header.h"
 
 int main() {
-    cout << "Test #1 - indexer:" << endl;
+    cout << "Indexer:" << endl;
     for(n1 = map.front(), n2 = map.back(); n1 <= n2; ++n1)
     {
         t1 = map.get_point(n1);
