@@ -1,7 +1,8 @@
 #include "test_header.h"
 
-int main() {
-    cout << "Indexer:" << endl;
+int main()
+{
+    cout << "Indexer with WriteConfig:" << endl;
     for(n1 = map.front(), n2 = map.back(); n1 <= n2; ++n1)
     {
         t1 = map.get_point(n1);
@@ -9,6 +10,24 @@ int main() {
         {
             errors++;
             cout << " error haved on " << t1.x << "x" << t1.y << endl;
+        }
+        else
+        {
+            n1->flags = 128;
+            n1->g = 2 + iterate;
+            n1->h = 3 + iterate;
+            n1->f = 4 + iterate;
+        }
+        iterate++;
+    }
+    iterate = 0;
+    for(n1 = map.front(), n2 = map.back(); n1 <= n2; ++n1)
+    {
+        if(n1->g != 2 + iterate || n1->h != 3 + iterate || n1->f != 4 + iterate || n1->flags != 128)
+        {
+            errors++;
+            t1 = map.get_point(n1);
+            cout << " damaged on " << t1.x << "x" << t1.y << endl;
         }
         else
         {
@@ -31,5 +50,4 @@ int main() {
     }
 
     return result;
-
 }

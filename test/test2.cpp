@@ -2,10 +2,11 @@
 
 int main()
 {
-    cout << "Point to neightbour:" << endl;
+
+    cout << "Lock read/write:" << endl;
     for(n1 = map.front(), n2 = map.back(); n1 <= n2; ++n1)
     {
-        if(n1->g != 2 + iterate || n1->h != 3 + iterate || n1->f != 4 + iterate || n1->flags != 128)
+        if(map.has_lock(n1))
         {
             errors++;
             t1 = map.get_point(n1);
@@ -13,23 +14,20 @@ int main()
         }
         else
         {
-            n1->flags = 128;
-            n1->g = 2 + iterate;
-            n1->h = 3 + iterate;
-            n1->f = 4 + iterate;
+            map.set_lock(n1, true);
         }
         iterate++;
     }
-    int result;
-    if(iterate != maxIterate || errors != 0)
+    int result = 0;
+    if(maxIterate != iterate)
     {
-        cout << "Error on size compare errors=" << errors << " iterated=" << iterate << " have=" << maxIterate << endl;
         result = 1;
+        cout << "No max iterate" << endl;
     }
-    else
+    if(errors == 0)
     {
+        result = 1;
         cout << "Iterated complete. Have no error." << endl;
-        result = 0;
     }
     return result;
 }
