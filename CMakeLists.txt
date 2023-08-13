@@ -20,6 +20,8 @@ target_include_directories(libacross INTERFACE
 
 # TESTS
 
+enable_testing()
+
 if(BUILD_TESTING)
     add_subdirectory(test)
 endif()

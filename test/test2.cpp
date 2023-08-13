@@ -26,8 +26,10 @@ int main()
     }
     if(errors == 0)
     {
-        result = 1;
         cout << "Iterated complete. Have no error." << endl;
     }
+    else
+        result = 1;
     return result;
+
 }
