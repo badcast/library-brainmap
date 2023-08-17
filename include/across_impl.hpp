@@ -65,7 +65,7 @@ public:
      */
     static weight_t heuristic_octile(weight_t dx, weight_t dy)
     {
-        constexpr float F = std::sqrt(2.f) - 1;
+        static const float F = std::sqrt(2.f) - 1;
         return (dx < dy) ? F * dx + dy : F * dy + dx;
     }
 
