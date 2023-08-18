@@ -1,6 +1,6 @@
 ﻿/************************************************************************   *** *** *** *** *** *** *** *** ***  ***   *********************
  *                                                                          ***                                  ***
- * ASTAR Algorithm composed to RoninEngine (Navigation AI)                  ***              badcast             ***
+ * ASTAR Algorithm composed to RoninEngine (Navigation AI)                  ***         badcast for cast         ***
  * creation date: 18.01.2023                                                ***                                  ***
  * author: badcast <lmecomposer@gmail.com>                                  *** *** *** *** *** *** *** *** ***  ***
  * C++17 minimum required
@@ -59,7 +59,7 @@ namespace across
         weight_t g;         // - стоимость пути от начальной_точки до текущей_точки
         weight_t h;         // - оценка эвристики (обычно расстояние до конечной_точки)
         weight_t f;         // - общая оценка стоимости (f = g + h)
-        the_neuron *parent; // родитель
+        the_neuron *parent; //
     };
 
     struct the_site
@@ -74,8 +74,8 @@ namespace across
 
     struct brain_breakfast
     {
-        weight_t widthSpace;
-        weight_t heightSpace;
+        std::uint32_t widthSpace;
+        std::uint32_t heightSpace;
         int len;
         void *data;
         brain_breakfast() : widthSpace(0), heightSpace(0), len(0), data(nullptr)
@@ -114,7 +114,7 @@ namespace across
         using result_site = navigate_result<list_site>;
         using result_neuron = navigate_result<list_neuron>;
 
-        explicit basic_brain_map(int xlength, int ylength);
+        explicit basic_brain_map(std::uint32_t xlength, std::uint32_t ylength);
 
         ~basic_brain_map();
 
@@ -129,8 +129,8 @@ namespace across
         inline bool set_heuristic(HeuristicMethod method);
         inline HeuristicMethod get_heuristic();
 
-        inline int get_width();
-        inline int get_height();
+        inline std::uint32_t get_width();
+        inline std::uint32_t get_height();
 
         inline INeuron *get(int x, int y);
         inline INeuron *get(const ISite &point);
@@ -164,8 +164,8 @@ namespace across
     protected:
         INeuron *neurons;
         weight_t (*__heuristic__)(weight_t dx, weight_t dy);
-        int _seg_off;
-        int _xsize, _ysize;
+        std::uint32_t _seg_off;
+        std::uint32_t _xsize, _ysize;
 
         struct
         {
@@ -180,7 +180,7 @@ namespace across
 
 #include "across_impl.hpp"
 
-    typedef basic_brain_map<the_site, the_neuron> Brain;
+    typedef basic_brain_map<the_site, the_neuron> brain_map;
 
 } // namespace across
 
