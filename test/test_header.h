@@ -11,13 +11,13 @@
 
 #define private public
 #define protected public
-#include <across.hpp>
+#include <brain_map.hpp>
 #undef private
 #undef protected
 
 
 using namespace std;
-using namespace across;
+using namespace brain;
 
 brain_map map = brain_map(100, 100); // sizes with 10 * 10 = 100 neurons
 

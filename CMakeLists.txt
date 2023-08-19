@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 
-#PROJECT
+# PROJECT
 
-project(libacross VERSION 1.0.0)
+file(READ "VERSION" FILE_PROJECT_VERSION)
+
+string(STRIP "${FILE_PROJECT_VERSION}" FILE_PROJECT_VERSION)
+
+project(library-brainmap VERSION ${FILE_PROJECT_VERSION})
 
 option(BUILD_TESTING "Build testing for check module" ON)
 
@@ -11,46 +15,39 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # TARGET
 
-add_library(libacross INTERFACE)
+add_library(brainmap INTERFACE)
 
-target_include_directories(libacross INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
+target_include_directories(
+  brainmap INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                     $<INSTALL_INTERFACE:include>)
+
+set_target_properties(brainmap PROPERTIES VERSION ${FILE_PROJECT_VERSION})
 
 # TESTS
 
 enable_testing()
 
 if(BUILD_TESTING)
-    add_subdirectory(test)
+  add_subdirectory(test)
 endif()
 
 # INSTALLS
 
 include(GNUInstallDirs)
 
-install(TARGETS libacross
-    EXPORT libacrossTargets
-)
-
-install(EXPORT libacrossTargets
-    FILE libacrossTargets.cmake
-    NAMESPACE libacross::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libacross
-)
-
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/libacross.pc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/libacross.pc @ONLY
-)
+install(TARGETS brainmap EXPORT brainmapTargets)
 
 install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/across
-)
+  EXPORT brainmapTargets
+  FILE brainmapTargets.cmake
+  NAMESPACE brainmap::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/brainmap)
 
-install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/libacross.pc
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/brainmap.pc.in
+               ${CMAKE_CURRENT_BINARY_DIR}/brainmap.pc @ONLY)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/brainmap)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/brainmap.pc
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)

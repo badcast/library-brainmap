@@ -2,14 +2,14 @@
 
 #define private public
 #define protected public
-#include <across.hpp>
+#include <brain.hpp>
 #undef private
 #undef protected
 
 using namespace std;
-using namespace across;
+using namespace brain;
 
-Brain map = across::Brain(100, 100); // sizes with 10 * 10 = 100 neurons
+Brain map = brain::Brain(100, 100); // sizes with 10 * 10 = 100 neurons
 Brain::site_type t1, t2;
 
 std::size_t maxIterate = map.size();

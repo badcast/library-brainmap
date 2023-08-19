@@ -1,12 +1,12 @@
 // declarations Brain Map (algorithm) part-file
-#ifndef _ACROSS_IMPL_HPP_
-#define _ACROSS_IMPL_HPP_
+#ifndef _BRAIN_IMPL_HPP_
+#define _BRAIN_IMPL_HPP_
 
 // TODO: Make Bi-Directional
 
-#include "across.hpp"
+#include "brain_map.hpp"
 
-#if not defined(ACROSS_TEMPLATE)
+#if not defined(BRAIN_TEMPLATE)
 #error "main header not included"
 #endif
 
@@ -28,6 +28,17 @@ enum
 
 };
 
+// site state
+#define BLOCK_SITE                                   \
+    if constexpr(std::is_same_v<target_type, ISite>) \
+    {
+// neuron state
+#define BLOCK_NEURON                                          \
+    }                                                         \
+    else if constexpr(std::is_same_v<target_type, INeuron *>) \
+    {
+#define BLOCK_END }
+
 class brain_range_error : public std::range_error
 {
 public:
@@ -36,7 +47,7 @@ public:
     }
 };
 
-ACROSS_TEMPLATE
+BRAIN_TEMPLATE
 class immune_system
 {
 public:
@@ -137,8 +148,8 @@ public:
     }
 };
 
-ACROSS_TEMPLATE
-ACROSS_DEFINE::basic_brain_map(std::uint32_t xlength, std::uint32_t ylength)
+BRAIN_TEMPLATE
+BRAIN_DEFINE::basic_brain_map(std::uint32_t xlength, std::uint32_t ylength)
 {
     if(1 > xlength || 1 > ylength)
         throw std::runtime_error("dimensions is zero");
@@ -154,8 +165,8 @@ ACROSS_DEFINE::basic_brain_map(std::uint32_t xlength, std::uint32_t ylength)
     _internal_realloc();
 }
 
-ACROSS_TEMPLATE
-void ACROSS_DEFINE::_internal_realloc()
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::_internal_realloc()
 {
     std::size_t xlength = _xsize, ylength = _ysize;
 
@@ -176,15 +187,15 @@ void ACROSS_DEFINE::_internal_realloc()
     clear(true);
 }
 
-ACROSS_TEMPLATE
-ACROSS_DEFINE::~basic_brain_map()
+BRAIN_TEMPLATE
+BRAIN_DEFINE::~basic_brain_map()
 {
     if(this->neurons != nullptr)
         std::free(this->neurons);
 }
 
-ACROSS_TEMPLATE
-void ACROSS_DEFINE::randomize_hardware(int flagFilter)
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::randomize_hardware(int flagFilter)
 {
     std::uint32_t lhs, rhs = _seg_off;
     clear(true);
@@ -199,14 +210,14 @@ void ACROSS_DEFINE::randomize_hardware(int flagFilter)
     } while(rhs > 0);
 }
 
-ACROSS_TEMPLATE
-std::size_t ACROSS_DEFINE::size()
+BRAIN_TEMPLATE
+std::size_t BRAIN_DEFINE::size()
 {
     return static_cast<std::size_t>(_xsize) * _ysize;
 }
 
-ACROSS_TEMPLATE
-int ACROSS_DEFINE::reserved_bits()
+BRAIN_TEMPLATE
+int BRAIN_DEFINE::reserved_bits()
 {
     int bits = size() % ByteSize;
     if(bits)
@@ -214,16 +225,36 @@ int ACROSS_DEFINE::reserved_bits()
     return bits;
 }
 
-ACROSS_TEMPLATE
-bool ACROSS_DEFINE::set_identity(MatrixIdentity matrixIdentity)
+BRAIN_TEMPLATE
+bool BRAIN_DEFINE::set_identity(MatrixIdentity matrixIdentity)
 {
     int len;
     len = immune_system::get_matrix(matrixIdentity, this->identity);
     return len > 0;
 }
 
-ACROSS_TEMPLATE
-bool ACROSS_DEFINE::set_heuristic(HeuristicMethod method)
+BRAIN_TEMPLATE
+MatrixIdentity BRAIN_DEFINE::get_identity()
+{
+    decltype(identity) id;
+
+    int result = static_cast<int>(MatrixIdentity::DiagonalMethod);
+    int last = static_cast<int>(MatrixIdentity::CrossMethod) + 1;
+    for(; result < last;)
+    {
+        immune_system::get_matrix(MatrixIdentity(result), id);
+        if(id.horizontal == identity.horizontal)
+        {
+            break;
+        }
+        ++result;
+    }
+
+    return MatrixIdentity(result);
+}
+
+BRAIN_TEMPLATE
+bool BRAIN_DEFINE::set_heuristic(HeuristicMethod method)
 {
     bool status = true;
     switch(method)
@@ -247,8 +278,8 @@ bool ACROSS_DEFINE::set_heuristic(HeuristicMethod method)
     return status;
 }
 
-ACROSS_TEMPLATE
-HeuristicMethod ACROSS_DEFINE::get_heuristic()
+BRAIN_TEMPLATE
+HeuristicMethod BRAIN_DEFINE::get_heuristic()
 {
     if(__heuristic__ == immune_system::heuristic_pythagorean)
         return HeuristicMethod::Pythagorean;
@@ -262,20 +293,20 @@ HeuristicMethod ACROSS_DEFINE::get_heuristic()
         return HeuristicMethod::Invalid;
 }
 
-ACROSS_TEMPLATE
-std::uint32_t ACROSS_DEFINE::get_width()
+BRAIN_TEMPLATE
+std::uint32_t BRAIN_DEFINE::get_width()
 {
     return _xsize;
 }
 
-ACROSS_TEMPLATE
-std::uint32_t ACROSS_DEFINE::get_height()
+BRAIN_TEMPLATE
+std::uint32_t BRAIN_DEFINE::get_height()
 {
     return _ysize;
 }
 
-ACROSS_TEMPLATE
-void ACROSS_DEFINE::clear(bool clearLocks)
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::clear(bool clearLocks)
 {
     std::uint32_t length = _xsize * _ysize * sizeof(INeuron);
     std::uint32_t leftOffset;
@@ -291,8 +322,8 @@ void ACROSS_DEFINE::clear(bool clearLocks)
     memset(reinterpret_cast<void *>(reinterpret_cast<std::size_t>(neurons) + leftOffset), 0, length);
 }
 
-ACROSS_TEMPLATE
-void ACROSS_DEFINE::fill(bool fillLocks)
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::fill(bool fillLocks)
 {
     std::uint32_t length = _xsize * _ysize * sizeof(INeuron);
     std::uint32_t leftoffset;
@@ -308,14 +339,14 @@ void ACROSS_DEFINE::fill(bool fillLocks)
     memset(reinterpret_cast<void *>(reinterpret_cast<std::size_t>(neurons) + leftoffset), 0xff, length);
 }
 
-ACROSS_TEMPLATE
-void ACROSS_DEFINE::fill_locks(bool state)
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::fill_locks(bool state)
 {
     memset(reinterpret_cast<void *>(reinterpret_cast<std::size_t>(neurons)), 0xff * state, _seg_off);
 }
 
-ACROSS_TEMPLATE
-INeuron *ACROSS_DEFINE::get(const ISite &range)
+BRAIN_TEMPLATE
+INeuron *BRAIN_DEFINE::get(const ISite &range)
 {
     INeuron *result = nullptr;
     if(contains(range))
@@ -324,8 +355,8 @@ INeuron *ACROSS_DEFINE::get(const ISite &range)
     return result;
 }
 
-ACROSS_TEMPLATE
-std::size_t ACROSS_DEFINE::get_cached_size()
+BRAIN_TEMPLATE
+std::size_t BRAIN_DEFINE::get_cached_size()
 {
     std::size_t cal = 0;
 
@@ -339,49 +370,49 @@ std::size_t ACROSS_DEFINE::get_cached_size()
     return cal;
 }
 
-ACROSS_TEMPLATE
-INeuron *ACROSS_DEFINE::front()
+BRAIN_TEMPLATE
+INeuron *BRAIN_DEFINE::front()
 {
     return reinterpret_cast<INeuron *>(reinterpret_cast<std::size_t>(neurons) + _seg_off);
 }
 
-ACROSS_TEMPLATE
-INeuron *ACROSS_DEFINE::back()
+BRAIN_TEMPLATE
+INeuron *BRAIN_DEFINE::back()
 {
     return front() + (size() - 1);
 }
 
-ACROSS_TEMPLATE
-bool ACROSS_DEFINE::has_lock(const ISite &range)
+BRAIN_TEMPLATE
+bool BRAIN_DEFINE::has_lock(const ISite &range)
 {
     auto divide = std::div(range.x * std::size_t(_ysize) + range.y, ByteSize);
     auto pointer = reinterpret_cast<std::uint8_t *>(neurons) + divide.quot;
     return (*pointer) & (1 << divide.rem);
 }
 
-ACROSS_TEMPLATE
-bool ACROSS_DEFINE::has_lock(const INeuron *neuron)
+BRAIN_TEMPLATE
+bool BRAIN_DEFINE::has_lock(const INeuron *neuron)
 {
     auto divide = std::lldiv(static_cast<std::size_t>(neuron - front()), ByteSize);
     auto pointer = reinterpret_cast<std::uint8_t *>(neurons) + divide.quot;
     return (*pointer) & (1 << divide.rem);
 }
 
-ACROSS_TEMPLATE
-bool ACROSS_DEFINE::contains(const ISite &range)
+BRAIN_TEMPLATE
+bool BRAIN_DEFINE::contains(const ISite &range)
 {
     return (static_cast<std::uint32_t>(range.x) < _xsize && static_cast<std::uint32_t>(range.y) < _ysize && range.x > ~0 && range.y > ~0);
 }
 
-ACROSS_TEMPLATE
-const ISite ACROSS_DEFINE::get_point(const INeuron *neuron)
+BRAIN_TEMPLATE
+const ISite BRAIN_DEFINE::get_point(const INeuron *neuron)
 {
     auto divide = std::div((std::size_t(neuron) - std::size_t(neurons) - _seg_off) / sizeof(INeuron), (int) _ysize);
     return {divide.quot, divide.rem};
 }
 
-ACROSS_TEMPLATE
-void ACROSS_DEFINE::set_lock(const ISite &range, const bool state)
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::set_lock(const ISite &range, const bool state)
 {
     auto divide = std::div(range.x * std::size_t(_ysize) + range.y, ByteSize);
     auto pointer = (reinterpret_cast<std::uint8_t *>(neurons)) + divide.quot;
@@ -393,8 +424,8 @@ void ACROSS_DEFINE::set_lock(const ISite &range, const bool state)
     (*pointer) |= divide.quot * (state == true);
 }
 
-ACROSS_TEMPLATE
-void ACROSS_DEFINE::set_lock(const INeuron *neuron, const bool state)
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::set_lock(const INeuron *neuron, const bool state)
 {
     auto divide = std::lldiv(static_cast<std::size_t>(neuron - front()), ByteSize);
     auto pointer = (reinterpret_cast<std::uint8_t *>(neurons)) + divide.quot;
@@ -406,20 +437,20 @@ void ACROSS_DEFINE::set_lock(const INeuron *neuron, const bool state)
     (*pointer) |= divide.quot * (state == true);
 }
 
-ACROSS_TEMPLATE
-INeuron *ACROSS_DEFINE::get(int x, int y)
+BRAIN_TEMPLATE
+INeuron *BRAIN_DEFINE::get(int x, int y)
 {
     return get({x, y});
 }
 
-ACROSS_TEMPLATE
-bool ACROSS_DEFINE::contains(const INeuron *neuron)
+BRAIN_TEMPLATE
+bool BRAIN_DEFINE::contains(const INeuron *neuron)
 {
     return contains(get_point(neuron));
 }
 
-ACROSS_TEMPLATE
-void ACROSS_DEFINE::load(const brain_breakfast &breakfast)
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::load(const brain_breakfast &breakfast)
 {
     if(!breakfast.widthSpace || !breakfast.heightSpace)
         throw std::runtime_error("Argument param, width or height is empty");
@@ -439,8 +470,8 @@ void ACROSS_DEFINE::load(const brain_breakfast &breakfast)
     std::memcpy(this->neurons, breakfast.data, breakfast.len);
 }
 
-ACROSS_TEMPLATE
-void ACROSS_DEFINE::save(brain_breakfast *save_to)
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::save(brain_breakfast *save_to)
 {
     if(save_to == nullptr)
     {
@@ -457,28 +488,50 @@ void ACROSS_DEFINE::save(brain_breakfast *save_to)
     std::memcpy(save_to->data, this->neurons, _seg_off);
 }
 
-ACROSS_TEMPLATE
-template <typename ListType>
-bool ACROSS_DEFINE::find(navigate_result<ListType> &navigationResult, const ISite &first, const ISite &last)
+BRAIN_TEMPLATE
+template <typename list_type, typename target_type>
+list_type BRAIN_DEFINE::get_neighbours(MatrixIdentity matrixIdentity, const target_type &from)
+{
+    decltype(this->identity) identity;
+    list_type list;
+    ISite current_site, self_site;
+
+    immune_system::get_matrix(matrixIdentity, identity);
+    if constexpr(std::is_same_v<target_type, ISite>)
+        current_site = from;
+    else
+        current_site = get_point(from);
+
+    for(int s = 0; s < identity.length; ++s)
+    {
+        // Get the closest neurons
+        self_site.x = current_site.x + identity.horizontal[s];
+        self_site.y = current_site.y + identity.vertical[s];
+        if(contains(self_site))
+        {
+            if constexpr(std::is_same_v<target_type, ISite>)
+                list.push_back(self_site);
+            else
+                list.push_back(get(self_site));
+        }
+    }
+
+    return list;
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, const ISite &first, const ISite &last)
 {
     return this->find(navigationResult, this->get(first), this->get(last));
 }
 
-ACROSS_TEMPLATE
-template <typename ListType>
-bool ACROSS_DEFINE::find(navigate_result<ListType> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
 {
-    using navigate_result_t = navigate_result<ListType>;
-    using target_type = typename ListType::value_type;
-    // site state
-#define BLOCK_SITE                                   \
-    if constexpr(std::is_same_v<target_type, ISite>) \
-    {
-    // neuron state
-#define BLOCK_NEURON \
-    }                \
-    else if constexpr(std::is_same_v<target_type, INeuron *>) {
-#define BLOCK_END }
+    using navigate_result_t = navigate_result<list_type>;
+    using target_type = typename list_type::value_type;
 
     // OpenList for algorithm, auto sort, builds, and combines
     std::multiset<INeuron *, decltype(&immune_system::compare_neuron)> openList(&immune_system::compare_neuron);
@@ -641,9 +694,6 @@ bool ACROSS_DEFINE::find(navigate_result<ListType> &navigationResult, INeuron *f
     }
 
     return navigationResult.status == NavigationStatus::Opened;
-#undef BLOCK_SITE
-#undef BLOCK_NEURON
-#undef BLOCK_END
 }
 
 bool operator!=(const the_site &a, const the_site &b)
@@ -655,5 +705,9 @@ bool operator==(const the_site &a, const the_site &b)
 {
     return static_cast<bool>(!std::memcmp(&a, &b, sizeof(the_site)));
 }
+
+#undef BLOCK_SITE
+#undef BLOCK_NEURON
+#undef BLOCK_END
 
 #endif

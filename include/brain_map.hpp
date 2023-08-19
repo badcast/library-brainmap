@@ -7,12 +7,12 @@
  * License: GPLv3
  *
  *  ** see HeuristicMethod
- *  ** basic_across_map::set_heuristic(HeuristicMethod)
+ *  ** basic_brain_map::set_heuristic(HeuristicMethod)
  *
  *******************************************************************************************************************************************/
 
-#ifndef _ACROSS_HPP_
-#define _ACROSS_HPP_
+#ifndef _BRAIN_MAP_HPP_
+#define _BRAIN_MAP_HPP_
 
 #include <cstdint>
 #include <cmath>
@@ -22,10 +22,10 @@
 #include <cstring>
 #include <algorithm>
 
-#define ACROSS_TEMPLATE template <typename ISite, typename INeuron>
-#define ACROSS_DEFINE basic_brain_map<ISite, INeuron>
+#define BRAIN_TEMPLATE template <typename ISite, typename INeuron>
+#define BRAIN_DEFINE basic_brain_map<ISite, INeuron>
 
-namespace across
+namespace brain
 {
     enum class NavigationStatus
     {
@@ -83,11 +83,11 @@ namespace across
         }
     };
 
-    ACROSS_TEMPLATE
+    BRAIN_TEMPLATE
     class immune_system;
-    ACROSS_TEMPLATE
+    BRAIN_TEMPLATE
     class maze_system;
-    ACROSS_TEMPLATE
+    BRAIN_TEMPLATE
     class basic_brain_map;
 
     template <typename IList>
@@ -99,7 +99,7 @@ namespace across
         IList connections;
     };
 
-    ACROSS_TEMPLATE
+    BRAIN_TEMPLATE
     class basic_brain_map
     {
     public:
@@ -146,7 +146,7 @@ namespace across
         inline void randomize_hardware(int flagFilter = 0xdeadbeff);
 
         /**
-         * @brief Create maze for map
+         * @brief create maze for map
          */
         inline void create_maze();
 
@@ -168,6 +168,13 @@ namespace across
          * @return accepted identity value
          */
         inline bool set_identity(MatrixIdentity identity);
+
+        /**
+         * @brief get the identity method
+         * @see MatrixIdentity
+         * @return MatrixIdentity value
+         */
+        inline MatrixIdentity get_identity();
 
         /**
          * @brief set the heuristic method
@@ -278,8 +285,8 @@ namespace across
          * @param lastNeuron the end of the find to start
          * @return status of the finded
          */
-        template <typename ListType = result_site>
-        bool find(navigate_result<ListType> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+        template <typename list_type = result_site>
+        bool find(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
 
         /**
          * @brief find locations for selects
@@ -288,8 +295,8 @@ namespace across
          * @param last the end of the find to start
          * @return status of the finded
          */
-        template <typename ListType = result_site>
-        bool find(navigate_result<ListType> &navResult, const ISite &first, const ISite &last);
+        template <typename list_type = result_site>
+        bool find(navigate_result<list_type> &navResult, const ISite &first, const ISite &last);
 
         /**
          * @brief load breakfast
@@ -306,6 +313,15 @@ namespace across
          * @return size of the cache
          */
         inline std::size_t get_cached_size();
+
+        /**
+         * @brief Get Neighbours offset selective
+         * @param identity method
+         * @param offset selective
+         * @return the result of the selected (for the site result type or the neurons)
+         */
+        template <typename list_type = list_site, typename target_type = typename list_type::value_type>
+        inline list_type get_neighbours(MatrixIdentity matrixIdentity, const target_type &from);
 
     protected:
         INeuron *neurons;
@@ -324,14 +340,14 @@ namespace across
         void _internal_realloc();
     };
 
-#include "across_impl.hpp"
-#include "across_maze.hpp"
+#include "brain_impl.hpp"
+#include "brain_maze.hpp"
 
     typedef basic_brain_map<the_site, the_neuron> brain_map;
 
-} // namespace across
+} // namespace brain
 
-#undef ACROSS_TEMPLATE
-#undef ACROSS_DEFINE
+#undef BRAIN_TEMPLATE
+#undef BRAIN_DEFINE
 
 #endif

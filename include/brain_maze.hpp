@@ -1,10 +1,10 @@
 // declarations brain_map part-file
-#ifndef _ACROSS_MAZE_HPP_
-#define _ACROSS_MAZE_HPP_
+#ifndef _BRAIN_MAZE_HPP_
+#define _BRAIN_MAZE_HPP_
 
-#include "across.hpp"
+#include "brain_map.hpp"
 
-ACROSS_TEMPLATE
+BRAIN_TEMPLATE
 class maze_system
 {
     using brain_map = basic_brain_map<ISite, INeuron>;
@@ -49,7 +49,7 @@ private:
 public:
     static int random_number(int min, int max)
     {
-        return min + abs(rand()) % (max - min + 1);
+        return min + abs(rand()) % (max - min);
     }
 
     static void maze_recbuf(brain_map *map)
@@ -77,7 +77,7 @@ public:
 
         current = map->front();
         current->flags = NEURON_CAPTURE_CAPITALIZED;
-        stack.push_back(current);
+        // stack.push_back(current);
         do
         {
             current_site = map->get_point(current);
@@ -86,8 +86,8 @@ public:
             for(int s = 0; s < maze_identity.length; ++s)
             {
                 // Get the closest neurons
-                self_site.x = current_site.x + maze_identity.horizontal[s];
-                self_site.y = current_site.y + maze_identity.vertical[s];
+                self_site.x = current_site.x + maze_identity.horizontal[s] * 2;
+                self_site.y = current_site.y + maze_identity.vertical[s] * 2;
                 self = map->get(self_site);
                 if(self == nullptr || self->flags == NEURON_CAPTURE_CAPITALIZED)
                 {
@@ -125,24 +125,43 @@ public:
                          b.WallLeft = false;
                  }*/
                 self_site = map->get_point(self);
+
+                // Bottom wall
                 if(current_site.x == self_site.x)
                 {
                     if(current_site.y > self_site.y)
-                        map->set_lock(current, false);
+                    {
+                        current_site.y--;
+                        if(map->contains(current_site))
+                            map->set_lock(current_site, false);
+                    }
                     else
-                        map->set_lock(self, false);
+                    {
+                        self_site.y--;
+                        if(map->contains(self_site))
+                            map->set_lock(self_site, false);
+                    }
                 }
+                // Left wall
                 else
                 {
                     if(current_site.x > self_site.x)
-                        map->set_lock(current, false);
+                    {
+                        current_site.x--;
+                        if(map->contains(current_site))
+                            map->set_lock(current_site, false);
+                    }
                     else
-                        map->set_lock(self, false);
+                    {
+                        self_site.x--;
+                        if(map->contains(self_site))
+                            map->set_lock(self_site, false);
+                    }
                 }
 
                 // locked and visited
-                current->flags = NEURON_CAPTURE_CAPITALIZED;
-
+                self->flags = NEURON_CAPTURE_CAPITALIZED;
+                map->set_lock(self,false);
                 stack.push_back(self);
                 current = self;
             }
@@ -156,11 +175,9 @@ public:
     }
 };
 
-ACROSS_TEMPLATE
-void ACROSS_DEFINE::create_maze()
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::create_maze()
 {
-    clear(true);
-
     maze_system::maze_recbuf(this);
 }
 
