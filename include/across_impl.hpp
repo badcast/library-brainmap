@@ -1,4 +1,4 @@
-// declarations Across Map (algorithm) part-file
+// declarations Brain Map (algorithm) part-file
 #ifndef _ACROSS_IMPL_HPP_
 #define _ACROSS_IMPL_HPP_
 
@@ -23,8 +23,9 @@ enum
     NEURON_CAPTURE_OPEN_LIST = 1,
     // Captured closed Neuron
     NEURON_CAPTURE_CLOSED_LIST = 2,
-    // Tiled (Real path from-to)
-    NUERON_CAPTURE_ROAD_LIST = 4
+    // Captured, capitalize Neuron for MAZE
+    NEURON_CAPTURE_CAPITALIZED = 4
+
 };
 
 class brain_range_error : public std::range_error
@@ -308,6 +309,12 @@ void ACROSS_DEFINE::fill(bool fillLocks)
 }
 
 ACROSS_TEMPLATE
+void ACROSS_DEFINE::fill_locks(bool state)
+{
+    memset(reinterpret_cast<void *>(reinterpret_cast<std::size_t>(neurons)), 0xff * state, _seg_off);
+}
+
+ACROSS_TEMPLATE
 INeuron *ACROSS_DEFINE::get(const ISite &range)
 {
     INeuron *result = nullptr;
@@ -348,6 +355,14 @@ ACROSS_TEMPLATE
 bool ACROSS_DEFINE::has_lock(const ISite &range)
 {
     auto divide = std::div(range.x * std::size_t(_ysize) + range.y, ByteSize);
+    auto pointer = reinterpret_cast<std::uint8_t *>(neurons) + divide.quot;
+    return (*pointer) & (1 << divide.rem);
+}
+
+ACROSS_TEMPLATE
+bool ACROSS_DEFINE::has_lock(const INeuron *neuron)
+{
+    auto divide = std::lldiv(static_cast<std::size_t>(neuron - front()), ByteSize);
     auto pointer = reinterpret_cast<std::uint8_t *>(neurons) + divide.quot;
     return (*pointer) & (1 << divide.rem);
 }
@@ -404,12 +419,6 @@ bool ACROSS_DEFINE::contains(const INeuron *neuron)
 }
 
 ACROSS_TEMPLATE
-bool ACROSS_DEFINE::has_lock(const INeuron *neuron)
-{
-    return has_lock(get_point(neuron));
-}
-
-ACROSS_TEMPLATE
 void ACROSS_DEFINE::load(const brain_breakfast &breakfast)
 {
     if(!breakfast.widthSpace || !breakfast.heightSpace)
@@ -459,7 +468,6 @@ ACROSS_TEMPLATE
 template <typename ListType>
 bool ACROSS_DEFINE::find(navigate_result<ListType> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
 {
-
     using navigate_result_t = navigate_result<ListType>;
     using target_type = typename ListType::value_type;
     // site state
@@ -469,7 +477,7 @@ bool ACROSS_DEFINE::find(navigate_result<ListType> &navigationResult, INeuron *f
     // neuron state
 #define BLOCK_NEURON \
     }                \
-    else if constexpr(std::is_same_v<target_type, INeuron>) {
+    else if constexpr(std::is_same_v<target_type, INeuron *>) {
 #define BLOCK_END }
 
     // OpenList for algorithm, auto sort, builds, and combines

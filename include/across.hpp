@@ -86,6 +86,8 @@ namespace across
     ACROSS_TEMPLATE
     class immune_system;
     ACROSS_TEMPLATE
+    class maze_system;
+    ACROSS_TEMPLATE
     class basic_brain_map;
 
     template <typename IList>
@@ -109,6 +111,7 @@ namespace across
         using site_type = ISite;
         using neuron_type = INeuron;
         using immune_system = immune_system<ISite, INeuron>;
+        using maze_system = maze_system<ISite, INeuron>;
         using list_site = basic_list<ISite>;
         using list_neuron = basic_list<INeuron *>;
         using result_site = navigate_result<list_site>;
@@ -125,16 +128,27 @@ namespace across
         inline void clear(bool clearLocks = false);
 
         /**
-         * @brief fill
-         * @param fillLocks
+         * @brief fill data
+         * @param fillLocks can fill locks
          */
         inline void fill(bool fillLocks = false);
+
+        /**
+         * @brief fill lock data
+         * @param state fill with
+         */
+        inline void fill_locks(bool state);
 
         /**
          * @brief randomize_hardware the function for randomized data
          * @param flagFilter the filter only source
          */
         inline void randomize_hardware(int flagFilter = 0xdeadbeff);
+
+        /**
+         * @brief Create maze for map
+         */
+        inline void create_maze();
 
         /**
          * @brief size of the neurons
@@ -311,6 +325,7 @@ namespace across
     };
 
 #include "across_impl.hpp"
+#include "across_maze.hpp"
 
     typedef basic_brain_map<the_site, the_neuron> brain_map;
 
