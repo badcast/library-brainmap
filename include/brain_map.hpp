@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <algorithm>
+#include <functional>
 
 #define BRAIN_TEMPLATE template <typename ISite, typename INeuron>
 #define BRAIN_DEFINE basic_brain_map<ISite, INeuron>
@@ -74,10 +75,25 @@ namespace brain
 
     struct brain_breakfast
     {
+        /**
+         * @brief Horizontal length of data
+         */
         std::uint32_t widthSpace;
+        /**
+         * @brief Vertical length of data
+         */
         std::uint32_t heightSpace;
+        /**
+         * @brief Length of data
+         */
         int len;
+        /**
+         * @brief The bits of locks (raw data)
+         */
         void *data;
+        /**
+         * @brief Default constructor
+         */
         brain_breakfast() : widthSpace(0), heightSpace(0), len(0), data(nullptr)
         {
         }
@@ -104,6 +120,7 @@ namespace brain
     {
     public:
         friend class immune_system<ISite, INeuron>;
+        friend class maze_system<ISite, INeuron>;
 
         template <typename T>
         using basic_list = std::vector<T>;
@@ -116,6 +133,7 @@ namespace brain
         using list_neuron = basic_list<INeuron *>;
         using result_site = navigate_result<list_site>;
         using result_neuron = navigate_result<list_neuron>;
+        using randomize_function = std::function<int(void)>;
 
         explicit basic_brain_map(std::uint32_t xlength, std::uint32_t ylength);
 
@@ -144,6 +162,12 @@ namespace brain
          * @param flagFilter the filter only source
          */
         inline void randomize_hardware(int flagFilter = 0xdeadbeff);
+
+        /**
+         * @brief set the custom randomize functions
+         * @param randomizer The candidate for set (default std::rand())
+         */
+        inline void set_random_function(const randomize_function &randomizer);
 
         /**
          * @brief create maze for map
@@ -325,9 +349,12 @@ namespace brain
 
     protected:
         INeuron *neurons;
+        randomize_function _rand_ = std::rand;
         weight_t (*__heuristic__)(weight_t dx, weight_t dy);
         std::uint32_t _seg_off;
         std::uint32_t _xsize, _ysize;
+
+        int random_number(int min, int max);
 
         struct
         {

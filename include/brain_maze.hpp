@@ -21,8 +21,8 @@ private:
         if(rw < 2 || rh < 2)
             return;
 
-        int hs = random_number(t + 1, b - 1);
-        int vs = random_number(l + 1, r - 1);
+        int hs = map->random_number(t + 1, b - 1);
+        int vs = map->random_number(l + 1, r - 1);
 
         // horizontal
         for(int x = l; x <= r; ++x)
@@ -36,8 +36,8 @@ private:
             map->set_lock(map->get(y, vs), true);
         }
 
-        int dx = random_number(l, r);
-        int dy = random_number(t, b);
+        int dx = map->random_number(l, r);
+        int dy = map->random_number(t, b);
         map->set_lock(map->get(dx, dy), false);
 
         recursive_division(map, l, vs - 1, t, hs - 1);
@@ -47,11 +47,6 @@ private:
     }
 
 public:
-    static int random_number(int min, int max)
-    {
-        return min + abs(rand()) % (max - min);
-    }
-
     static void maze_recbuf(brain_map *map)
     {
 
@@ -105,7 +100,7 @@ public:
             else
             {
 
-                self = free_neighbours[random_number(0, free_neighbours.size())];
+                self = free_neighbours[map->random_number(0, free_neighbours.size())];
                 // remove wall
                 /*
                  // a = current
@@ -161,7 +156,7 @@ public:
 
                 // locked and visited
                 self->flags = NEURON_CAPTURE_CAPITALIZED;
-                map->set_lock(self,false);
+                map->set_lock(self, false);
                 stack.push_back(self);
                 current = self;
             }
