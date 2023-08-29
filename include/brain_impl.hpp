@@ -201,13 +201,19 @@ void BRAIN_DEFINE::randomize_hardware(int flagFilter)
     clear(true);
     do
     {
-        lhs = static_cast<std::uint32_t>(rand() & flagFilter);
+        lhs = static_cast<std::uint32_t>(_rand_() & flagFilter);
         memcpy(
             reinterpret_cast<void *>(reinterpret_cast<std::size_t>(neurons) + _seg_off - rhs),
             &lhs,
             std::min(rhs, (std::uint32_t) sizeof(long)));
         rhs -= std::min(rhs, static_cast<std::uint32_t>(sizeof(long)));
     } while(rhs > 0);
+}
+
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::set_random_function(const randomize_function &randomizer)
+{
+    _rand_ = randomizer;
 }
 
 BRAIN_TEMPLATE
@@ -517,6 +523,12 @@ list_type BRAIN_DEFINE::get_neighbours(MatrixIdentity matrixIdentity, const targ
     }
 
     return list;
+}
+
+BRAIN_TEMPLATE
+int BRAIN_DEFINE::random_number(int min, int max)
+{
+    return min + std::abs(_rand_()) % (max - min);
 }
 
 BRAIN_TEMPLATE
