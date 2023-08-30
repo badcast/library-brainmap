@@ -47,48 +47,50 @@ public:
     }
 };
 
-BRAIN_TEMPLATE
-class immune_system
+namespace immune_system
 {
-public:
     /**
      * Pythagorean distance.
      */
-    static weight_t heuristic_pythagorean(weight_t dx, weight_t dy)
+    static brain::weight_t heuristic_pythagorean(brain::weight_t dx, brain::weight_t dy)
     {
         return dx * dx + dy * dy;
     }
+
     /**
      * Manhattan distance.
      */
-    static weight_t heuristic_manhtattan(weight_t dx, weight_t dy)
+    static brain::weight_t heuristic_manhtattan(brain::weight_t dx, brain::weight_t dy)
     {
         return dx + dy;
     }
+
     /**
      * Chebyshev distance.
      */
-    static weight_t heuristic_chebyshev(weight_t dx, weight_t dy)
+    static brain::weight_t heuristic_chebyshev(brain::weight_t dx, brain::weight_t dy)
     {
         return std::max(dx, dy);
     }
+
     /**
      * Octile distance.
      */
-    static weight_t heuristic_octile(weight_t dx, weight_t dy)
+    static brain::weight_t heuristic_octile(brain::weight_t dx, brain::weight_t dy)
     {
         static const float F = std::sqrt(2.f) - 1;
         return (dx < dy) ? F * dx + dy : F * dy + dx;
     }
 
     // main comparator for hash_list
+    template <typename INeuron>
     static bool compare_neuron(const INeuron *lhs, const INeuron *rhs)
     {
         return lhs->f < rhs->f;
     }
 
     template <typename IdentityWrapper>
-    static int get_matrix(MatrixIdentity matrixIdentity, IdentityWrapper &place)
+    static int get_matrix(brain::MatrixIdentity matrixIdentity, IdentityWrapper &place)
     {
         /*
          DIAGONAL
@@ -125,19 +127,19 @@ public:
 
         switch(matrixIdentity)
         {
-            case MatrixIdentity::DiagonalMethod:
+            case brain::MatrixIdentity::DiagonalMethod:
                 place.horizontal = M_DIAGONAL_H_POINT;
                 place.vertical = M_DIAGONAL_V_POINT;
                 place.g_weight = M_G_DIAGONAL_WEIGHT;
                 return place.length = sizeof(M_DIAGONAL_H_POINT);
                 break;
-            case MatrixIdentity::PlusMethod:
+            case brain::MatrixIdentity::PlusMethod:
                 place.horizontal = M_PLUS_H_POINT;
                 place.vertical = M_PLUS_V_POINT;
                 place.g_weight = M_G_PLUS_WEIGHT;
                 return place.length = sizeof(M_PLUS_H_POINT);
                 break;
-            case MatrixIdentity::CrossMethod:
+            case brain::MatrixIdentity::CrossMethod:
                 place.horizontal = M_CROSS_H_POINT;
                 place.vertical = M_CROSS_V_POINT;
                 place.g_weight = M_G_PLUS_WEIGHT;
@@ -146,7 +148,7 @@ public:
         }
         return 0;
     }
-};
+} // namespace immune_system
 
 BRAIN_TEMPLATE
 BRAIN_DEFINE::basic_brain_map(std::uint32_t xlength, std::uint32_t ylength)
@@ -546,7 +548,7 @@ bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, INeuron *f
     using target_type = typename list_type::value_type;
 
     // OpenList for algorithm, auto sort, builds, and combines
-    std::multiset<INeuron *, decltype(&immune_system::compare_neuron)> openList(&immune_system::compare_neuron);
+    std::multiset<INeuron *, decltype(&immune_system::compare_neuron<INeuron>)> openList(&immune_system::compare_neuron<INeuron>);
     /*Алгоритм A* (A-Star) используется для поиска кратчайшего пути в графе с весами на ребрах. Он комбинирует эффективность алгоритма
     Дейкстры и эвристическую функцию для оценки оставшегося расстояния до цели. Вот пример псевдокода A*:
 

@@ -100,10 +100,6 @@ namespace brain
     };
 
     BRAIN_TEMPLATE
-    class immune_system;
-    BRAIN_TEMPLATE
-    class maze_system;
-    BRAIN_TEMPLATE
     class basic_brain_map;
 
     template <typename IList>
@@ -119,16 +115,11 @@ namespace brain
     class basic_brain_map
     {
     public:
-        friend class immune_system<ISite, INeuron>;
-        friend class maze_system<ISite, INeuron>;
-
         template <typename T>
         using basic_list = std::vector<T>;
 
         using site_type = ISite;
         using neuron_type = INeuron;
-        using immune_system = immune_system<ISite, INeuron>;
-        using maze_system = maze_system<ISite, INeuron>;
         using list_site = basic_list<ISite>;
         using list_neuron = basic_list<INeuron *>;
         using result_site = navigate_result<list_site>;
