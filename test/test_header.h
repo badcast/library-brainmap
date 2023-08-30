@@ -19,7 +19,7 @@
 using namespace std;
 using namespace brain;
 
-brain_map map = brain_map(100, 100); // sizes with 10 * 10 = 100 neurons
+brain_map map = brain_map(100, 100);
 
 std::size_t maxIterate = map.size();
 
