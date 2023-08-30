@@ -43,7 +43,7 @@ install(
   NAMESPACE brainmap::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/brainmap)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/brainmap.pc.in
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/brainmap.pc.in
                ${CMAKE_CURRENT_BINARY_DIR}/brainmap.pc @ONLY)
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
@@ -59,4 +59,3 @@ include(CPack)
 set(CPACK_PACKAGE_NAME "library-brainmap")
 set(CPACK_PACKAGE_VERSION "${FILE_PROJECT_VERSION}")
 set(CPACK_GENERATOR "NSIS")
-
