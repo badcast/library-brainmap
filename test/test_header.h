@@ -2,7 +2,7 @@
  * author: badcast <lmecomposer@gmail.com>
  * year 2023
  * status: already coding
-*/
+ */
 
 #ifndef HEADER_SOURCE_H
 #define HEADER_SOURCE_H
@@ -14,7 +14,6 @@
 #include <brain_map.hpp>
 #undef private
 #undef protected
-
 
 using namespace std;
 using namespace brain;

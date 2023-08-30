@@ -8,6 +8,14 @@
 #error "main header not included"
 #endif
 
+#ifndef BRAIN_TEMPLATE
+#define BRAIN_TEMPLATE template <typename ISite, typename INeuron>
+#endif
+
+#ifndef BRAIN_DEFINE
+#define BRAIN_DEFINE brain::basic_brain_map<ISite, INeuron>
+#endif
+
 namespace maze_system
 {
     BRAIN_TEMPLATE
@@ -48,7 +56,7 @@ namespace maze_system
     }
 
     BRAIN_TEMPLATE
-    static void maze_recursive_backtrace(BRAIN_DEFINE *map)
+    static void maze_recursive_backtrace(BRAIN_DEFINE *map, ISite start)
     {
         static decltype(map->identity) maze_identity;
         static auto __g_bss__ {brain::immune_system::get_matrix(brain::MatrixIdentity::PlusMethod, maze_identity)};
@@ -59,10 +67,13 @@ namespace maze_system
         ISite current_site, self_site;
         std::vector<INeuron *> stack;
 
+        if(!map->contains(start))
+            return;
+
         map->clear();
         map->fill_locks(true);
 
-        current = map->front();
+        current = map->get(start);
         current->flags = brain::NEURON_CAPTURE_CAPITALIZED;
 
         do
@@ -146,7 +157,22 @@ namespace maze_system
 BRAIN_TEMPLATE
 void BRAIN_DEFINE::create_maze()
 {
-    maze_system::maze_recursive_backtrace(this);
+    maze_system::maze_recursive_backtrace(this, {0, 0});
+}
+
+BRAIN_TEMPLATE
+void BRAIN_DEFINE::create_maze_ex(brain::MazeAlgorithm mazeAlgoritm, ISite startOf, ISite endOf)
+{
+    switch(mazeAlgoritm)
+    {
+
+        case MazeAlgorithm::RecursiveBacktracer:
+            maze_system::maze_recursive_backtrace(this, startOf);
+            break;
+        case MazeAlgorithm::RecursiveDivison:
+            maze_system::maze_recursive_division(this, startOf.x, startOf.y, endOf.x, endOf.y);
+            break;
+    }
 }
 
 #endif
