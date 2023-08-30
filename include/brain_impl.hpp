@@ -10,6 +10,14 @@
 #error "main header not included"
 #endif
 
+#ifndef BRAIN_TEMPLATE
+#define BRAIN_TEMPLATE template <typename ISite, typename INeuron>
+#endif
+
+#ifndef BRAIN_DEFINE
+#define BRAIN_DEFINE brain::basic_brain_map<ISite, INeuron>
+#endif
+
 enum
 {
     ByteSize = 8
@@ -207,8 +215,8 @@ void BRAIN_DEFINE::randomize_hardware(int flagFilter)
         memcpy(
             reinterpret_cast<void *>(reinterpret_cast<std::size_t>(neurons) + _seg_off - rhs),
             &lhs,
-            std::min(rhs, (std::uint32_t) sizeof(long)));
-        rhs -= std::min(rhs, static_cast<std::uint32_t>(sizeof(long)));
+            std::min(rhs, (std::uint32_t) sizeof(std::uint32_t)));
+        rhs -= std::min(rhs, static_cast<std::uint32_t>(sizeof(std::uint32_t)));
     } while(rhs > 0);
 }
 

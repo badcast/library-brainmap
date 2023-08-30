@@ -52,6 +52,12 @@ namespace brain
         Octile = 3
     };
 
+    enum class MazeAlgorithm
+    {
+        RecursiveBacktracer = 0,
+        RecursiveDivison = 1
+    };
+
     typedef int weight_t;
 
     struct the_neuron
@@ -164,6 +170,14 @@ namespace brain
          * @brief create maze for map
          */
         inline void create_maze();
+
+        /**
+         * @brief create maze for map with extensions
+         * @param mazeAlgorithm The Algoritm for generate maze system
+         * @param startOf The candidate for start generation
+         * @param endOf The candidate for end generation
+         */
+        inline void create_maze_ex(MazeAlgorithm mazeAlgoritm, ISite startOf, ISite endOf);
 
         /**
          * @brief size of the neurons
