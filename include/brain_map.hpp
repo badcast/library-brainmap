@@ -75,6 +75,14 @@ namespace brain
         int y;
     };
 
+    struct brain_identity
+    {
+        int length;
+        std::int8_t *horizontal;
+        std::int8_t *vertical;
+        std::int8_t *g_weight;
+    };
+
     bool operator==(const the_site &lhs, const the_site &rhs);
 
     bool operator!=(const the_site &lhs, const the_site &rhs);
@@ -352,22 +360,21 @@ namespace brain
         template <typename list_type = list_site, typename target_type = typename list_type::value_type>
         inline list_type get_neighbours(MatrixIdentity matrixIdentity, const target_type &from);
 
+        /**
+         * @brief Get the random value of min to max
+         * @param min the minimum
+         * @param max the maximum
+         * @return unique randomized value
+         */
+        inline int random_number(int min, int max);
+
     protected:
         INeuron *neurons;
         randomize_function _rand_ = std::rand;
         weight_t (*__heuristic__)(weight_t dx, weight_t dy);
         std::uint32_t _seg_off;
         std::uint32_t _xsize, _ysize;
-
-        int random_number(int min, int max);
-
-        struct
-        {
-            int length;
-            std::int8_t *horizontal;
-            std::int8_t *vertical;
-            std::int8_t *g_weight;
-        } identity;
+        brain_identity identity;
 
         void _internal_realloc();
     };
