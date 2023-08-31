@@ -15,7 +15,7 @@
 #endif
 
 #ifndef BRAIN_DEFINE
-#define BRAIN_DEFINE brain::basic_brain_map<ISite, INeuron>
+#define BRAIN_DEFINE basic_brain_map<ISite, INeuron>
 #endif
 
 enum

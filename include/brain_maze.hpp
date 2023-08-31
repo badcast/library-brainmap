@@ -49,16 +49,16 @@ namespace maze_system
         int dy = map->random_number(t, b);
         map->set_lock(map->get(dx, dy), false);
 
-        recursive_division(map, l, vs - 1, t, hs - 1);
-        recursive_division(map, vs + 1, r, t, hs - 1);
-        recursive_division(map, l, vs - 1, hs + 1, b);
-        recursive_division(map, vs + 1, r, hs + 1, b);
+        maze_recursive_division(map, l, vs - 1, t, hs - 1);
+        maze_recursive_division(map, vs + 1, r, t, hs - 1);
+        maze_recursive_division(map, l, vs - 1, hs + 1, b);
+        maze_recursive_division(map, vs + 1, r, hs + 1, b);
     }
 
     BRAIN_TEMPLATE
     static void maze_recursive_backtrace(BRAIN_DEFINE *map, ISite start)
     {
-        static decltype(map->identity) maze_identity;
+        static brain::brain_identity maze_identity;
         static auto __g_bss__ {brain::immune_system::get_matrix(brain::MatrixIdentity::PlusMethod, maze_identity)};
 
         int dx, dy;
@@ -146,11 +146,6 @@ namespace maze_system
                 current = self;
             }
         } while(!stack.empty());
-    }
-    BRAIN_TEMPLATE
-    static void maze_recursive_division(BRAIN_DEFINE *map)
-    {
-        recursive_division(map, 0, map->get_width() - 1, 0, map->get_height() - 1);
     }
 }; // namespace maze_system
 
