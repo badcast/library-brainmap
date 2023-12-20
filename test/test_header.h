@@ -18,7 +18,7 @@
 using namespace std;
 using namespace brain;
 
-brain_map map = brain_map(100, 100);
+brain_map map {100, 100};
 
 std::size_t maxIterate = map.size();
 

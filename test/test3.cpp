@@ -2,7 +2,7 @@
 #include <random>
 #include <fstream>
 
-constexpr int maxLevels = 10;
+constexpr int maxLevels = 255;
 typename brain_map::result_neuron results;
 
 void save_breakfast(const char *path, const brain_breakfast *breakfast, int resultScore)
@@ -130,7 +130,7 @@ int main()
         int scores = load_breakfast(buffer, &breakfast);
         if(scores == -1)
         {
-            errors++;
+            ++errors;
             continue;
         }
         map.load(breakfast);

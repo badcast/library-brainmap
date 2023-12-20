@@ -724,14 +724,14 @@ bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, INeuron *f
     return navigationResult.status == NavigationStatus::Opened;
 }
 
-bool operator!=(const the_site &a, const the_site &b)
+bool operator!=(const brain::the_site &a, const brain::the_site &b)
 {
-    return static_cast<bool>(std::memcmp(&a, &b, sizeof(the_site)));
+    return static_cast<bool>(std::memcmp(&a, &b, sizeof(brain::the_site)));
 }
 
-bool operator==(const the_site &a, const the_site &b)
+bool operator==(const brain::the_site &a, const brain::the_site &b)
 {
-    return static_cast<bool>(!std::memcmp(&a, &b, sizeof(the_site)));
+    return static_cast<bool>(!std::memcmp(&a, &b, sizeof(brain::the_site)));
 }
 
 #undef BLOCK_SITE
