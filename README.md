@@ -102,4 +102,4 @@ This project operates under the [GPL3 License](LICENSE).
 
 ---
 
-For any inquiries or support, feel free to contact us at `lmecomposer@gamil.com`. We're excited to see the innovative ways you'll utilize **library-brainmap** for visualization and exploration!
+For any inquiries or support, feel free to contact us at `badcast`. We're excited to see the innovative ways you'll utilize **library-brainmap** for visualization and exploration!
