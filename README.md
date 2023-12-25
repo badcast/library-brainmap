@@ -98,7 +98,7 @@ We welcome contributions of all forms! Whether you're fixing a bug, enhancing do
 
 ## License
 
-This project operates under the [GPL3 License](LICENSE).
+This project operates under the [License](LICENSE).
 
 ---
 
