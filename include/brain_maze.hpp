@@ -282,10 +282,7 @@ namespace maze_system
         {
             // get value from random function
             lbits = static_cast<std::uint32_t>(map->random_number(0, std::numeric_limits<int>::max()));
-            memcpy(
-                reinterpret_cast<void *>(reinterpret_cast<std::size_t>(map->data()) + segbits - rbits),
-                &lbits,
-                std::min(rbits, static_cast<int>(sizeof(lbits))));
+            memcpy(reinterpret_cast<void *>(reinterpret_cast<std::size_t>(map->data()) + segbits - rbits), &lbits, std::min(rbits, static_cast<int>(sizeof(lbits))));
             rbits -= std::min(rbits, static_cast<int>(sizeof(lbits)));
         } while(rbits > 0);
 
@@ -357,7 +354,8 @@ namespace maze_system
         start_neuron->flags = brain::NEURON_CAPTURE_CAPITALIZED;
         map->set_lock(start_neuron, false);
 
-        auto add_frontier = [&](const ISite &origin) {
+        auto add_frontier = [&](const ISite &origin)
+        {
             for(int d = 0; d < maze_identity.length; ++d)
             {
                 ISite next {origin.x + maze_identity.horizontal[d] * 2, origin.y + maze_identity.vertical[d] * 2};
@@ -431,7 +429,8 @@ namespace maze_system
         for(int i = 0; i < total_cells; ++i)
             parent[i] = i;
 
-        auto find_set = [&](int v) {
+        auto find_set = [&](int v)
+        {
             int root = v;
             while(root != parent[root])
                 root = parent[root];
@@ -444,7 +443,8 @@ namespace maze_system
             return root;
         };
 
-        auto union_sets = [&](int a, int b) -> bool {
+        auto union_sets = [&](int a, int b) -> bool
+        {
             a = find_set(a);
             b = find_set(b);
             if(a == b)
@@ -997,7 +997,8 @@ namespace maze_system
             queue.push_back(seed);
             map->get(seed)->flags = brain::NEURON_CAPTURE_CAPITALIZED;
 
-            auto flood_fill = [&]() {
+            auto flood_fill = [&]()
+            {
                 std::size_t head = 0;
                 while(head < queue.size())
                 {
@@ -1017,7 +1018,8 @@ namespace maze_system
 
             flood_fill();
 
-            auto dig_tunnel = [&](ISite from, ISite to) {
+            auto dig_tunnel = [&](ISite from, ISite to)
+            {
                 ISite cur = from;
                 while(cur.x != to.x || cur.y != to.y)
                 {
@@ -1128,9 +1130,7 @@ void BRAIN_DEFINE::create_maze_ex(brain::MazeAlgorithm mazeAlgoritm, ISite start
             break;
         }
         case MazeAlgorithm::SelectiveStormChaos:
-            maze_system::maze_storm_space(
-                this,
-                (startOf.x == 0 && startOf.y == 0) ? ISite {static_cast<int>(_xsize / 2), static_cast<int>(_ysize / 2)} : startOf);
+            maze_system::maze_storm_space(this, (startOf.x == 0 && startOf.y == 0) ? ISite {static_cast<int>(_xsize / 2), static_cast<int>(_ysize / 2)} : startOf);
             break;
         case MazeAlgorithm::ForcedChaos:
             maze_system::maze_forced_chaos(this, startOf, effective_end);

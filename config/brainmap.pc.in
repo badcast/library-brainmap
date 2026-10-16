@@ -7,7 +7,7 @@ exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${libdir}/brainmap
 
-Name: libacross
+Name: brainmap
 Version: @PROJECT_VERSION@
 Description: brainmap - the library-brainmap path-finder with interface implementation
 Libs: -L${libdir}

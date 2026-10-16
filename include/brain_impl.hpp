@@ -33,7 +33,6 @@ enum
     NEURON_CAPTURE_CLOSED_LIST = 2,
     // Captured, capitalize Neuron for MAZE
     NEURON_CAPTURE_CAPITALIZED = 4
-
 };
 
 // site state
@@ -213,10 +212,7 @@ void BRAIN_DEFINE::randomize_hardware(int flagFilter)
     do
     {
         lhs = static_cast<std::uint32_t>(_rand_() & flagFilter);
-        memcpy(
-            reinterpret_cast<void *>(reinterpret_cast<std::size_t>(neurons) + _seg_off - rhs),
-            &lhs,
-            std::min(rhs, (std::uint32_t) sizeof(std::uint32_t)));
+        memcpy(reinterpret_cast<void *>(reinterpret_cast<std::size_t>(neurons) + _seg_off - rhs), &lhs, std::min(rhs, (std::uint32_t) sizeof(std::uint32_t)));
         rhs -= std::min(rhs, static_cast<std::uint32_t>(sizeof(std::uint32_t)));
     } while(rhs > 0);
 }
@@ -325,7 +321,7 @@ std::uint32_t BRAIN_DEFINE::get_height()
 BRAIN_TEMPLATE
 void *BRAIN_DEFINE::data() const
 {
-    return static_cast<void*>(neurons);
+    return static_cast<void *>(neurons);
 }
 
 BRAIN_TEMPLATE
@@ -373,8 +369,7 @@ INeuron *BRAIN_DEFINE::get(const ISite &range)
 {
     INeuron *result = nullptr;
     if(contains(range))
-        result =
-            reinterpret_cast<INeuron *>(reinterpret_cast<std::size_t>(neurons) + _seg_off + (range.x * _ysize + range.y) * sizeof(INeuron));
+        result = reinterpret_cast<INeuron *>(reinterpret_cast<std::size_t>(neurons) + _seg_off + (range.x * _ysize + range.y) * sizeof(INeuron));
     return result;
 }
 
