@@ -164,6 +164,7 @@ BRAIN_DEFINE::basic_brain_map(std::uint32_t xlength, std::uint32_t ylength)
     if(1 > xlength || 1 > ylength)
         throw std::runtime_error("dimensions is zero");
 
+    this->neurons = nullptr;
     this->_xsize = xlength;
     this->_ysize = ylength;
 
@@ -544,6 +545,8 @@ list_type BRAIN_DEFINE::get_neighbours(MatrixIdentity matrixIdentity, const targ
 BRAIN_TEMPLATE
 int BRAIN_DEFINE::random_number(int min, int max)
 {
+    if(max <= min)
+        return min;
     return min + std::abs(_rand_()) % (max - min);
 }
 
@@ -724,14 +727,21 @@ bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, INeuron *f
     return navigationResult.status == NavigationStatus::Opened;
 }
 
-bool operator!=(const brain::the_site &a, const brain::the_site &b)
+inline bool operator!=(const brain::the_site &a, const brain::the_site &b)
 {
     return static_cast<bool>(std::memcmp(&a, &b, sizeof(brain::the_site)));
 }
 
-bool operator==(const brain::the_site &a, const brain::the_site &b)
+inline bool operator==(const brain::the_site &a, const brain::the_site &b)
 {
     return static_cast<bool>(!std::memcmp(&a, &b, sizeof(brain::the_site)));
+}
+
+inline brain::the_site &operator+=(brain::the_site &lhs, const brain::the_site &rhs)
+{
+    lhs.x += rhs.x;
+    lhs.y += rhs.y;
+    return lhs;
 }
 
 #undef BLOCK_SITE
