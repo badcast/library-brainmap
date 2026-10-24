@@ -69,7 +69,7 @@ namespace immune_system
      */
     static brain::weight_t heuristic_manhtattan(brain::weight_t dx, brain::weight_t dy)
     {
-        return dx + dy;
+        return std::abs(dx) + std::abs(dy);
     }
 
     /**
@@ -77,7 +77,7 @@ namespace immune_system
      */
     static brain::weight_t heuristic_chebyshev(brain::weight_t dx, brain::weight_t dy)
     {
-        return std::max(dx, dy);
+        return std::max(std::abs(dx), std::abs(dy));
     }
 
     /**
@@ -86,6 +86,8 @@ namespace immune_system
     static brain::weight_t heuristic_octile(brain::weight_t dx, brain::weight_t dy)
     {
         static const float F = std::sqrt(2.f) - 1;
+        dx = std::abs(dx);
+        dy = std::abs(dy);
         return (dx < dy) ? F * dx + dy : F * dy + dx;
     }
 
@@ -689,6 +691,16 @@ bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, INeuron *f
                 continue;
             }
 
+            // Prevent diagonal corner-cutting through adjacent locked tiles
+            if(identity.horizontal[s] != 0 && identity.vertical[s] != 0)
+            {
+                if(has_lock({current_site.x + identity.horizontal[s], current_site.y}) ||
+                   has_lock({current_site.x, current_site.y + identity.vertical[s]}))
+                {
+                    continue;
+                }
+            }
+
             int newG = current->g + identity.g_weight[s]; // get weight
             if(self->flags == NEURON_CAPTURE_OPEN_LIST)
             {
@@ -696,7 +708,9 @@ bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, INeuron *f
                 if(newG < self->g)
                 {
                     auto pair_range = openList.equal_range(self);
-                    openList.erase(std::find(pair_range.first, pair_range.second, self));
+                    auto it = std::find(pair_range.first, pair_range.second, self);
+                    if(it != pair_range.second)
+                        openList.erase(it);
                 }
                 else
                     continue;
