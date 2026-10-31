@@ -61,11 +61,12 @@ public:
 namespace immune_system
 {
     /**
-     * Pythagorean distance.
+     * Pythagorean (Euclidean) distance.
      */
     static brain::weight_t heuristic_pythagorean(brain::weight_t dx, brain::weight_t dy)
     {
-        return dx * dx + dy * dy;
+        return static_cast<brain::weight_t>(dx * dx + dy * dy);
+        // return std::round(std::hypot(static_cast<double>(dx), static_cast<double>(dy))));
     }
 
     /**
@@ -878,7 +879,7 @@ bool BRAIN_DEFINE::_find_bidirectional(navigate_result<list_type> &navigationRes
 
         if(meeting_neuron != nullptr)
         {
-            if(std::min(top_fwd->f, bwd_info[top_bwd_idx].f) >= best_path_cost)
+            if(std::max(top_fwd->f, bwd_info[top_bwd_idx].f) >= best_path_cost || (top_fwd->g + bwd_info[top_bwd_idx].g) >= best_path_cost)
                 break;
         }
 

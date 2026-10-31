@@ -141,6 +141,44 @@ int main()
         }
     }
 
+    // Test 6: Verify all 4 heuristics with BiDirectional search (ensuring both frontiers expand)
+    HeuristicMethod heuristics[] = {
+        HeuristicMethod::Manhattan,
+        HeuristicMethod::Pythagorean,
+        HeuristicMethod::Chebyshev,
+        HeuristicMethod::Octile
+    };
+
+    test_map.clear(true);
+    for(auto heur : heuristics)
+    {
+        test_map.set_heuristic(heur);
+        brain_map::result_site r_heur;
+        bool ok_heur = test_map.find(r_heur, start, goal, SearchMode::BiDirectional);
+        if(!ok_heur || r_heur.status != NavigationStatus::Opened || r_heur.connections.empty())
+        {
+            cerr << "Test 6 failed: Heuristic " << static_cast<int>(heur) << " failed in BiDirectional search." << endl;
+            return 1;
+        }
+
+        // Verify both frontiers expanded
+        size_t fwd_nodes = 0, bwd_nodes = 0;
+        for(size_t i = 0; i < test_map.size(); ++i)
+        {
+            the_neuron *n = test_map.front() + i;
+            if(n->flags & (1 | 2)) fwd_nodes++;
+            if(n->flags & (8 | 16)) bwd_nodes++;
+        }
+        test_map.clear(false);
+
+        if(fwd_nodes == 0 || bwd_nodes == 0)
+        {
+            cerr << "Test 6 failed: Asymmetric zero-expansion for heuristic " << static_cast<int>(heur)
+                 << " (FWD: " << fwd_nodes << ", BWD: " << bwd_nodes << ")" << endl;
+            return 1;
+        }
+    }
+
     cout << "All BiDirectional A* tests passed successfully!" << endl;
     return 0;
 }

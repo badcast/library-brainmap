@@ -54,7 +54,7 @@ namespace
 
     constexpr HeuristicItem kHeuristics[] = {
         {HeuristicMethod::Manhattan, "Manhattan"},
-        {HeuristicMethod::Pythagorean, "Pythagorean"},
+        {HeuristicMethod::Pythagorean, "Euclidean (Pythagorean)"},
         {HeuristicMethod::Chebyshev, "Chebyshev"},
         {HeuristicMethod::Octile, "Octile"},
     };
@@ -102,14 +102,14 @@ namespace
         the_site end_site {50, 50};
 
         int algorithm_idx = 0;
-        int heuristic_idx = 0;
+        int heuristic_idx = 1;
         int identity_idx = 0;
         int brush_mode_idx = 0;
 
         int width = 51;
         int height = 51;
 
-        bool bidirectional = false;
+        bool bidirectional = true;
         bool show_explored = true;
 
         bool is_dragging = false;
@@ -389,13 +389,17 @@ namespace
                 the_neuron *top_bwd = *open_bwd.begin();
                 std::size_t top_bwd_idx = static_cast<std::size_t>(top_bwd - base_neuron);
 
-                if(meeting_neuron != nullptr && std::min(top_fwd->f, bwd_info[top_bwd_idx].f) >= best_path_cost)
+                if(meeting_neuron != nullptr)
                 {
-                    SearchStep final_step;
-                    final_step.active_site = state.map->get_point(meeting_neuron);
-                    final_step.path_found = true;
-                    state.recorded_steps.push_back(std::move(final_step));
-                    break;
+                    if(std::max(top_fwd->f, bwd_info[top_bwd_idx].f) >= best_path_cost ||
+                       (top_fwd->g + bwd_info[top_bwd_idx].g) >= best_path_cost)
+                    {
+                        SearchStep final_step;
+                        final_step.active_site = state.map->get_point(meeting_neuron);
+                        final_step.path_found = true;
+                        state.recorded_steps.push_back(std::move(final_step));
+                        break;
+                    }
                 }
 
                 bool expand_fwd;
@@ -795,7 +799,7 @@ int main(int, char **)
         if(ImGui::IsItemHovered()) ImGui::SetTooltip("Maze generation algorithm");
 
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(105.0f);
+        ImGui::SetNextItemWidth(175.0f);
         if(ImGui::BeginCombo("##heur", kHeuristics[state.heuristic_idx].label))
         {
             for(int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kHeuristics)); ++i)
