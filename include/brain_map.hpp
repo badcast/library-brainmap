@@ -54,9 +54,11 @@ namespace brain
     {
         Invalid = -1,
         Pythagorean = 0,
+        Euclidean = 0,
         Manhattan = 1,
         Chebyshev = 2,
-        Octile = 3
+        Octile = 3,
+        Hypot = 4
     };
 
     enum class MazeAlgorithm

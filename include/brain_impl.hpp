@@ -61,12 +61,19 @@ public:
 namespace immune_system
 {
     /**
-     * Pythagorean (Euclidean) distance.
+     * Pythagorean distance (dx^2 + dy^2).
      */
     static brain::weight_t heuristic_pythagorean(brain::weight_t dx, brain::weight_t dy)
     {
         return static_cast<brain::weight_t>(dx * dx + dy * dy);
-        // return std::round(std::hypot(static_cast<double>(dx), static_cast<double>(dy))));
+    }
+
+    /**
+     * Hypot (true Euclidean) distance.
+     */
+    static brain::weight_t heuristic_hypot(brain::weight_t dx, brain::weight_t dy)
+    {
+        return static_cast<brain::weight_t>(std::round(std::hypot(static_cast<double>(dx), static_cast<double>(dy))));
     }
 
     /**
@@ -282,6 +289,9 @@ bool BRAIN_DEFINE::set_heuristic(HeuristicMethod method)
         case HeuristicMethod::Pythagorean:
             __heuristic__ = immune_system::heuristic_pythagorean;
             break;
+        case HeuristicMethod::Hypot:
+            __heuristic__ = immune_system::heuristic_hypot;
+            break;
         case HeuristicMethod::Manhattan:
             __heuristic__ = immune_system::heuristic_manhtattan;
             break;
@@ -303,6 +313,8 @@ HeuristicMethod BRAIN_DEFINE::get_heuristic()
 {
     if(__heuristic__ == immune_system::heuristic_pythagorean)
         return HeuristicMethod::Pythagorean;
+    else if(__heuristic__ == immune_system::heuristic_hypot)
+        return HeuristicMethod::Hypot;
     else if(__heuristic__ == immune_system::heuristic_manhtattan)
         return HeuristicMethod::Manhattan;
     else if(__heuristic__ == immune_system::heuristic_chebyshev)

@@ -15,7 +15,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <filesystem>
+#include <fstream>
 #include <memory>
+#include <numeric>
 #include <set>
 #include <string>
 #include <vector>
@@ -46,36 +49,44 @@ namespace
         {MazeAlgorithm::CellularAutomata, "12: Cellular Automata (Cave)"},
     };
 
+    struct MazeTemplateInfo
+    {
+        int level_number = 0;
+        std::uint32_t score = 0;
+        std::uint32_t width = 0;
+        std::uint32_t height = 0;
+        std::size_t data_len = 0;
+        std::string file_path;
+        std::string title;
+        std::string difficulty; // "EXTREME", "HARD", "MEDIUM", "EASY"
+    };
+
     struct HeuristicItem
     {
         HeuristicMethod method;
         const char *label;
+        const char *short_label;
     };
 
     constexpr HeuristicItem kHeuristics[] = {
-        {HeuristicMethod::Manhattan, "Manhattan"},
-        {HeuristicMethod::Pythagorean, "Euclidean (Pythagorean)"},
-        {HeuristicMethod::Chebyshev, "Chebyshev"},
-        {HeuristicMethod::Octile, "Octile"},
+        {HeuristicMethod::Pythagorean, "Euclidean (dx^2+dy^2)", "Euclidean"},
+        {HeuristicMethod::Hypot, "Hypot (std::hypot)", "Hypot"},
+        {HeuristicMethod::Manhattan, "Manhattan (|dx|+|dy|)", "Manhattan"},
+        {HeuristicMethod::Chebyshev, "Chebyshev (max(|dx|,|dy|))", "Chebyshev"},
+        {HeuristicMethod::Octile, "Octile (diagonal shortcut)", "Octile"},
     };
 
     struct IdentityItem
     {
         MatrixIdentity identity;
         const char *label;
+        const char *short_label;
     };
 
     constexpr IdentityItem kIdentities[] = {
-        {MatrixIdentity::PlusMethod, "Plus (4-dir)"},
-        {MatrixIdentity::DiagonalMethod, "Diagonal (8-dir)"},
-        {MatrixIdentity::CrossMethod, "Cross (4-diag)"},
-    };
-
-    enum class BrushMode
-    {
-        ToggleWall = 0,
-        MoveStart = 1,
-        MoveEnd = 2
+        {MatrixIdentity::PlusMethod, "Plus (4-dir orthogonal)", "4-Dir"},
+        {MatrixIdentity::DiagonalMethod, "Diagonal (8-dir all neighbours)", "8-Dir"},
+        {MatrixIdentity::CrossMethod, "Cross (4-diag diagonal only)", "4-Diag"},
     };
 
     struct StepChange
@@ -102,9 +113,8 @@ namespace
         the_site end_site {50, 50};
 
         int algorithm_idx = 0;
-        int heuristic_idx = 1;
-        int identity_idx = 0;
-        int brush_mode_idx = 0;
+        int heuristic_idx = 0; // Euclidean default
+        int identity_idx = 0;  // 4-Dir default
 
         int width = 51;
         int height = 51;
@@ -112,9 +122,12 @@ namespace
         bool bidirectional = true;
         bool show_explored = true;
 
-        bool is_dragging = false;
-        bool drag_lock_value = true;
-        the_site last_drag_site {-1, -1};
+        // Mouse controls
+        bool is_dragging_end = false;   // LMB: Red marker (Goal / end_site)
+        bool is_dragging_start = false; // RMB: Green marker (Start / start_site)
+        bool is_dragging_wall = false;  // MMB: Wall
+        bool wall_drag_value = true;
+        the_site last_mouse_site {-1, -1};
 
         double gen_time_ms = 0.0;
         double path_time_ms = 0.0;
@@ -127,6 +140,13 @@ namespace
         float speed = 60.0f; // steps per second
         float step_accumulator = 0.0f;
         the_site active_expand_site {-1, -1};
+
+        // Maze templates
+        std::vector<MazeTemplateInfo> templates;
+        int current_template_level = -1;
+        char filter_buf[64] = "";
+        int difficulty_filter = 0; // 0: All, 1: Extreme (1500+), 2: Hard (1200+), 3: Normal/Medium
+        int sort_mode = 0;         // 0: Score desc, 1: Level ID asc
     };
 
     the_site find_nearest_open_site(brain_map &m, the_site target)
@@ -215,6 +235,9 @@ namespace
         {
             case HeuristicMethod::Pythagorean:
                 heuristic_fn = immune_system::heuristic_pythagorean;
+                break;
+            case HeuristicMethod::Hypot:
+                heuristic_fn = immune_system::heuristic_hypot;
                 break;
             case HeuristicMethod::Manhattan:
                 heuristic_fn = immune_system::heuristic_manhtattan;
@@ -604,6 +627,129 @@ namespace
         apply_step_display(state);
     }
 
+    std::string find_mazes_directory()
+    {
+        const char *candidates[] = {
+            "test/mazes",
+            "mazes",
+            "../test/mazes",
+            "../../test/mazes",
+            "build/test/mazes"
+        };
+        for(const char *dir : candidates)
+        {
+            std::error_code ec;
+            if(std::filesystem::is_directory(dir, ec))
+                return dir;
+        }
+        return "";
+    }
+
+    std::vector<MazeTemplateInfo> scan_maze_templates()
+    {
+        std::vector<MazeTemplateInfo> result;
+        std::string dir = find_mazes_directory();
+        if(dir.empty())
+            return result;
+
+        namespace fs = std::filesystem;
+        std::error_code ec;
+        for(const auto &entry : fs::directory_iterator(dir, ec))
+        {
+            if(!entry.is_regular_file())
+                continue;
+            std::string filename = entry.path().filename().string();
+            if(filename.rfind("level-", 0) != 0 || entry.path().extension() != ".maze")
+                continue;
+
+            int level_num = 0;
+            if(std::sscanf(filename.c_str(), "level-%d.maze", &level_num) != 1)
+                continue;
+
+            std::ifstream f(entry.path().string(), std::ios::in | std::ios::binary);
+            if(!f.is_open())
+                continue;
+
+            std::uint32_t score = 0;
+            brain_breakfast bf;
+            if(f.read(reinterpret_cast<char *>(&score), sizeof(score)).good() &&
+               f.read(reinterpret_cast<char *>(&bf.widthSpace), sizeof(bf.widthSpace)).good() &&
+               f.read(reinterpret_cast<char *>(&bf.heightSpace), sizeof(bf.heightSpace)).good() &&
+               f.read(reinterpret_cast<char *>(&bf.len), sizeof(bf.len)).good() && bf.len > 0)
+            {
+                MazeTemplateInfo tmpl;
+                tmpl.level_number = level_num;
+                tmpl.score = score;
+                tmpl.width = bf.widthSpace;
+                tmpl.height = bf.heightSpace;
+                tmpl.data_len = static_cast<std::size_t>(bf.len);
+                tmpl.file_path = entry.path().string();
+                tmpl.title = "Level " + std::to_string(level_num);
+
+                if(score >= 1500)
+                    tmpl.difficulty = "EXTREME";
+                else if(score >= 1200)
+                    tmpl.difficulty = "HARD";
+                else if(score >= 800)
+                    tmpl.difficulty = "MEDIUM";
+                else
+                    tmpl.difficulty = "EASY";
+
+                result.push_back(std::move(tmpl));
+            }
+        }
+
+        std::sort(result.begin(), result.end(), [](const MazeTemplateInfo &a, const MazeTemplateInfo &b) {
+            if(a.score != b.score)
+                return a.score > b.score;
+            return a.level_number < b.level_number;
+        });
+
+        return result;
+    }
+
+    bool load_template(GuiAppState &state, int template_idx)
+    {
+        if(template_idx < 0 || template_idx >= static_cast<int>(state.templates.size()))
+            return false;
+
+        const auto &tmpl = state.templates[template_idx];
+        std::ifstream f(tmpl.file_path, std::ios::in | std::ios::binary);
+        if(!f.is_open())
+            return false;
+
+        std::uint32_t score = 0;
+        brain_breakfast bf;
+        if(!(f.read(reinterpret_cast<char *>(&score), sizeof(score)).good() &&
+             f.read(reinterpret_cast<char *>(&bf.widthSpace), sizeof(bf.widthSpace)).good() &&
+             f.read(reinterpret_cast<char *>(&bf.heightSpace), sizeof(bf.heightSpace)).good() &&
+             f.read(reinterpret_cast<char *>(&bf.len), sizeof(bf.len)).good() && bf.len > 0))
+        {
+            return false;
+        }
+
+        std::vector<char> raw_data(bf.len);
+        if(!f.read(raw_data.data(), bf.len).good())
+            return false;
+
+        bf.data = raw_data.data();
+
+        if(!state.map)
+            state.map = std::make_unique<brain_map>(1, 1);
+
+        state.map->load(bf);
+        state.width = static_cast<int>(state.map->get_width());
+        state.height = static_cast<int>(state.map->get_height());
+        state.gen_time_ms = 0.0;
+        state.current_template_level = tmpl.level_number;
+
+        state.start_site = find_nearest_open_site(*state.map, {1, 1});
+        state.end_site = find_nearest_open_site(*state.map, {state.width - 2, state.height - 2});
+
+        run_pathfinding(state);
+        return true;
+    }
+
     void generate_maze(GuiAppState &state)
     {
         int w = std::max(5, state.width);
@@ -619,49 +765,17 @@ namespace
         the_site gen_start {0, 0};
         the_site gen_end {w - 1, h - 1};
 
+        MazeAlgorithm alg = static_cast<MazeAlgorithm>(std::rand() % 13);
         auto t0 = std::chrono::steady_clock::now();
-        state.map->create_maze_ex(kAlgorithms[state.algorithm_idx].alg, gen_start, gen_end);
+        state.map->create_maze_ex(alg, gen_start, gen_end);
         auto t1 = std::chrono::steady_clock::now();
         state.gen_time_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
 
+        state.current_template_level = -1;
         state.start_site = find_nearest_open_site(*state.map, {0, 0});
         state.end_site = find_nearest_open_site(*state.map, {w - 1, h - 1});
 
         run_pathfinding(state);
-    }
-
-    void apply_pointer_action(GuiAppState &state, the_site site, bool is_initial_press)
-    {
-        if(!state.map || !state.map->contains(site))
-            return;
-
-        BrushMode brush = static_cast<BrushMode>(state.brush_mode_idx);
-        if(brush == BrushMode::MoveStart)
-        {
-            state.map->set_lock(site, false);
-            state.start_site = site;
-            run_pathfinding(state);
-        }
-        else if(brush == BrushMode::MoveEnd)
-        {
-            state.map->set_lock(site, false);
-            state.end_site = site;
-            run_pathfinding(state);
-        }
-        else
-        {
-            if(site == state.start_site || site == state.end_site)
-                return;
-
-            if(is_initial_press)
-                state.drag_lock_value = !state.map->has_lock(site);
-
-            if(state.map->has_lock(site) != state.drag_lock_value)
-            {
-                state.map->set_lock(site, state.drag_lock_value);
-                run_pathfinding(state);
-            }
-        }
     }
 
     void load_fonts(ImGuiIO &io)
@@ -704,7 +818,7 @@ int main(int, char **)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    GLFWwindow *window = glfwCreateWindow(1280, 820, "library-brainmap - Maze Generator & A* Navigation (Dear ImGui)", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(1360, 840, "library-brainmap - Complex Maze Templates & A* Navigation", nullptr, nullptr);
     if(!window)
     {
         glfwTerminate();
@@ -737,7 +851,15 @@ int main(int, char **)
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     GuiAppState state;
-    generate_maze(state);
+    state.templates = scan_maze_templates();
+    if(!state.templates.empty())
+    {
+        load_template(state, 0); // Load #1 most complex maze (Level 214) by default
+    }
+    else
+    {
+        generate_maze(state);
+    }
 
     while(!glfwWindowShouldClose(window))
     {
@@ -779,84 +901,52 @@ int main(int, char **)
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.12f, 0.13f, 0.16f, 1.0f));
         ImGui::BeginChild("Controls", ImVec2(0.0f, 62.0f), ImGuiChildFlags_Borders, ImGuiWindowFlags_NoScrollbar);
 
-        // Row 1: Maze Algorithm, Heuristic, Matrix, Dimensions, Actions, Brush
-        ImGui::SetNextItemWidth(185.0f);
-        if(ImGui::BeginCombo("##alg", kAlgorithms[state.algorithm_idx].label))
+        // Row 1: Heuristics, Adjacency, Actions (Zero Comboboxes!)
+        ImGui::TextDisabled("Heuristic:");
+        ImGui::SameLine();
+        for(int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kHeuristics)); ++i)
         {
-            for(int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kAlgorithms)); ++i)
+            bool is_selected = (state.heuristic_idx == i);
+            if(is_selected)
             {
-                bool is_selected = (state.algorithm_idx == i);
-                if(ImGui::Selectable(kAlgorithms[i].label, is_selected))
-                {
-                    state.algorithm_idx = i;
-                    generate_maze(state);
-                }
-                if(is_selected)
-                    ImGui::SetItemDefaultFocus();
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.18f, 0.45f, 0.85f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.25f, 0.55f, 0.95f, 1.0f));
             }
-            ImGui::EndCombo();
-        }
-        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Maze generation algorithm");
-
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(175.0f);
-        if(ImGui::BeginCombo("##heur", kHeuristics[state.heuristic_idx].label))
-        {
-            for(int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kHeuristics)); ++i)
+            if(ImGui::Button(kHeuristics[i].short_label))
             {
-                bool is_selected = (state.heuristic_idx == i);
-                if(ImGui::Selectable(kHeuristics[i].label, is_selected))
-                {
-                    state.heuristic_idx = i;
-                    run_pathfinding(state);
-                }
-                if(is_selected)
-                    ImGui::SetItemDefaultFocus();
+                state.heuristic_idx = i;
+                run_pathfinding(state);
             }
-            ImGui::EndCombo();
+            if(is_selected)
+                ImGui::PopStyleColor(2);
+            if(ImGui::IsItemHovered())
+                ImGui::SetTooltip("%s", kHeuristics[i].label);
+            ImGui::SameLine();
         }
-        if(ImGui::IsItemHovered()) ImGui::SetTooltip("A* Heuristic");
 
+        ImGui::TextDisabled("| Adjacency:");
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(115.0f);
-        if(ImGui::BeginCombo("##id", kIdentities[state.identity_idx].label))
+        for(int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kIdentities)); ++i)
         {
-            for(int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kIdentities)); ++i)
+            bool is_selected = (state.identity_idx == i);
+            if(is_selected)
             {
-                bool is_selected = (state.identity_idx == i);
-                if(ImGui::Selectable(kIdentities[i].label, is_selected))
-                {
-                    state.identity_idx = i;
-                    run_pathfinding(state);
-                }
-                if(is_selected)
-                    ImGui::SetItemDefaultFocus();
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.18f, 0.45f, 0.85f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.25f, 0.55f, 0.95f, 1.0f));
             }
-            ImGui::EndCombo();
-        }
-        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Graph adjacency (Matrix)");
-
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(45.0f);
-        if(ImGui::DragInt("##W", &state.width, 2.0f, 5, 201, "W:%d"))
-        {
-            state.width = std::clamp(state.width, 5, 201);
-        }
-
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(45.0f);
-        if(ImGui::DragInt("##H", &state.height, 2.0f, 5, 201, "H:%d"))
-        {
-            state.height = std::clamp(state.height, 5, 201);
+            if(ImGui::Button(kIdentities[i].short_label))
+            {
+                state.identity_idx = i;
+                run_pathfinding(state);
+            }
+            if(is_selected)
+                ImGui::PopStyleColor(2);
+            if(ImGui::IsItemHovered())
+                ImGui::SetTooltip("%s", kIdentities[i].label);
+            ImGui::SameLine();
         }
 
-        ImGui::SameLine();
-        if(ImGui::Button("Maze"))
-        {
-            generate_maze(state);
-        }
-        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Generate maze");
-
+        ImGui::TextDisabled("|");
         ImGui::SameLine();
         if(ImGui::Button("Clear"))
         {
@@ -864,19 +954,18 @@ int main(int, char **)
             {
                 state.map->clear(true);
                 state.gen_time_ms = 0.0;
+                state.current_template_level = -1;
                 run_pathfinding(state);
             }
         }
         if(ImGui::IsItemHovered()) ImGui::SetTooltip("Clear all walls");
 
         ImGui::SameLine();
-        const char *brush_labels[] = {
-            "Brush: Wall",
-            "Brush: Start",
-            "Brush: Goal"
-        };
-        ImGui::SetNextItemWidth(135.0f);
-        ImGui::Combo("##brush", &state.brush_mode_idx, brush_labels, IM_ARRAYSIZE(brush_labels));
+        if(ImGui::Button("Gen Random"))
+        {
+            generate_maze(state);
+        }
+        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Generate random procedural maze");
 
         // Row 2: Search Mode (Uni / Bi), Explored Checkbox, Playback, Speed, Steps Slider, Steps Progress Bar
         if(ImGui::RadioButton("1-Way A*", !state.bidirectional))
@@ -976,12 +1065,146 @@ int main(int, char **)
         ImGui::EndChild();
         ImGui::PopStyleColor();
 
-        // Canvas Area
+        // Middle Area: Left (TemplatePanel), Right (CanvasChild)
         float status_bar_height = 24.0f;
-        ImVec2 canvas_avail = ImGui::GetContentRegionAvail();
-        canvas_avail.y -= status_bar_height;
+        ImVec2 content_avail = ImGui::GetContentRegionAvail();
+        content_avail.y -= status_bar_height;
 
-        ImGui::BeginChild("CanvasChild", canvas_avail, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        // Left Sidebar: Complex Maze Templates List
+        float sidebar_width = 280.0f;
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.10f, 0.11f, 0.14f, 1.0f));
+        ImGui::BeginChild("TemplatePanel", ImVec2(sidebar_width, content_avail.y), ImGuiChildFlags_Borders);
+        {
+            ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "MAZE TEMPLATES (%zu)", state.templates.size());
+
+            if(ImGui::Button("Top Complex (#1)", ImVec2(130.0f, 22.0f)))
+            {
+                if(!state.templates.empty())
+                {
+                    int best_idx = 0;
+                    for(int i = 1; i < static_cast<int>(state.templates.size()); ++i)
+                    {
+                        if(state.templates[i].score > state.templates[best_idx].score)
+                            best_idx = i;
+                    }
+                    load_template(state, best_idx);
+                }
+            }
+            if(ImGui::IsItemHovered()) ImGui::SetTooltip("Load the #1 most complex template (Level 214, score 1793)");
+
+            ImGui::SameLine();
+            if(ImGui::Button("Random Complex", ImVec2(130.0f, 22.0f)))
+            {
+                if(!state.templates.empty())
+                {
+                    int pool = std::min(30, static_cast<int>(state.templates.size()));
+                    std::vector<int> top_indices(state.templates.size());
+                    std::iota(top_indices.begin(), top_indices.end(), 0);
+                    std::sort(top_indices.begin(), top_indices.end(), [&](int a, int b) {
+                        return state.templates[a].score > state.templates[b].score;
+                    });
+                    int pick = top_indices[std::rand() % pool];
+                    load_template(state, pick);
+                }
+            }
+            if(ImGui::IsItemHovered()) ImGui::SetTooltip("Load a random high-difficulty maze template");
+
+            ImGui::Separator();
+            ImGui::TextDisabled("Sort:");
+            ImGui::SameLine();
+            if(ImGui::RadioButton("Score v", state.sort_mode == 0))
+            {
+                state.sort_mode = 0;
+                std::sort(state.templates.begin(), state.templates.end(), [](const MazeTemplateInfo &a, const MazeTemplateInfo &b) {
+                    if(a.score != b.score) return a.score > b.score;
+                    return a.level_number < b.level_number;
+                });
+            }
+            ImGui::SameLine();
+            if(ImGui::RadioButton("Level #", state.sort_mode == 1))
+            {
+                state.sort_mode = 1;
+                std::sort(state.templates.begin(), state.templates.end(), [](const MazeTemplateInfo &a, const MazeTemplateInfo &b) {
+                    return a.level_number < b.level_number;
+                });
+            }
+
+            const char *diff_names[] = {"All", "Extreme", "Hard", "Normal"};
+            for(int d = 0; d < 4; ++d)
+            {
+                if(d > 0) ImGui::SameLine();
+                bool is_sel = (state.difficulty_filter == d);
+                if(is_sel) ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.25f, 0.45f, 0.75f, 1.0f));
+                if(ImGui::SmallButton(diff_names[d]))
+                {
+                    state.difficulty_filter = d;
+                }
+                if(is_sel) ImGui::PopStyleColor();
+            }
+
+            ImGui::SetNextItemWidth(-1.0f);
+            ImGui::InputTextWithHint("##filter", "Search level #...", state.filter_buf, sizeof(state.filter_buf));
+
+            ImGui::Separator();
+
+            ImGui::BeginChild("TemplateScrollList", ImVec2(0.0f, 0.0f), false);
+            for(int i = 0; i < static_cast<int>(state.templates.size()); ++i)
+            {
+                const auto &tmpl = state.templates[i];
+
+                if(state.difficulty_filter == 1 && tmpl.score < 1500) continue;
+                if(state.difficulty_filter == 2 && (tmpl.score < 1200 || tmpl.score >= 1500)) continue;
+                if(state.difficulty_filter == 3 && tmpl.score >= 1200) continue;
+
+                if(state.filter_buf[0] != '\0')
+                {
+                    std::string num_str = std::to_string(tmpl.level_number);
+                    std::string score_str = std::to_string(tmpl.score);
+                    if(num_str.find(state.filter_buf) == std::string::npos &&
+                       score_str.find(state.filter_buf) == std::string::npos &&
+                       tmpl.difficulty.find(state.filter_buf) == std::string::npos)
+                    {
+                        continue;
+                    }
+                }
+
+                bool is_selected = (state.current_template_level == tmpl.level_number);
+
+                ImVec4 badge_color;
+                if(tmpl.score >= 1500)
+                    badge_color = ImVec4(1.0f, 0.35f, 0.35f, 1.0f);
+                else if(tmpl.score >= 1200)
+                    badge_color = ImVec4(1.0f, 0.65f, 0.2f, 1.0f);
+                else if(tmpl.score >= 800)
+                    badge_color = ImVec4(0.9f, 0.85f, 0.3f, 1.0f);
+                else
+                    badge_color = ImVec4(0.4f, 0.8f, 0.5f, 1.0f);
+
+                char item_label[128];
+                std::snprintf(item_label, sizeof(item_label), "Level %-3d  [%4u pts]", tmpl.level_number, tmpl.score);
+
+                if(ImGui::Selectable(item_label, is_selected))
+                {
+                    load_template(state, i);
+                }
+
+                ImGui::SameLine(ImGui::GetWindowWidth() - 75.0f);
+                ImGui::TextColored(badge_color, "%s", tmpl.difficulty.c_str());
+
+                if(ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Level %d: Score %u (%s)\nClick to load this maze template",
+                                      tmpl.level_number, tmpl.score, tmpl.difficulty.c_str());
+                }
+            }
+            ImGui::EndChild();
+        }
+        ImGui::EndChild();
+        ImGui::PopStyleColor();
+
+        ImGui::SameLine();
+
+        ImGui::BeginChild("CanvasChild", ImVec2(0.0f, content_avail.y), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
         {
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
             ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
@@ -1179,36 +1402,75 @@ int main(int, char **)
                         ImVec2(hx + cell_size, hy + cell_size),
                         IM_COL32(255, 255, 255, 120), 0.0f, 0, 1.0f);
 
-                    // Right click -> Move End
-                    if(ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+                    // 1. Left Mouse Button -> Red Marker (End / Goal site)
+                    if(ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                     {
+                        state.is_dragging_end = true;
+                        state.last_mouse_site = hover_site;
                         state.map->set_lock(hover_site, false);
                         state.end_site = hover_site;
                         run_pathfinding(state);
                     }
-
-                    // Left click & drag
-                    if(ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                    else if(ImGui::IsMouseDown(ImGuiMouseButton_Left) && state.is_dragging_end)
                     {
-                        state.is_dragging = true;
-                        state.last_drag_site = hover_site;
-                        apply_pointer_action(state, hover_site, true);
-                    }
-                    else if(ImGui::IsMouseDown(ImGuiMouseButton_Left) && state.is_dragging)
-                    {
-                        if(hover_site != state.last_drag_site)
+                        if(hover_site != state.last_mouse_site)
                         {
-                            state.last_drag_site = hover_site;
-                            apply_pointer_action(state, hover_site, false);
+                            state.last_mouse_site = hover_site;
+                            state.map->set_lock(hover_site, false);
+                            state.end_site = hover_site;
+                            run_pathfinding(state);
+                        }
+                    }
+
+                    // 2. Right Mouse Button -> Green Marker (Start site)
+                    if(ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+                    {
+                        state.is_dragging_start = true;
+                        state.last_mouse_site = hover_site;
+                        state.map->set_lock(hover_site, false);
+                        state.start_site = hover_site;
+                        run_pathfinding(state);
+                    }
+                    else if(ImGui::IsMouseDown(ImGuiMouseButton_Right) && state.is_dragging_start)
+                    {
+                        if(hover_site != state.last_mouse_site)
+                        {
+                            state.last_mouse_site = hover_site;
+                            state.map->set_lock(hover_site, false);
+                            state.start_site = hover_site;
+                            run_pathfinding(state);
+                        }
+                    }
+
+                    // 3. Middle Mouse Button -> Wall (toggle/draw/erase walls)
+                    if(ImGui::IsMouseClicked(ImGuiMouseButton_Middle))
+                    {
+                        if(hover_site != state.start_site && hover_site != state.end_site)
+                        {
+                            state.is_dragging_wall = true;
+                            state.wall_drag_value = !state.map->has_lock(hover_site);
+                            state.last_mouse_site = hover_site;
+                            state.map->set_lock(hover_site, state.wall_drag_value);
+                            run_pathfinding(state);
+                        }
+                    }
+                    else if(ImGui::IsMouseDown(ImGuiMouseButton_Middle) && state.is_dragging_wall)
+                    {
+                        if(hover_site != state.last_mouse_site && hover_site != state.start_site && hover_site != state.end_site)
+                        {
+                            state.last_mouse_site = hover_site;
+                            state.map->set_lock(hover_site, state.wall_drag_value);
+                            run_pathfinding(state);
                         }
                     }
                 }
 
                 if(!ImGui::IsMouseDown(ImGuiMouseButton_Left))
-                {
-                    state.is_dragging = false;
-                    state.last_drag_site = {-1, -1};
-                }
+                    state.is_dragging_end = false;
+                if(!ImGui::IsMouseDown(ImGuiMouseButton_Right))
+                    state.is_dragging_start = false;
+                if(!ImGui::IsMouseDown(ImGuiMouseButton_Middle))
+                    state.is_dragging_wall = false;
             }
         }
         ImGui::EndChild();
@@ -1267,27 +1529,46 @@ int main(int, char **)
         ImGui::Separator();
         ImGui::TextColored(status_color, "%s", status_str);
         ImGui::SameLine();
+        ImGui::TextDisabled("|");
+        ImGui::SameLine();
+        ImGui::TextColored(ImVec4(0.95f, 0.4f, 0.4f, 1.0f), "[LMB: Red (Goal)]");
+        ImGui::SameLine();
+        ImGui::TextColored(ImVec4(0.3f, 0.9f, 0.45f, 1.0f), "[RMB: Green (Start)]");
+        ImGui::SameLine();
+        ImGui::TextColored(ImVec4(0.65f, 0.75f, 0.9f, 1.0f), "[MMB: Wall]");
+        ImGui::SameLine();
+        ImGui::TextDisabled("|");
+        ImGui::SameLine();
+        if(state.current_template_level > 0)
+        {
+            auto it = std::find_if(state.templates.begin(), state.templates.end(), [&](const MazeTemplateInfo &t) {
+                return t.level_number == state.current_template_level;
+            });
+            if(it != state.templates.end())
+            {
+                ImGui::Text("Template: %s (%u pts) |", it->title.c_str(), it->score);
+                ImGui::SameLine();
+            }
+        }
         if(state.bidirectional)
         {
-            ImGui::Text("| Path: %zu | A* (Fwd: %zu, Bwd: %zu, Total: %zu / %d steps) | Walls: %zu | Gen: %.2f ms | A*: %.2f ms [BiDirectional]",
+            ImGui::Text("Path: %zu | A* (Fwd: %zu, Bwd: %zu, Total: %zu / %d steps) | Walls: %zu | Search: %.2f ms [BiDirectional]",
                         state.path_result.connections.size(),
                         fwd_cells,
                         bwd_cells,
                         explored_cells,
                         state.total_steps,
                         locked_cells,
-                        state.gen_time_ms,
                         state.path_time_ms);
         }
         else
         {
-            ImGui::Text("| Path: %zu | A*: %zu / %d steps | Open: %zu / Walls: %zu | Gen: %.2f ms | A*: %.2f ms [UniDirectional]",
+            ImGui::Text("Path: %zu | A*: %zu / %d steps | Open: %zu | Walls: %zu | Search: %.2f ms [UniDirectional]",
                         state.path_result.connections.size(),
                         explored_cells,
                         state.total_steps,
                         open_cells,
                         locked_cells,
-                        state.gen_time_ms,
                         state.path_time_ms);
         }
 

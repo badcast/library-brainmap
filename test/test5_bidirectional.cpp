@@ -141,9 +141,10 @@ int main()
         }
     }
 
-    // Test 6: Verify all 4 heuristics with BiDirectional search (ensuring both frontiers expand)
+    // Test 6: Verify all heuristics with BiDirectional search (ensuring both frontiers expand)
     HeuristicMethod heuristics[] = {
         HeuristicMethod::Manhattan,
+        HeuristicMethod::Hypot,
         HeuristicMethod::Pythagorean,
         HeuristicMethod::Chebyshev,
         HeuristicMethod::Octile
@@ -173,9 +174,19 @@ int main()
 
         if(fwd_nodes == 0 || bwd_nodes == 0)
         {
-            cerr << "Test 6 failed: Asymmetric zero-expansion for heuristic " << static_cast<int>(heur)
+            cerr << "Test 6 failed: Zero-expansion for heuristic " << static_cast<int>(heur)
                  << " (FWD: " << fwd_nodes << ", BWD: " << bwd_nodes << ")" << endl;
             return 1;
+        }
+
+        if(heur == HeuristicMethod::Hypot)
+        {
+            if(fwd_nodes < 10 || bwd_nodes < 10)
+            {
+                cerr << "Test 6 failed: Hypot did not expand both frontiers symmetrically (FWD: "
+                     << fwd_nodes << ", BWD: " << bwd_nodes << ")" << endl;
+                return 1;
+            }
         }
     }
 
