@@ -44,6 +44,12 @@ namespace brain
         CrossMethod = 2
     };
 
+    enum class SearchMode
+    {
+        UniDirectional = 0,
+        BiDirectional = 1
+    };
+
     enum class HeuristicMethod
     {
         Invalid = -1,
@@ -346,6 +352,9 @@ namespace brain
         template <typename list_type = result_site>
         bool find(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
 
+        template <typename list_type = result_site>
+        bool find(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron, SearchMode mode);
+
         /**
          * @brief find locations for selects
          * @param navResult the result of the selected (for the site result type or the neurons)
@@ -355,6 +364,19 @@ namespace brain
          */
         template <typename list_type = result_site>
         bool find(navigate_result<list_type> &navResult, const ISite &first, const ISite &last);
+
+        template <typename list_type = result_site>
+        bool find(navigate_result<list_type> &navResult, const ISite &first, const ISite &last, SearchMode mode);
+
+        /**
+         * @brief set search mode (UniDirectional or BiDirectional)
+         */
+        inline void set_search_mode(SearchMode mode);
+
+        /**
+         * @brief get current search mode
+         */
+        inline SearchMode get_search_mode() const;
 
         /**
          * @brief load breakfast
@@ -396,6 +418,13 @@ namespace brain
         std::uint32_t _seg_off;
         std::uint32_t _xsize, _ysize;
         brain_identity identity;
+        SearchMode _search_mode = SearchMode::UniDirectional;
+
+        template <typename list_type = result_site>
+        bool _find_unidirectional(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+
+        template <typename list_type = result_site>
+        bool _find_bidirectional(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
 
         void _internal_realloc();
     };

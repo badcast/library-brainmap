@@ -28,6 +28,7 @@ set_target_properties(brainmap PROPERTIES VERSION ${FILE_PROJECT_VERSION})
 enable_testing()
 
 if(BUILD_TESTING)
+  add_subdirectory(3rdParty)
   add_subdirectory(test)
 endif()
 

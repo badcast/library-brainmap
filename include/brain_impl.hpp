@@ -32,7 +32,11 @@ enum
     // Captured closed Neuron
     NEURON_CAPTURE_CLOSED_LIST = 2,
     // Captured, capitalize Neuron for MAZE
-    NEURON_CAPTURE_CAPITALIZED = 4
+    NEURON_CAPTURE_CAPITALIZED = 4,
+    // Captured opened Neuron (Backward search)
+    NEURON_CAPTURE_BWD_OPEN_LIST = 8,
+    // Captured closed Neuron (Backward search)
+    NEURON_CAPTURE_BWD_CLOSED_LIST = 16
 };
 
 // site state
@@ -315,6 +319,18 @@ std::uint32_t BRAIN_DEFINE::get_width()
 }
 
 BRAIN_TEMPLATE
+void BRAIN_DEFINE::set_search_mode(SearchMode mode)
+{
+    this->_search_mode = mode;
+}
+
+BRAIN_TEMPLATE
+SearchMode BRAIN_DEFINE::get_search_mode() const
+{
+    return this->_search_mode;
+}
+
+BRAIN_TEMPLATE
 std::uint32_t BRAIN_DEFINE::get_height()
 {
     return _ysize;
@@ -551,12 +567,37 @@ BRAIN_TEMPLATE
 template <typename list_type>
 bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, const ISite &first, const ISite &last)
 {
-    return this->find(navigationResult, this->get(first), this->get(last));
+    return this->find(navigationResult, this->get(first), this->get(last), this->_search_mode);
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, const ISite &first, const ISite &last, SearchMode mode)
+{
+    return this->find(navigationResult, this->get(first), this->get(last), mode);
 }
 
 BRAIN_TEMPLATE
 template <typename list_type>
 bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
+    return this->find(navigationResult, firstNeuron, lastNeuron, this->_search_mode);
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron, SearchMode mode)
+{
+    if(mode == SearchMode::BiDirectional)
+    {
+        return this->_find_bidirectional(navigationResult, firstNeuron, lastNeuron);
+    }
+    return this->_find_unidirectional(navigationResult, firstNeuron, lastNeuron);
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_unidirectional(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
 {
     using navigate_result_t = navigate_result<list_type>;
     using target_type = typename list_type::value_type;
@@ -694,8 +735,7 @@ bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, INeuron *f
             // Prevent diagonal corner-cutting through adjacent locked tiles
             if(identity.horizontal[s] != 0 && identity.vertical[s] != 0)
             {
-                if(has_lock({current_site.x + identity.horizontal[s], current_site.y}) ||
-                   has_lock({current_site.x, current_site.y + identity.vertical[s]}))
+                if(has_lock({current_site.x + identity.horizontal[s], current_site.y}) || has_lock({current_site.x, current_site.y + identity.vertical[s]}))
                 {
                     continue;
                 }
@@ -734,6 +774,308 @@ bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, INeuron *f
     }
 
     return navigationResult.status == NavigationStatus::Opened;
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_bidirectional(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
+    using navigate_result_t = navigate_result<list_type>;
+    using target_type = typename list_type::value_type;
+
+    if(firstNeuron == nullptr || lastNeuron == nullptr)
+    {
+        navigationResult.status = NavigationStatus::Undefined;
+        return false;
+    }
+    if(has_lock(firstNeuron) || has_lock(lastNeuron))
+    {
+        navigationResult.status = NavigationStatus::Locked;
+        return false;
+    }
+
+    ISite first_site = get_point(firstNeuron);
+    ISite last_site = get_point(lastNeuron);
+
+    navigationResult.status = NavigationStatus::Closed;
+
+    BLOCK_SITE
+    navigationResult.from = first_site;
+    navigationResult.to = last_site;
+    BLOCK_NEURON
+    navigationResult.from = firstNeuron;
+    navigationResult.to = lastNeuron;
+    BLOCK_END
+
+    if(firstNeuron == lastNeuron)
+    {
+        navigationResult.status = NavigationStatus::Opened;
+        navigationResult.connections.clear();
+        BLOCK_SITE
+        navigationResult.connections.push_back(first_site);
+        BLOCK_NEURON
+        navigationResult.connections.push_back(firstNeuron);
+        BLOCK_END
+        return true;
+    }
+
+    struct bwd_neuron_info
+    {
+        weight_t g = std::numeric_limits<weight_t>::max() / 2;
+        weight_t h = 0;
+        weight_t f = 0;
+        INeuron *parent = nullptr;
+    };
+
+    INeuron *base_neuron = this->front();
+    std::size_t total = this->size();
+    std::vector<bwd_neuron_info> bwd_info(total);
+
+    auto compare_fwd = [](const INeuron *lhs, const INeuron *rhs)
+    {
+        if(lhs->f != rhs->f)
+            return lhs->f < rhs->f;
+        return lhs < rhs;
+    };
+    std::set<INeuron *, decltype(compare_fwd)> openList_fwd(compare_fwd);
+
+    auto compare_bwd = [&bwd_info, base_neuron](const INeuron *lhs, const INeuron *rhs)
+    {
+        std::size_t li = static_cast<std::size_t>(lhs - base_neuron);
+        std::size_t ri = static_cast<std::size_t>(rhs - base_neuron);
+        if(bwd_info[li].f != bwd_info[ri].f)
+            return bwd_info[li].f < bwd_info[ri].f;
+        return lhs < rhs;
+    };
+    std::set<INeuron *, decltype(compare_bwd)> openList_bwd(compare_bwd);
+
+    // Initialize forward
+    firstNeuron->g = 0;
+    firstNeuron->h = __heuristic__(first_site.x - last_site.x, first_site.y - last_site.y);
+    firstNeuron->f = firstNeuron->h;
+    firstNeuron->parent = nullptr;
+    firstNeuron->flags |= NEURON_CAPTURE_OPEN_LIST;
+    openList_fwd.insert(firstNeuron);
+
+    // Initialize backward
+    std::size_t last_idx = static_cast<std::size_t>(lastNeuron - base_neuron);
+    bwd_info[last_idx].g = 0;
+    bwd_info[last_idx].h = __heuristic__(last_site.x - first_site.x, last_site.y - first_site.y);
+    bwd_info[last_idx].f = bwd_info[last_idx].h;
+    bwd_info[last_idx].parent = nullptr;
+    lastNeuron->flags |= NEURON_CAPTURE_BWD_OPEN_LIST;
+    openList_bwd.insert(lastNeuron);
+
+    weight_t best_path_cost = std::numeric_limits<weight_t>::max() / 2;
+    INeuron *meeting_neuron = nullptr;
+
+    while(!openList_fwd.empty() && !openList_bwd.empty())
+    {
+        INeuron *top_fwd = *openList_fwd.begin();
+        std::size_t top_fwd_idx = static_cast<std::size_t>(top_fwd - base_neuron);
+        INeuron *top_bwd = *openList_bwd.begin();
+        std::size_t top_bwd_idx = static_cast<std::size_t>(top_bwd - base_neuron);
+
+        if(meeting_neuron != nullptr)
+        {
+            if(std::min(top_fwd->f, bwd_info[top_bwd_idx].f) >= best_path_cost)
+                break;
+        }
+
+        bool expand_fwd;
+        if(top_fwd->f != bwd_info[top_bwd_idx].f)
+            expand_fwd = (top_fwd->f < bwd_info[top_bwd_idx].f);
+        else
+            expand_fwd = (openList_fwd.size() <= openList_bwd.size());
+
+        if(expand_fwd)
+        {
+            INeuron *current = top_fwd;
+            openList_fwd.erase(openList_fwd.begin());
+            current->flags &= ~NEURON_CAPTURE_OPEN_LIST;
+            current->flags |= NEURON_CAPTURE_CLOSED_LIST;
+
+            std::size_t cur_idx = static_cast<std::size_t>(current - base_neuron);
+            ISite current_site = get_point(current);
+
+            if(current->flags & (NEURON_CAPTURE_BWD_OPEN_LIST | NEURON_CAPTURE_BWD_CLOSED_LIST))
+            {
+                weight_t total_g = current->g + bwd_info[cur_idx].g;
+                if(total_g < best_path_cost)
+                {
+                    best_path_cost = total_g;
+                    meeting_neuron = current;
+                }
+            }
+
+            for(int s = 0; s < identity.length; ++s)
+            {
+                ISite self_site {current_site.x + identity.horizontal[s], current_site.y + identity.vertical[s]};
+                INeuron *self = get(self_site);
+                if(self == nullptr || (self->flags & NEURON_CAPTURE_CLOSED_LIST) || has_lock(self_site))
+                    continue;
+
+                if(identity.horizontal[s] != 0 && identity.vertical[s] != 0)
+                {
+                    if(has_lock({current_site.x + identity.horizontal[s], current_site.y}) || has_lock({current_site.x, current_site.y + identity.vertical[s]}))
+                    {
+                        continue;
+                    }
+                }
+
+                int newG = current->g + identity.g_weight[s];
+                std::size_t self_idx = static_cast<std::size_t>(self - base_neuron);
+
+                if(self->flags & NEURON_CAPTURE_OPEN_LIST)
+                {
+                    if(newG < self->g)
+                    {
+                        openList_fwd.erase(self);
+                        self->g = newG;
+                        self->f = self->g + self->h;
+                        self->parent = current;
+                        openList_fwd.insert(self);
+                    }
+                }
+                else
+                {
+                    self->flags |= NEURON_CAPTURE_OPEN_LIST;
+                    self->parent = current;
+                    self->g = newG;
+                    self->h = __heuristic__(self_site.x - last_site.x, self_site.y - last_site.y);
+                    self->f = self->g + self->h;
+                    openList_fwd.insert(self);
+                }
+
+                if(self->flags & (NEURON_CAPTURE_BWD_OPEN_LIST | NEURON_CAPTURE_BWD_CLOSED_LIST))
+                {
+                    weight_t total_g = self->g + bwd_info[self_idx].g;
+                    if(total_g < best_path_cost)
+                    {
+                        best_path_cost = total_g;
+                        meeting_neuron = self;
+                    }
+                }
+            }
+        }
+        else
+        {
+            INeuron *current = top_bwd;
+            openList_bwd.erase(openList_bwd.begin());
+            current->flags &= ~NEURON_CAPTURE_BWD_OPEN_LIST;
+            current->flags |= NEURON_CAPTURE_BWD_CLOSED_LIST;
+
+            std::size_t cur_idx = static_cast<std::size_t>(current - base_neuron);
+            ISite current_site = get_point(current);
+
+            if(current->flags & (NEURON_CAPTURE_OPEN_LIST | NEURON_CAPTURE_CLOSED_LIST))
+            {
+                weight_t total_g = current->g + bwd_info[cur_idx].g;
+                if(total_g < best_path_cost)
+                {
+                    best_path_cost = total_g;
+                    meeting_neuron = current;
+                }
+            }
+
+            for(int s = 0; s < identity.length; ++s)
+            {
+                ISite self_site {current_site.x + identity.horizontal[s], current_site.y + identity.vertical[s]};
+                INeuron *self = get(self_site);
+                if(self == nullptr || (self->flags & NEURON_CAPTURE_BWD_CLOSED_LIST) || has_lock(self_site))
+                    continue;
+
+                if(identity.horizontal[s] != 0 && identity.vertical[s] != 0)
+                {
+                    if(has_lock({current_site.x + identity.horizontal[s], current_site.y}) || has_lock({current_site.x, current_site.y + identity.vertical[s]}))
+                    {
+                        continue;
+                    }
+                }
+
+                std::size_t self_idx = static_cast<std::size_t>(self - base_neuron);
+                int newG = bwd_info[cur_idx].g + identity.g_weight[s];
+
+                if(self->flags & NEURON_CAPTURE_BWD_OPEN_LIST)
+                {
+                    if(newG < bwd_info[self_idx].g)
+                    {
+                        openList_bwd.erase(self);
+                        bwd_info[self_idx].g = newG;
+                        bwd_info[self_idx].f = bwd_info[self_idx].g + bwd_info[self_idx].h;
+                        bwd_info[self_idx].parent = current;
+                        openList_bwd.insert(self);
+                    }
+                }
+                else
+                {
+                    self->flags |= NEURON_CAPTURE_BWD_OPEN_LIST;
+                    bwd_info[self_idx].parent = current;
+                    bwd_info[self_idx].g = newG;
+                    bwd_info[self_idx].h = __heuristic__(self_site.x - first_site.x, self_site.y - first_site.y);
+                    bwd_info[self_idx].f = bwd_info[self_idx].g + bwd_info[self_idx].h;
+                    openList_bwd.insert(self);
+                }
+
+                if(self->flags & (NEURON_CAPTURE_OPEN_LIST | NEURON_CAPTURE_CLOSED_LIST))
+                {
+                    weight_t total_g = self->g + bwd_info[self_idx].g;
+                    if(total_g < best_path_cost)
+                    {
+                        best_path_cost = total_g;
+                        meeting_neuron = self;
+                    }
+                }
+            }
+        }
+    }
+
+    if(meeting_neuron != nullptr)
+    {
+        navigationResult.status = NavigationStatus::Opened;
+
+        std::vector<INeuron *> fwd_nodes;
+        INeuron *curr = meeting_neuron;
+        while(curr != nullptr)
+        {
+            fwd_nodes.push_back(curr);
+            curr = curr->parent;
+        }
+        std::reverse(fwd_nodes.begin(), fwd_nodes.end());
+
+        std::vector<INeuron *> bwd_nodes;
+        std::size_t meet_idx = static_cast<std::size_t>(meeting_neuron - base_neuron);
+        curr = bwd_info[meet_idx].parent;
+        while(curr != nullptr)
+        {
+            bwd_nodes.push_back(curr);
+            std::size_t idx = static_cast<std::size_t>(curr - base_neuron);
+            curr = bwd_info[idx].parent;
+        }
+
+        navigationResult.connections.clear();
+        navigationResult.connections.reserve(fwd_nodes.size() + bwd_nodes.size());
+
+        for(INeuron *n : fwd_nodes)
+        {
+            BLOCK_SITE
+            navigationResult.connections.push_back(get_point(n));
+            BLOCK_NEURON
+            navigationResult.connections.push_back(n);
+            BLOCK_END
+        }
+        for(INeuron *n : bwd_nodes)
+        {
+            BLOCK_SITE
+            navigationResult.connections.push_back(get_point(n));
+            BLOCK_NEURON
+            navigationResult.connections.push_back(n);
+            BLOCK_END
+        }
+        return true;
+    }
+
+    return false;
 }
 
 inline bool operator!=(const brain::the_site &a, const brain::the_site &b)
