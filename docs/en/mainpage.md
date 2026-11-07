@@ -9,9 +9,10 @@ It ships with an interactive ImGui visualizer (`guitest`) that animates every se
 
 ## Features
 
-- Path finders (`brain::pathfinder_algo`): **A\***, **Dijkstra**, **Breadth-First Search**, **Depth-First Search**, **Greedy Best-First**.
+- Path finders (`brain::pathfinder_algo`): **A\***, **Dijkstra**, **Breadth-First Search**, **Depth-First Search**, **Greedy Best-First**, **Jump Point Search (JPS)**, **Theta\***, **IDA\***.
 - **Flow Field** (Dijkstra map, `brain::flow_field`): one search from the goal gives every cell its cost and next step.
-- Unidirectional and bidirectional search (`brain::search_mode`) for A\*, Dijkstra and BFS. DFS and Greedy always search in one direction.
+- **Hierarchical Path Finding** (`brain::hpa_graph`): cluster-based HPA\* in exact and sparse modes.
+- Unidirectional and bidirectional search (`brain::search_mode`) for A\*, Dijkstra and BFS.
 - Heuristics (`brain::heuristic_method`): Manhattan (default), Chebyshev, Octile, Hypot, Pythagorean and a custom one.
 - 13 maze generators (`brain::maze_algorithm`): Recursive Backtracker, Recursive Division, Prim, Kruskal, Eller,
   Hunt-and-Kill, Binary Tree, Sidewinder, Aldous-Broder, Wilson, Cellular Automata and others.
@@ -57,7 +58,11 @@ You may also set the default algorithm once with `brain::basic_brain_map::set_pa
 | BFS | for equal step costs | no | simple, unweighted maps |
 | DFS | no | no | reachability, visualisation |
 | Greedy Best-First | no | yes (only) | very fast, "good enough" paths |
+| Jump Point Search | yes | yes | fast symmetry-breaking search on 8-direction grids |
+| Theta\* | near-optimal (any-angle) | yes | smooth line-of-sight paths |
+| IDA\* | yes | yes | iterative deepening with threshold pruning |
 | Flow Field | yes | no | many agents moving to one goal |
+| HPA\* (`hpa_graph`) | exact or sparse | yes | repeated queries on large static maps |
 
 > **Note:** the default heuristic is Manhattan: it is exact for the default step costs
 > (orthogonal 1, diagonal 2), so A\* returns the same cost as Dijkstra.

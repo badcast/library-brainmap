@@ -76,7 +76,13 @@ public:
         else
         {
             // group the crossings by the ordered pair of clusters; the scan order walks along every border
-            std::map<std::pair<std::size_t, std::size_t>, std::vector<crossing>> groups;
+            struct keyed_crossing
+            {
+                std::size_t ca;
+                std::size_t cb;
+                crossing c;
+            };
+            std::vector<keyed_crossing> all_crossings;
             for (int y = 0; y < _h; ++y)
                 for (int x = 0; x < _w; ++x)
                 {
@@ -87,27 +93,41 @@ public:
                         if (cross_step(a, s))
                         {
                             ISite b {x + map.identity.horizontal[s], y + map.identity.vertical[s]};
-                            groups[{cluster_index(a), cluster_index(b)}].push_back({a, s});
+                            all_crossings.push_back({cluster_index(a), cluster_index(b), {a, s}});
                         }
                 }
-            for (auto &group : groups)
+            std::stable_sort(
+                all_crossings.begin(), all_crossings.end(), [](const keyed_crossing &lhs, const keyed_crossing &rhs) {
+                    if (lhs.ca != rhs.ca)
+                        return lhs.ca < rhs.ca;
+                    return lhs.cb < rhs.cb;
+                });
+
+            std::size_t g_begin = 0;
+            while (g_begin < all_crossings.size())
             {
-                std::vector<crossing> &list = group.second;
-                std::size_t begin = 0;
-                while (begin < list.size())
+                std::size_t g_end = g_begin + 1;
+                while (g_end < all_crossings.size() && all_crossings[g_end].ca == all_crossings[g_begin].ca
+                       && all_crossings[g_end].cb == all_crossings[g_begin].cb)
+                    ++g_end;
+
+                std::size_t begin = g_begin;
+                while (begin < g_end)
                 {
                     // a run is a stretch of neighbouring border cells
                     std::size_t end = begin + 1;
-                    while (end < list.size() && std::abs(list[end].a.x - list[end - 1].a.x) <= 1
-                           && std::abs(list[end].a.y - list[end - 1].a.y) <= 1)
+                    while (end < g_end
+                           && std::abs(all_crossings[end].c.a.x - all_crossings[end - 1].c.a.x) <= 1
+                           && std::abs(all_crossings[end].c.a.y - all_crossings[end - 1].c.a.y) <= 1)
                         ++end;
-                    kept.push_back(list[begin]);
+                    kept.push_back(all_crossings[begin].c);
                     if (end - begin > 2)
-                        kept.push_back(list[begin + (end - begin) / 2]);
+                        kept.push_back(all_crossings[begin + (end - begin) / 2].c);
                     if (end - begin > 1)
-                        kept.push_back(list[end - 1]);
+                        kept.push_back(all_crossings[end - 1].c);
                     begin = end;
                 }
+                g_begin = g_end;
             }
         }
 

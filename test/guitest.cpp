@@ -63,6 +63,9 @@ namespace
         {pathfinder_algo::BreadthFirstSearch, "Breadth-First Search", "BFS"},
         {pathfinder_algo::DepthFirstSearch, "Depth-First Search", "DFS"},
         {pathfinder_algo::GreedyBestFirst, "Greedy Best-First", "Greedy"},
+        {pathfinder_algo::JumpPointSearch, "Jump Point Search", "JPS"},
+        {pathfinder_algo::ThetaStar, "Theta* (any-angle)", "Theta*"},
+        {pathfinder_algo::IDAStar, "IDA* (iterative)", "IDA*"},
     };
 
     struct MazeTemplateInfo
@@ -384,7 +387,8 @@ namespace
         {
             record_uninformed_steps(state, algo == pathfinder_algo::DepthFirstSearch, id_matrix);
         }
-        else if(algo == pathfinder_algo::GreedyBestFirst)
+        else if(algo == pathfinder_algo::GreedyBestFirst || algo == pathfinder_algo::JumpPointSearch
+                || algo == pathfinder_algo::ThetaStar || algo == pathfinder_algo::IDAStar)
         {
             // replay the expansion order reported by the library
             std::vector<the_site> trace;
@@ -983,7 +987,7 @@ int main(int, char **)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    (void)io;
+    io.IniFilename = nullptr;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     ImGui::StyleColorsDark();

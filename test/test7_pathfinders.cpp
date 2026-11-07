@@ -95,7 +95,10 @@ static void fuzz_algorithms()
         pathfinder_algo::Dijkstra,
         pathfinder_algo::BreadthFirstSearch,
         pathfinder_algo::DepthFirstSearch,
-        pathfinder_algo::GreedyBestFirst};
+        pathfinder_algo::GreedyBestFirst,
+        pathfinder_algo::JumpPointSearch,
+        pathfinder_algo::ThetaStar,
+        pathfinder_algo::IDAStar};
     for (int it = 0; it < 3000; ++it)
     {
         int w = 3 + rng() % 30, h = 3 + rng() % 30;
@@ -126,6 +129,7 @@ static void fuzz_algorithms()
                     continue;
                 CHECK(valid_path(m, r, a, b), "it %d algo %d mode %d: invalid path", it, (int) algo, (int) mode);
                 if (algo == pathfinder_algo::AStar || algo == pathfinder_algo::Dijkstra
+                    || algo == pathfinder_algo::JumpPointSearch || algo == pathfinder_algo::IDAStar
                     || (algo == pathfinder_algo::BreadthFirstSearch && plus))
                     CHECK(path_cost(r) == path_cost(ref), "it %d algo %d mode %d: cost %d vs %d", it, (int) algo,
                         (int) mode, path_cost(r), path_cost(ref));
@@ -197,7 +201,10 @@ int main()
         pathfinder_algo::Dijkstra,
         pathfinder_algo::BreadthFirstSearch,
         pathfinder_algo::DepthFirstSearch,
-        pathfinder_algo::GreedyBestFirst};
+        pathfinder_algo::GreedyBestFirst,
+        pathfinder_algo::JumpPointSearch,
+        pathfinder_algo::ThetaStar,
+        pathfinder_algo::IDAStar};
     const search_mode modes[] {search_mode::UniDirectional, search_mode::BiDirectional};
     const the_site start {0, 0}, goal {19, 0};
 

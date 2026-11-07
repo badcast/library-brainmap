@@ -727,6 +727,12 @@ bool BRAIN_DEFINE::_find_unidirectional(
             return this->_find_dfs(navigationResult, firstNeuron, lastNeuron);
         case pathfinder_algo::GreedyBestFirst:
             return this->_find_greedy(navigationResult, firstNeuron, lastNeuron);
+        case pathfinder_algo::JumpPointSearch:
+            return this->_find_jps(navigationResult, firstNeuron, lastNeuron);
+        case pathfinder_algo::ThetaStar:
+            return this->_find_theta(navigationResult, firstNeuron, lastNeuron);
+        case pathfinder_algo::IDAStar:
+            return this->_find_ida(navigationResult, firstNeuron, lastNeuron);
         case pathfinder_algo::AStar:
         default:
             return this->_find_astar(navigationResult, firstNeuron, lastNeuron);
@@ -1133,6 +1139,8 @@ bool BRAIN_DEFINE::_find_dfs(navigate_result<list_type> &navigationResult, INeur
         }
 
         current_site = get_point(current);
+        if (_trace)
+            _trace->push_back(current_site);
         // reverse order so the first direction is explored first
         for (int s = identity.length - 1; s >= 0; --s)
         {
@@ -1153,13 +1161,590 @@ bool BRAIN_DEFINE::_find_dfs(navigate_result<list_type> &navigationResult, INeur
 
 BRAIN_TEMPLATE
 template <typename list_type>
+bool BRAIN_DEFINE::_find_jps(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
+    using target_type = typename list_type::value_type;
+
+    // JPS requires an 8-direction grid with symmetric orthogonal and diagonal step costs (w_diag <= 2 * w_orth)
+    if (identity.length != 8 || get_identity() != matrix_identity::DiagonalMethod)
+        return _find_astar(navigationResult, firstNeuron, lastNeuron);
+
+    const weight_t w_orth = identity.g_weight[1];
+    const weight_t w_diag = identity.g_weight[0];
+    if (w_orth <= 0 || w_diag <= 0 || w_diag > 2 * w_orth)
+        return _find_astar(navigationResult, firstNeuron, lastNeuron);
+
+    if (!_find_begin(navigationResult, firstNeuron, lastNeuron))
+        return false;
+
+    const int w = static_cast<int>(_xsize);
+    const int h = static_cast<int>(_ysize);
+    const ISite first_site = get_point(firstNeuron);
+    const ISite last_site = get_point(lastNeuron);
+
+    if (firstNeuron == lastNeuron)
+    {
+        firstNeuron->parent = nullptr;
+        _find_build_path(navigationResult, firstNeuron);
+        return true;
+    }
+
+    auto passable = [&](int x, int y) -> bool {
+        return x >= 0 && y >= 0 && x < w && y < h && !has_lock(ISite {x, y});
+    };
+
+    auto can_step_dir = [&](int x, int y, int dx, int dy) -> bool {
+        if (!passable(x + dx, y + dy))
+            return false;
+        if (!_corner_cutting && dx != 0 && dy != 0)
+            return passable(x + dx, y) && passable(x, y + dy);
+        return true;
+    };
+
+    auto jump_orth = [&](int x, int y, int dx, int dy) -> ISite {
+        for (;;)
+        {
+            if (!can_step_dir(x, y, dx, dy))
+                return ISite {-1, -1};
+            x += dx;
+            y += dy;
+            if (x == last_site.x && y == last_site.y)
+                return ISite {x, y};
+            if (dx != 0)
+            {
+                if (_corner_cutting)
+                {
+                    if ((!passable(x, y + 1) && passable(x + dx, y + 1))
+                        || (!passable(x, y - 1) && passable(x + dx, y - 1)))
+                        return ISite {x, y};
+                }
+                else
+                {
+                    if ((!passable(x - dx, y + 1) && passable(x, y + 1))
+                        || (!passable(x - dx, y - 1) && passable(x, y - 1)))
+                        return ISite {x, y};
+                }
+            }
+            else
+            {
+                if (_corner_cutting)
+                {
+                    if ((!passable(x + 1, y) && passable(x + 1, y + dy))
+                        || (!passable(x - 1, y) && passable(x - 1, y + dy)))
+                        return ISite {x, y};
+                }
+                else
+                {
+                    if ((!passable(x + 1, y - dy) && passable(x + 1, y))
+                        || (!passable(x - 1, y - dy) && passable(x - 1, y)))
+                        return ISite {x, y};
+                }
+            }
+        }
+    };
+
+    auto jump = [&](int x, int y, int dx, int dy) -> ISite {
+        if (dx == 0 || dy == 0)
+            return jump_orth(x, y, dx, dy);
+        for (;;)
+        {
+            if (!can_step_dir(x, y, dx, dy))
+                return ISite {-1, -1};
+            x += dx;
+            y += dy;
+            if (x == last_site.x && y == last_site.y)
+                return ISite {x, y};
+            if (_corner_cutting)
+            {
+                if ((!passable(x - dx, y) && can_step_dir(x, y, -dx, dy))
+                    || (!passable(x, y - dy) && can_step_dir(x, y, dx, -dy)))
+                    return ISite {x, y};
+            }
+            if (jump_orth(x, y, dx, 0).x >= 0 || jump_orth(x, y, 0, dy).x >= 0)
+                return ISite {x, y};
+        }
+    };
+
+    struct open_entry
+    {
+        weight_t f;
+        INeuron *neuron;
+    };
+    auto worse = [](const open_entry &lhs, const open_entry &rhs) { return lhs.f > rhs.f; };
+    std::priority_queue<open_entry, std::vector<open_entry>, decltype(worse)> openList(worse);
+
+    firstNeuron->g = 0;
+    firstNeuron->h = __heuristic__(first_site.x - last_site.x, first_site.y - last_site.y);
+    firstNeuron->f = firstNeuron->h;
+    firstNeuron->parent = nullptr;
+    firstNeuron->flags = NEURON_CAPTURE_OPEN_LIST;
+    openList.push({firstNeuron->f, firstNeuron});
+
+    std::pair<int, int> dirs[8];
+    int dir_count = 0;
+    auto add_dir = [&](int dx, int dy) {
+        for (int i = 0; i < dir_count; ++i)
+            if (dirs[i].first == dx && dirs[i].second == dy)
+                return;
+        dirs[dir_count++] = {dx, dy};
+    };
+
+    while (!openList.empty())
+    {
+        open_entry entry = openList.top();
+        openList.pop();
+        INeuron *current = entry.neuron;
+        if (current->flags == NEURON_CAPTURE_CLOSED_LIST || entry.f != current->f)
+            continue;
+
+        current->flags = NEURON_CAPTURE_CLOSED_LIST;
+        ISite cur_site = get_point(current);
+        if (_trace)
+            _trace->push_back(cur_site);
+
+        if (current == lastNeuron)
+        {
+            navigationResult.status = navigation_status::Opened;
+            std::vector<ISite> jps_nodes;
+            for (INeuron *n = current; n != nullptr; n = n->parent)
+                jps_nodes.push_back(get_point(n));
+            std::reverse(jps_nodes.begin(), jps_nodes.end());
+
+            std::vector<ISite> full_sites;
+            full_sites.push_back(jps_nodes.front());
+            for (std::size_t i = 1; i < jps_nodes.size(); ++i)
+            {
+                ISite p = jps_nodes[i - 1];
+                const ISite target = jps_nodes[i];
+                const int sx = (target.x > p.x) - (target.x < p.x);
+                const int sy = (target.y > p.y) - (target.y < p.y);
+                while (p.x != target.x || p.y != target.y)
+                {
+                    p.x += sx;
+                    p.y += sy;
+                    full_sites.push_back(p);
+                }
+            }
+
+            navigationResult.connections.resize(full_sites.size());
+            for (std::size_t i = 0; i < full_sites.size(); ++i)
+            {
+                BLOCK_SITE
+                navigationResult.connections[i] = full_sites[i];
+                BLOCK_NEURON
+                navigationResult.connections[i] = get(full_sites[i]);
+                BLOCK_END
+            }
+            break;
+        }
+
+        dir_count = 0;
+        if (current->parent == nullptr)
+        {
+            for (int s = 0; s < 8; ++s)
+                add_dir(identity.horizontal[s], identity.vertical[s]);
+        }
+        else
+        {
+            ISite ps = get_point(current->parent);
+            int dx = (cur_site.x > ps.x) - (cur_site.x < ps.x);
+            int dy = (cur_site.y > ps.y) - (cur_site.y < ps.y);
+            if (dx != 0 && dy != 0)
+            {
+                add_dir(dx, 0);
+                add_dir(0, dy);
+                add_dir(dx, dy);
+                if (_corner_cutting)
+                {
+                    if (!passable(cur_site.x - dx, cur_site.y))
+                        add_dir(-dx, dy);
+                    if (!passable(cur_site.x, cur_site.y - dy))
+                        add_dir(dx, -dy);
+                }
+            }
+            else if (dx != 0)
+            {
+                add_dir(dx, 0);
+                if (_corner_cutting)
+                {
+                    if (!passable(cur_site.x, cur_site.y + 1))
+                        add_dir(dx, 1);
+                    if (!passable(cur_site.x, cur_site.y - 1))
+                        add_dir(dx, -1);
+                }
+                else
+                {
+                    if (!passable(cur_site.x - dx, cur_site.y + 1) && passable(cur_site.x, cur_site.y + 1))
+                    {
+                        add_dir(0, 1);
+                        add_dir(dx, 1);
+                    }
+                    if (!passable(cur_site.x - dx, cur_site.y - 1) && passable(cur_site.x, cur_site.y - 1))
+                    {
+                        add_dir(0, -1);
+                        add_dir(dx, -1);
+                    }
+                }
+            }
+            else
+            {
+                add_dir(0, dy);
+                if (_corner_cutting)
+                {
+                    if (!passable(cur_site.x + 1, cur_site.y))
+                        add_dir(1, dy);
+                    if (!passable(cur_site.x - 1, cur_site.y))
+                        add_dir(-1, dy);
+                }
+                else
+                {
+                    if (!passable(cur_site.x + 1, cur_site.y - dy) && passable(cur_site.x + 1, cur_site.y))
+                    {
+                        add_dir(1, 0);
+                        add_dir(1, dy);
+                    }
+                    if (!passable(cur_site.x - 1, cur_site.y - dy) && passable(cur_site.x - 1, cur_site.y))
+                    {
+                        add_dir(-1, 0);
+                        add_dir(-1, dy);
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < dir_count; ++i)
+        {
+            int dx = dirs[i].first, dy = dirs[i].second;
+            ISite jp = jump(cur_site.x, cur_site.y, dx, dy);
+            if (jp.x < 0)
+                continue;
+
+            INeuron *self = get(jp);
+            if (self == nullptr || self->flags == NEURON_CAPTURE_CLOSED_LIST)
+                continue;
+
+            int steps = std::max(std::abs(jp.x - cur_site.x), std::abs(jp.y - cur_site.y));
+            weight_t step_cost = (dx != 0 && dy != 0) ? w_diag : w_orth;
+            weight_t newG = current->g + steps * step_cost;
+
+            if (self->flags == NEURON_CAPTURE_OPEN_LIST)
+            {
+                if (newG >= self->g)
+                    continue;
+            }
+            else
+            {
+                self->flags = NEURON_CAPTURE_OPEN_LIST;
+                self->h = __heuristic__(jp.x - last_site.x, jp.y - last_site.y);
+            }
+
+            self->parent = current;
+            self->g = newG;
+            self->f = self->g + self->h;
+            openList.push({self->f, self});
+        }
+    }
+
+    return navigationResult.status == navigation_status::Opened;
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_theta(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
+    using target_type = typename list_type::value_type;
+
+    if (!_find_begin(navigationResult, firstNeuron, lastNeuron))
+        return false;
+
+    const ISite first_site = get_point(firstNeuron);
+    const ISite last_site = get_point(lastNeuron);
+
+    // Find direction index in identity for a unit step (sx, sy), or -1
+    auto find_dir = [&](int sx, int sy) -> int {
+        for (int s = 0; s < identity.length; ++s)
+            if (identity.horizontal[s] == sx && identity.vertical[s] == sy)
+                return s;
+        return -1;
+    };
+
+    // Trace a Bresenham grid ray from a to b using legal steps of the map
+    auto trace_line = [&](const ISite &a, const ISite &b, weight_t &out_cost, std::vector<ISite> *out_cells) -> bool {
+        out_cost = 0;
+        ISite cur = a;
+        int dx = std::abs(b.x - a.x);
+        int dy = std::abs(b.y - a.y);
+        int sx = (b.x > a.x) - (b.x < a.x);
+        int sy = (b.y > a.y) - (b.y < a.y);
+        int err = dx - dy;
+
+        while (cur.x != b.x || cur.y != b.y)
+        {
+            int e2 = 2 * err;
+            int step_x = 0, step_y = 0;
+            if (e2 > -dy)
+                step_x = sx;
+            if (e2 < dx)
+                step_y = sy;
+
+            int dir = find_dir(step_x, step_y);
+            ISite next {cur.x + step_x, cur.y + step_y};
+            if (dir >= 0 && contains(next) && !has_lock(next) && _find_can_step(cur, dir))
+            {
+                if (step_x != 0)
+                    err -= dy;
+                if (step_y != 0)
+                    err += dx;
+                cur = next;
+                out_cost += identity.g_weight[dir];
+                if (out_cells)
+                    out_cells->push_back(cur);
+                continue;
+            }
+
+            // If diagonal step was requested but either not in identity (e.g. PlusMethod) or blocked by a corner,
+            // try stepping along the primary axis first
+            if (step_x != 0 && step_y != 0)
+            {
+                bool prefer_x = (dx >= dy);
+                int ox = prefer_x ? step_x : 0;
+                int oy = prefer_x ? 0 : step_y;
+                int odir = find_dir(ox, oy);
+                ISite onext {cur.x + ox, cur.y + oy};
+                if (odir >= 0 && contains(onext) && !has_lock(onext) && _find_can_step(cur, odir))
+                {
+                    if (ox != 0)
+                        err -= dy;
+                    else
+                        err += dx;
+                    cur = onext;
+                    out_cost += identity.g_weight[odir];
+                    if (out_cells)
+                        out_cells->push_back(cur);
+                    continue;
+                }
+            }
+            return false;
+        }
+        return true;
+    };
+
+    struct open_entry
+    {
+        weight_t f;
+        INeuron *neuron;
+    };
+    auto worse = [](const open_entry &lhs, const open_entry &rhs) { return lhs.f > rhs.f; };
+    std::priority_queue<open_entry, std::vector<open_entry>, decltype(worse)> openList(worse);
+
+    firstNeuron->g = 0;
+    firstNeuron->h = __heuristic__(first_site.x - last_site.x, first_site.y - last_site.y);
+    firstNeuron->f = firstNeuron->h;
+    firstNeuron->parent = nullptr;
+    firstNeuron->flags = NEURON_CAPTURE_OPEN_LIST;
+    openList.push({firstNeuron->f, firstNeuron});
+
+    while (!openList.empty())
+    {
+        open_entry entry = openList.top();
+        openList.pop();
+        INeuron *current = entry.neuron;
+        if (current->flags == NEURON_CAPTURE_CLOSED_LIST || entry.f != current->f)
+            continue;
+
+        current->flags = NEURON_CAPTURE_CLOSED_LIST;
+        ISite cur_site = get_point(current);
+        if (_trace)
+            _trace->push_back(cur_site);
+
+        if (current == lastNeuron)
+        {
+            navigationResult.status = navigation_status::Opened;
+            std::vector<ISite> anchors;
+            for (INeuron *n = current; n != nullptr; n = n->parent)
+                anchors.push_back(get_point(n));
+            std::reverse(anchors.begin(), anchors.end());
+
+            std::vector<ISite> full_sites;
+            full_sites.push_back(anchors.front());
+            weight_t dummy_cost = 0;
+            for (std::size_t i = 1; i < anchors.size(); ++i)
+                trace_line(anchors[i - 1], anchors[i], dummy_cost, &full_sites);
+
+            navigationResult.connections.resize(full_sites.size());
+            for (std::size_t i = 0; i < full_sites.size(); ++i)
+            {
+                BLOCK_SITE
+                navigationResult.connections[i] = full_sites[i];
+                BLOCK_NEURON
+                navigationResult.connections[i] = get(full_sites[i]);
+                BLOCK_END
+            }
+            break;
+        }
+
+        for (int s = 0; s < identity.length; ++s)
+        {
+            ISite self_site {cur_site.x + identity.horizontal[s], cur_site.y + identity.vertical[s]};
+            INeuron *self = get(self_site);
+            if (self == nullptr || self->flags == NEURON_CAPTURE_CLOSED_LIST || has_lock(self_site))
+                continue;
+            if (!_find_can_step(cur_site, s))
+                continue;
+
+            INeuron *cand_parent = current;
+            weight_t newG = current->g + identity.g_weight[s];
+
+            if (current->parent != nullptr)
+            {
+                weight_t los_cost = 0;
+                if (trace_line(get_point(current->parent), self_site, los_cost, nullptr))
+                {
+                    weight_t los_g = current->parent->g + los_cost;
+                    if (los_g <= newG)
+                    {
+                        cand_parent = current->parent;
+                        newG = los_g;
+                    }
+                }
+            }
+
+            if (self->flags == NEURON_CAPTURE_OPEN_LIST)
+            {
+                if (newG >= self->g)
+                    continue;
+            }
+            else
+            {
+                self->flags = NEURON_CAPTURE_OPEN_LIST;
+                self->h = __heuristic__(self_site.x - last_site.x, self_site.y - last_site.y);
+            }
+
+            self->parent = cand_parent;
+            self->g = newG;
+            self->f = self->g + self->h;
+            openList.push({self->f, self});
+        }
+    }
+
+    return navigationResult.status == navigation_status::Opened;
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_ida(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
+    if (!_find_begin(navigationResult, firstNeuron, lastNeuron))
+        return false;
+
+    const ISite first_site = get_point(firstNeuron);
+    const ISite last_site = get_point(lastNeuron);
+    const weight_t inf = std::numeric_limits<weight_t>::max() / 2;
+
+    INeuron *base = this->front();
+    const std::size_t total = this->size();
+    std::vector<weight_t> best_g(total, inf);
+
+    weight_t bound = __heuristic__(first_site.x - last_site.x, first_site.y - last_site.y);
+
+    struct frame
+    {
+        INeuron *neuron;
+        ISite site;
+        int next_dir;
+    };
+    std::vector<frame> stack;
+
+    for (;;)
+    {
+        std::fill(best_g.begin(), best_g.end(), inf);
+        weight_t next_bound = inf;
+
+        firstNeuron->g = 0;
+        firstNeuron->h = __heuristic__(first_site.x - last_site.x, first_site.y - last_site.y);
+        firstNeuron->f = firstNeuron->h;
+        firstNeuron->parent = nullptr;
+        firstNeuron->flags = NEURON_CAPTURE_OPEN_LIST;
+        best_g[static_cast<std::size_t>(firstNeuron - base)] = 0;
+
+        if (firstNeuron->f > bound)
+        {
+            next_bound = firstNeuron->f;
+        }
+        else
+        {
+            stack.clear();
+            stack.push_back({firstNeuron, first_site, 0});
+            if (_trace)
+                _trace->push_back(first_site);
+
+            while (!stack.empty())
+            {
+                frame &top = stack.back();
+                if (top.neuron == lastNeuron)
+                {
+                    _find_build_path(navigationResult, lastNeuron);
+                    return true;
+                }
+
+                if (top.next_dir >= identity.length)
+                {
+                    top.neuron->flags = NEURON_CAPTURE_CLOSED_LIST;
+                    stack.pop_back();
+                    continue;
+                }
+
+                int s = top.next_dir++;
+                ISite nb_site {top.site.x + identity.horizontal[s], top.site.y + identity.vertical[s]};
+                INeuron *nb = get(nb_site);
+                if (nb == nullptr || nb->flags == NEURON_CAPTURE_OPEN_LIST || has_lock(nb_site))
+                    continue;
+                if (!_find_can_step(top.site, s))
+                    continue;
+
+                weight_t newG = top.neuron->g + identity.g_weight[s];
+                weight_t h = __heuristic__(nb_site.x - last_site.x, nb_site.y - last_site.y);
+                weight_t f = newG + h;
+                if (f > bound)
+                {
+                    if (f < next_bound)
+                        next_bound = f;
+                    continue;
+                }
+
+                std::size_t nb_idx = static_cast<std::size_t>(nb - base);
+                if (newG >= best_g[nb_idx])
+                    continue;
+
+                best_g[nb_idx] = newG;
+                nb->g = newG;
+                nb->h = h;
+                nb->f = f;
+                nb->parent = top.neuron;
+                nb->flags = NEURON_CAPTURE_OPEN_LIST;
+                if (_trace)
+                    _trace->push_back(nb_site);
+                stack.push_back({nb, nb_site, 0});
+            }
+        }
+
+        if (next_bound >= inf)
+            return false;
+        bound = next_bound;
+    }
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
 bool BRAIN_DEFINE::_find_bidirectional(
     pathfinder_algo pathfinder, navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
 {
-    // Bidirectional search is meaningful for A*, Dijkstra and BFS; DFS and Greedy search in one direction
+    // Bidirectional search is meaningful for A*, Dijkstra and BFS; the rest search in one direction
     if (pathfinder == pathfinder_algo::BreadthFirstSearch)
         return this->_find_bfs_bidirectional(navigationResult, firstNeuron, lastNeuron);
-    if (pathfinder == pathfinder_algo::DepthFirstSearch || pathfinder == pathfinder_algo::GreedyBestFirst)
+    if (pathfinder == pathfinder_algo::DepthFirstSearch || pathfinder == pathfinder_algo::GreedyBestFirst
+        || pathfinder == pathfinder_algo::JumpPointSearch || pathfinder == pathfinder_algo::ThetaStar
+        || pathfinder == pathfinder_algo::IDAStar)
         return this->_find_unidirectional(pathfinder, navigationResult, firstNeuron, lastNeuron);
 
     // Dijkstra is A* with a zero heuristic

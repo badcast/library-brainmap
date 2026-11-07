@@ -24,7 +24,6 @@
 #include <cstring>
 #include <algorithm>
 #include <functional>
-#include <map>
 #include <queue>
 #include <tuple>
 #include <utility>
@@ -93,7 +92,10 @@ enum class pathfinder_algo
     Dijkstra = 1,           ///< best-first search without a heuristic, optimal for any non-negative step costs
     BreadthFirstSearch = 2, ///< explores the map layer by layer, optimal for equal step costs
     DepthFirstSearch = 3,   ///< goes as deep as possible first, the path is not optimal
-    GreedyBestFirst = 4     ///< like A*, but sorted by the heuristic only: very fast, the path is not optimal
+    GreedyBestFirst = 4,    ///< like A*, but sorted by the heuristic only: very fast, the path is not optimal
+    JumpPointSearch = 5,    ///< A* with symmetry-breaking jump points on uniform 8-direction grids
+    ThetaStar = 6,          ///< any-angle A* with line-of-sight parent relaxation
+    IDAStar = 7             ///< iterative-deepening A* with threshold pruning, optimal with an admissible heuristic
 };
 
 typedef int weight_t;
@@ -564,6 +566,15 @@ protected:
 
     template <typename list_type = result_site>
     bool _find_dfs(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+
+    template <typename list_type = result_site>
+    bool _find_jps(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+
+    template <typename list_type = result_site>
+    bool _find_theta(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+
+    template <typename list_type = result_site>
+    bool _find_ida(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
 
     // shared helpers of the _find_* implementations
     template <typename list_type = result_site>
