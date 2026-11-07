@@ -91,7 +91,8 @@ enum class pathfinder_algo
     AStar = 0,              ///< best-first search guided by the heuristic, optimal with an admissible heuristic
     Dijkstra = 1,           ///< best-first search without a heuristic, optimal for any non-negative step costs
     BreadthFirstSearch = 2, ///< explores the map layer by layer, optimal for equal step costs
-    DepthFirstSearch = 3    ///< goes as deep as possible first, the path is not optimal
+    DepthFirstSearch = 3,   ///< goes as deep as possible first, the path is not optimal
+    GreedyBestFirst = 4     ///< like A*, but sorted by the heuristic only: very fast, the path is not optimal
 };
 
 typedef int weight_t;
@@ -160,6 +161,9 @@ struct brain_breakfast
 BRAIN_TEMPLATE
 class basic_brain_map;
 
+BRAIN_TEMPLATE
+class basic_flow_field;
+
 template <typename IList>
 struct navigate_result
 {
@@ -172,6 +176,8 @@ struct navigate_result
 BRAIN_TEMPLATE
 class basic_brain_map
 {
+    friend class basic_flow_field<ISite, INeuron>;
+
 public:
     template <typename T>
     using basic_list = std::vector<T>;
@@ -442,6 +448,12 @@ public:
         search_mode mode);
 
     /**
+     * @brief record the order in which the next searches expand sites (nullptr disables). Used by visualisers.
+     * @param trace the vector to append the expanded sites to, owned by the caller
+     */
+    inline void set_trace(std::vector<ISite> *trace);
+
+    /**
      * @brief set search mode (UniDirectional or BiDirectional)
      */
     inline void set_search_mode(search_mode mode);
@@ -503,6 +515,7 @@ protected:
     brain_identity identity;
     search_mode _search_mode = search_mode::UniDirectional;
     pathfinder_algo _pathfinder = pathfinder_algo::AStar;
+    std::vector<ISite> *_trace = nullptr;
     // set_custom_*: own step costs (indexed like the identity directions), corner cutting rule
     bool _custom_weights = false;
     weight_t _custom_orthogonal = 0, _custom_diagonal = 0;
@@ -523,10 +536,20 @@ protected:
     template <typename list_type = result_site>
     bool _find_astar(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
 
-    // A* (use_heuristic) and Dijkstra (!use_heuristic) share this best-first search
+    // A* (use_heuristic), Dijkstra (!use_heuristic) and Greedy (greedy) share this best-first search
     template <typename list_type = result_site>
     bool _find_best_first(
-        navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron, bool use_heuristic);
+        navigate_result<list_type> &navResult,
+        INeuron *firstNeuron,
+        INeuron *lastNeuron,
+        bool use_heuristic,
+        bool greedy = false);
+
+    template <typename list_type = result_site>
+    bool _find_greedy(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+
+    template <typename list_type = result_site>
+    bool _find_bfs_bidirectional(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
 
     template <typename list_type = result_site>
     bool _find_dijkstra(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
@@ -551,8 +574,10 @@ protected:
 
 #include "brain_impl.hpp"
 #include "brain_maze.hpp"
+#include "brain_flow_field.hpp"
 
 typedef basic_brain_map<the_site, the_neuron> brain_map;
+typedef basic_flow_field<the_site, the_neuron> flow_field;
 
 } // namespace brain
 

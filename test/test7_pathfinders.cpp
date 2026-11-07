@@ -85,15 +85,82 @@ static void fuzz_bidirectional()
     }
 }
 
+// Regression: every algorithm agrees on reachability and returns valid paths; BFS (both directions) is
+// optimal for equal step costs; the flow field has the same costs as Dijkstra
+static void fuzz_algorithms()
+{
+    std::mt19937 rng(11);
+    const pathfinder_algo algos[] {
+        pathfinder_algo::AStar,
+        pathfinder_algo::Dijkstra,
+        pathfinder_algo::BreadthFirstSearch,
+        pathfinder_algo::DepthFirstSearch,
+        pathfinder_algo::GreedyBestFirst};
+    for (int it = 0; it < 3000; ++it)
+    {
+        int w = 3 + rng() % 30, h = 3 + rng() % 30;
+        brain_map m(w, h);
+        int density = rng() % 50;
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+                if (static_cast<int>(rng() % 100) < density)
+                    m.set_lock(m.get(the_site {x, y}), true);
+        the_site a {static_cast<int>(rng() % w), static_cast<int>(rng() % h)};
+        the_site b {static_cast<int>(rng() % w), static_cast<int>(rng() % h)};
+        m.set_lock(m.get(a), false);
+        m.set_lock(m.get(b), false);
+        const bool plus = rng() % 2;
+        m.set_identity(plus ? matrix_identity::PlusMethod : matrix_identity::DiagonalMethod);
+        m.set_custom_corner_cutting(false);
+
+        brain_map::result_site ref;
+        bool ref_found = m.find(pathfinder_algo::Dijkstra, ref, a, b, search_mode::UniDirectional);
+
+        for (auto algo : algos)
+            for (auto mode : {search_mode::UniDirectional, search_mode::BiDirectional})
+            {
+                brain_map::result_site r;
+                bool ok = m.find(algo, r, a, b, mode);
+                CHECK(ok == ref_found, "it %d algo %d mode %d: found %d vs %d", it, (int) algo, (int) mode, ok, ref_found);
+                if (!ok || !ref_found)
+                    continue;
+                CHECK(valid_path(m, r, a, b), "it %d algo %d mode %d: invalid path", it, (int) algo, (int) mode);
+                if (algo == pathfinder_algo::AStar || algo == pathfinder_algo::Dijkstra
+                    || (algo == pathfinder_algo::BreadthFirstSearch && plus))
+                    CHECK(path_cost(r) == path_cost(ref), "it %d algo %d mode %d: cost %d vs %d", it, (int) algo,
+                        (int) mode, path_cost(r), path_cost(ref));
+            }
+
+        // flow field
+        flow_field field;
+        CHECK(field.build(m, b), "it %d: flow field build", it);
+        CHECK(field.reachable(a) == ref_found, "it %d: flow field reachability", it);
+        if (ref_found)
+        {
+            CHECK(field.cost(a) == path_cost(ref), "it %d: flow field cost %d vs %d", it, field.cost(a), path_cost(ref));
+            std::vector<the_site> p;
+            brain_map::result_site fr;
+            CHECK(field.path(a, p), "it %d: flow field path", it);
+            fr.connections = p;
+            CHECK(valid_path(m, fr, a, b), "it %d: flow field invalid path", it);
+            CHECK(path_cost(fr) == path_cost(ref), "it %d: flow field path cost", it);
+        }
+        if (failures > 10)
+            return;
+    }
+}
+
 int main()
 {
+    fuzz_algorithms();
     fuzz_bidirectional();
 
     const pathfinder_algo algos[] {
         pathfinder_algo::AStar,
         pathfinder_algo::Dijkstra,
         pathfinder_algo::BreadthFirstSearch,
-        pathfinder_algo::DepthFirstSearch};
+        pathfinder_algo::DepthFirstSearch,
+        pathfinder_algo::GreedyBestFirst};
     const search_mode modes[] {search_mode::UniDirectional, search_mode::BiDirectional};
     const the_site start {0, 0}, goal {19, 0};
 

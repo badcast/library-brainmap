@@ -9,8 +9,9 @@ It ships with an interactive ImGui visualizer (`guitest`) that animates every se
 
 ## Features
 
-- Path finders (`brain::pathfinder_algo`): **A\***, **Dijkstra**, **Breadth-First Search**, **Depth-First Search**.
-- Unidirectional and bidirectional search (`brain::search_mode`). BFS and DFS always search in one direction.
+- Path finders (`brain::pathfinder_algo`): **A\***, **Dijkstra**, **Breadth-First Search**, **Depth-First Search**, **Greedy Best-First**.
+- **Flow Field** (Dijkstra map, `brain::flow_field`): one search from the goal gives every cell its cost and next step.
+- Unidirectional and bidirectional search (`brain::search_mode`) for A\*, Dijkstra and BFS. DFS and Greedy always search in one direction.
 - Heuristics (`brain::heuristic_method`): Manhattan (default), Chebyshev, Octile, Hypot, Pythagorean and a custom one.
 - 13 maze generators (`brain::maze_algorithm`): Recursive Backtracker, Recursive Division, Prim, Kruskal, Eller,
   Hunt-and-Kill, Binary Tree, Sidewinder, Aldous-Broder, Wilson, Cellular Automata and others.
@@ -55,10 +56,25 @@ You may also set the default algorithm once with `brain::basic_brain_map::set_pa
 | Dijkstra | yes | no | weighted maps without a good heuristic |
 | BFS | for equal step costs | no | simple, unweighted maps |
 | DFS | no | no | reachability, visualisation |
+| Greedy Best-First | no | yes (only) | very fast, "good enough" paths |
+| Flow Field | yes | no | many agents moving to one goal |
 
 > **Note:** the default heuristic is Manhattan: it is exact for the default step costs
 > (orthogonal 1, diagonal 2), so A\* returns the same cost as Dijkstra.
 > The Pythagorean heuristic (squared distance) is fast but not admissible.
+
+## Flow field for many agents
+
+```cpp
+brain::flow_field field;
+field.build(map, the_site {50, 50});        // one Dijkstra run from the goal
+
+brain::the_site step = field.direction({3, 7}); // unit step toward the goal, O(1)
+std::vector<brain::the_site> path;
+field.path({3, 7}, path);                       // or the whole path
+```
+
+Call `build()` again after the map changes.
 
 ## Building
 

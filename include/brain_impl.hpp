@@ -404,6 +404,12 @@ pathfinder_algo BRAIN_DEFINE::get_pathfinder() const
 }
 
 BRAIN_TEMPLATE
+void BRAIN_DEFINE::set_trace(std::vector<ISite> *trace)
+{
+    this->_trace = trace;
+}
+
+BRAIN_TEMPLATE
 search_mode BRAIN_DEFINE::get_search_mode() const
 {
     return this->_search_mode;
@@ -719,6 +725,8 @@ bool BRAIN_DEFINE::_find_unidirectional(
             return this->_find_bfs(navigationResult, firstNeuron, lastNeuron);
         case pathfinder_algo::DepthFirstSearch:
             return this->_find_dfs(navigationResult, firstNeuron, lastNeuron);
+        case pathfinder_algo::GreedyBestFirst:
+            return this->_find_greedy(navigationResult, firstNeuron, lastNeuron);
         case pathfinder_algo::AStar:
         default:
             return this->_find_astar(navigationResult, firstNeuron, lastNeuron);
@@ -804,7 +812,11 @@ bool BRAIN_DEFINE::_find_astar(navigate_result<list_type> &navigationResult, INe
 BRAIN_TEMPLATE
 template <typename list_type>
 bool BRAIN_DEFINE::_find_best_first(
-    navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron, bool use_heuristic)
+    navigate_result<list_type> &navigationResult,
+    INeuron *firstNeuron,
+    INeuron *lastNeuron,
+    bool use_heuristic,
+    bool greedy)
 {
     if (!_find_begin(navigationResult, firstNeuron, lastNeuron))
         return false;
@@ -823,7 +835,7 @@ bool BRAIN_DEFINE::_find_best_first(
 
     firstNeuron->g = 0;
     firstNeuron->h = use_heuristic ? __heuristic__(first_site.x - last_site.x, first_site.y - last_site.y) : 0;
-    firstNeuron->f = firstNeuron->h;
+    firstNeuron->f = firstNeuron->h; // g == 0
     firstNeuron->parent = nullptr;
     firstNeuron->flags = NEURON_CAPTURE_OPEN_LIST;
 
@@ -846,6 +858,8 @@ bool BRAIN_DEFINE::_find_best_first(
         current->flags = NEURON_CAPTURE_CLOSED_LIST;
 
         current_site = get_point(current);
+        if (_trace)
+            _trace->push_back(current_site);
 
         for (int s = 0; s < identity.length; ++s)
         {
@@ -871,7 +885,8 @@ bool BRAIN_DEFINE::_find_best_first(
 
             self->parent = current;
             self->g = newG;
-            self->f = self->g + self->h;
+            // Greedy sorts by the heuristic only
+            self->f = greedy ? self->h : self->g + self->h;
 
             openList.push({self->f, self});
         }
@@ -887,6 +902,13 @@ bool BRAIN_DEFINE::_find_dijkstra(
 {
     // Dijkstra is the best-first search without a heuristic: f == g
     return _find_best_first(navigationResult, firstNeuron, lastNeuron, false);
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_greedy(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
+    return _find_best_first(navigationResult, firstNeuron, lastNeuron, true, true);
 }
 
 BRAIN_TEMPLATE
@@ -940,6 +962,129 @@ bool BRAIN_DEFINE::_find_bfs(navigate_result<list_type> &navigationResult, INeur
     }
 
     return navigationResult.status == navigation_status::Opened;
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_bfs_bidirectional(
+    navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
+    using target_type = typename list_type::value_type;
+
+    if (!_find_begin(navigationResult, firstNeuron, lastNeuron))
+        return false;
+
+    if (firstNeuron == lastNeuron)
+    {
+        firstNeuron->parent = nullptr;
+        _find_build_path(navigationResult, firstNeuron);
+        return true;
+    }
+
+    // The backward side keeps its own g and parent, the forward side uses the neuron fields.
+    struct bwd_t
+    {
+        weight_t g = 0;
+        INeuron *parent = nullptr;
+    };
+    INeuron *base = this->front();
+    std::vector<bwd_t> bwd(this->size());
+    auto idx = [base](INeuron *n) { return static_cast<std::size_t>(n - base); };
+
+    std::vector<INeuron *> fwd_layer {firstNeuron}, bwd_layer {lastNeuron}, next_layer;
+    firstNeuron->g = 0;
+    firstNeuron->parent = nullptr;
+    firstNeuron->flags = NEURON_CAPTURE_OPEN_LIST;
+    lastNeuron->flags = NEURON_CAPTURE_BWD_OPEN_LIST;
+
+    INeuron *meeting = nullptr;
+    weight_t best = std::numeric_limits<weight_t>::max() / 2;
+
+    while (!fwd_layer.empty() && !bwd_layer.empty() && meeting == nullptr)
+    {
+        // expand the whole smaller layer, so the first meeting layer gives the fewest steps
+        bool forward = fwd_layer.size() <= bwd_layer.size();
+        std::vector<INeuron *> &layer = forward ? fwd_layer : bwd_layer;
+        next_layer.clear();
+
+        for (INeuron *current : layer)
+        {
+            ISite current_site = get_point(current);
+            weight_t current_g = forward ? current->g : bwd[idx(current)].g;
+            for (int s = 0; s < identity.length; ++s)
+            {
+                ISite self_site {current_site.x + identity.horizontal[s], current_site.y + identity.vertical[s]};
+                INeuron *self = get(self_site);
+                if (self == nullptr || has_lock(self_site) || !_find_can_step(current_site, s))
+                    continue;
+
+                const std::uint8_t own = forward ? NEURON_CAPTURE_OPEN_LIST : NEURON_CAPTURE_BWD_OPEN_LIST;
+                const std::uint8_t other = forward ? NEURON_CAPTURE_BWD_OPEN_LIST : NEURON_CAPTURE_OPEN_LIST;
+                weight_t newG = current_g + identity.g_weight[s];
+
+                if (self->flags & other)
+                {
+                    // the frontiers touch: join the two sides and keep the cheapest join of this layer
+                    weight_t other_g = forward ? bwd[idx(self)].g : self->g;
+                    if (newG + other_g < best)
+                    {
+                        best = newG + other_g;
+                        meeting = self;
+                        if (forward)
+                        {
+                            // self belongs to the backward tree: remember how the forward side reaches it
+                            self->g = newG;
+                            self->parent = current;
+                        }
+                        else
+                        {
+                            bwd[idx(self)].g = newG;
+                            bwd[idx(self)].parent = current;
+                        }
+                    }
+                    continue;
+                }
+                if (self->flags & own)
+                    continue;
+
+                self->flags |= own;
+                if (forward)
+                {
+                    self->g = newG;
+                    self->parent = current;
+                }
+                else
+                {
+                    bwd[idx(self)].g = newG;
+                    bwd[idx(self)].parent = current;
+                }
+                next_layer.push_back(self);
+            }
+        }
+        layer.swap(next_layer);
+    }
+
+    if (meeting == nullptr)
+        return false;
+
+    navigationResult.status = navigation_status::Opened;
+    std::vector<INeuron *> nodes;
+    for (INeuron *n = meeting; n != nullptr; n = n->parent)
+        nodes.push_back(n);
+    std::reverse(nodes.begin(), nodes.end());
+    for (INeuron *n = bwd[idx(meeting)].parent; n != nullptr; n = bwd[idx(n)].parent)
+        nodes.push_back(n);
+
+    navigationResult.connections.clear();
+    for (INeuron *n : nodes)
+    {
+        BLOCK_SITE
+        navigationResult.connections.push_back(get_point(n));
+        BLOCK_NEURON
+        navigationResult.connections.push_back(n);
+        BLOCK_END
+    }
+    return true;
 }
 
 BRAIN_TEMPLATE
@@ -1011,8 +1156,10 @@ template <typename list_type>
 bool BRAIN_DEFINE::_find_bidirectional(
     pathfinder_algo pathfinder, navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
 {
-    // Bidirectional search is meaningful only for the weighted algorithms (A*, Dijkstra)
-    if (pathfinder == pathfinder_algo::BreadthFirstSearch || pathfinder == pathfinder_algo::DepthFirstSearch)
+    // Bidirectional search is meaningful for A*, Dijkstra and BFS; DFS and Greedy search in one direction
+    if (pathfinder == pathfinder_algo::BreadthFirstSearch)
+        return this->_find_bfs_bidirectional(navigationResult, firstNeuron, lastNeuron);
+    if (pathfinder == pathfinder_algo::DepthFirstSearch || pathfinder == pathfinder_algo::GreedyBestFirst)
         return this->_find_unidirectional(pathfinder, navigationResult, firstNeuron, lastNeuron);
 
     // Dijkstra is A* with a zero heuristic

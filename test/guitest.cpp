@@ -62,6 +62,7 @@ namespace
         {pathfinder_algo::Dijkstra, "Dijkstra", "Dijkstra"},
         {pathfinder_algo::BreadthFirstSearch, "Breadth-First Search", "BFS"},
         {pathfinder_algo::DepthFirstSearch, "Depth-First Search", "DFS"},
+        {pathfinder_algo::GreedyBestFirst, "Greedy Best-First", "Greedy"},
     };
 
     struct MazeTemplateInfo
@@ -138,6 +139,8 @@ namespace
 
         bool bidirectional = true;
         bool show_explored = true;
+        bool show_flow = false; // flow field overlay (heat map + arrows toward the goal)
+        flow_field field;
 
         // Mouse controls
         bool is_dragging_end = false;   // LMB: Red marker (Goal / end_site)
@@ -380,6 +383,29 @@ namespace
         if(algo == pathfinder_algo::BreadthFirstSearch || algo == pathfinder_algo::DepthFirstSearch)
         {
             record_uninformed_steps(state, algo == pathfinder_algo::DepthFirstSearch, id_matrix);
+        }
+        else if(algo == pathfinder_algo::GreedyBestFirst)
+        {
+            // replay the expansion order reported by the library
+            std::vector<the_site> trace;
+            brain_map::result_site scratch;
+            state.map->set_trace(&trace);
+            state.map->find(algo, scratch, state.start_site, state.end_site, search_mode::UniDirectional);
+            state.map->set_trace(nullptr);
+
+            SearchStep init_step;
+            init_step.active_site = state.start_site;
+            init_step.changes.push_back({static_cast<int>(firstNeuron - base_neuron), NEURON_CAPTURE_OPEN_LIST});
+            state.recorded_steps.push_back(std::move(init_step));
+            for(const the_site &site : trace)
+            {
+                SearchStep step;
+                step.active_site = site;
+                step.changes.push_back({static_cast<int>(state.map->get(site) - base_neuron), NEURON_CAPTURE_CLOSED_LIST});
+                step.path_found = (site == state.end_site);
+                state.recorded_steps.push_back(std::move(step));
+            }
+            state.map->clear(false);
         }
         else if(!effective_bidirectional(state))
         {
@@ -720,6 +746,8 @@ namespace
         state.map->set_identity(kIdentities[state.identity_idx].identity);
         state.map->clear(false);
         state.path_result.connections.clear();
+        if(state.show_flow)
+            state.field.build(*state.map, state.end_site);
 
         auto t0 = std::chrono::steady_clock::now();
         state.map->find(
@@ -1154,6 +1182,11 @@ int main(int, char **)
         ImGui::Checkbox("A* Grid", &state.show_explored);
 
         ImGui::SameLine();
+        if(ImGui::Checkbox("Flow field", &state.show_flow))
+            run_pathfinding(state);
+        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Dijkstra map toward the goal: heat map + arrows");
+
+        ImGui::SameLine();
         ImGui::Text("|");
 
         // Playback buttons
@@ -1462,6 +1495,36 @@ int main(int, char **)
                                         ImVec2(cx + cell_size, cy + cell_size),
                                         IM_COL32(255, 115, 235, 120));
                                 }
+                            }
+                        }
+                    }
+                }
+
+                // Flow field overlay: cost heat map and an arrow toward the goal in every cell
+                if(state.show_flow && state.field.is_built())
+                {
+                    const weight_t max_cost = std::max<weight_t>(1, state.field.max_cost());
+                    for(int x = 0; x < map_w; ++x)
+                    {
+                        for(int y = 0; y < map_h; ++y)
+                        {
+                            the_site s {x, y};
+                            if(state.map->has_lock(s) || !state.field.reachable(s))
+                                continue;
+                            float t = static_cast<float>(state.field.cost(s)) / static_cast<float>(max_cost);
+                            float cx = offset_x + x * cell_size;
+                            float cy = offset_y + y * cell_size;
+                            draw_list->AddRectFilled(
+                                ImVec2(cx, cy),
+                                ImVec2(cx + cell_size, cy + cell_size),
+                                IM_COL32(static_cast<int>(255 * t), static_cast<int>(200 * (1.0f - t)), 90, 110));
+                            the_site d = state.field.direction(s);
+                            if(cell_size >= 9.0f && (d.x != 0 || d.y != 0))
+                            {
+                                ImVec2 c(cx + cell_size * 0.5f, cy + cell_size * 0.5f);
+                                ImVec2 e(c.x + d.x * cell_size * 0.38f, c.y + d.y * cell_size * 0.38f);
+                                draw_list->AddLine(c, e, IM_COL32(255, 255, 255, 190), 1.5f);
+                                draw_list->AddCircleFilled(e, 1.8f, IM_COL32(255, 255, 255, 220));
                             }
                         }
                     }
