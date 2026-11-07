@@ -84,7 +84,8 @@ field.path({3, 7}, path);                       // или весь путь
 
 ```cpp
 brain::hpa_graph graph;
-graph.build(map, 16);                       // размер кластера 16
+graph.build(map, 16);                       // размер кластера 16, точный граф
+graph.build(map, 32, true);                 // разреженный граф: строится быстрее, пути могут быть чуть длиннее
 std::vector<brain::the_site> path;
 graph.find({0, 0}, {1023, 1023}, path);
 ```

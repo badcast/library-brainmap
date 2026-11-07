@@ -34,45 +34,102 @@ public:
      * @param map the map to read, it is not modified
      * @param cluster_size the side of a square cluster (at least 2), bigger clusters mean a smaller abstract graph
      *        but slower queries
+     * @param sparse false: every border step is represented, the graph is exact but big.
+     *        true: only the first, the middle and the last step of every free stretch of a border are kept. The graph
+     *        is several times smaller and much faster to build, the paths may be slightly longer than optimal, and when
+     *        the sparse graph finds no route find() falls back to a plain A* search of the map, so reachability stays exact.
      */
-    bool build(map_type &map, int cluster_size = 8)
+    bool build(map_type &map, int cluster_size = 8, bool sparse = false)
     {
         _built = false;
         if (cluster_size < 2)
             return false;
         _map = &map;
         _cs = cluster_size;
+        _sparse = sparse;
         _w = static_cast<int>(map.get_width());
         _h = static_cast<int>(map.get_height());
         _sites.clear();
         _adj.clear();
         _node_of.assign(static_cast<std::size_t>(_w) * _h, -1);
 
-        // 1. entrance nodes: free cells with a legal step into another cluster
-        for (int y = 0; y < _h; ++y)
-            for (int x = 0; x < _w; ++x)
-            {
-                ISite a {x, y};
-                if (map.has_lock(a))
-                    continue;
-                for (int s = 0; s < map.identity.length; ++s)
-                    if (cross_step(a, s))
-                    {
-                        _node_of[index_of(a)] = static_cast<int>(_sites.size());
-                        _sites.push_back(a);
-                        break;
-                    }
-            }
-        _adj.assign(_sites.size(), {});
-
-        // 2. inter-cluster edges: the border steps
-        for (std::size_t n = 0; n < _sites.size(); ++n)
-            for (int s = 0; s < map.identity.length; ++s)
-                if (cross_step(_sites[n], s))
+        // 1. the border steps that become edges: (cell, direction) pairs
+        struct crossing
+        {
+            ISite a;
+            int s;
+        };
+        std::vector<crossing> kept;
+        if (!sparse)
+        {
+            for (int y = 0; y < _h; ++y)
+                for (int x = 0; x < _w; ++x)
                 {
-                    ISite b {_sites[n].x + map.identity.horizontal[s], _sites[n].y + map.identity.vertical[s]};
-                    _adj[n].push_back({_node_of[index_of(b)], map.identity.g_weight[s]});
+                    ISite a {x, y};
+                    if (map.has_lock(a))
+                        continue;
+                    for (int s = 0; s < map.identity.length; ++s)
+                        if (cross_step(a, s))
+                            kept.push_back({a, s});
                 }
+        }
+        else
+        {
+            // group the crossings by the ordered pair of clusters; the scan order walks along every border
+            std::map<std::pair<std::size_t, std::size_t>, std::vector<crossing>> groups;
+            for (int y = 0; y < _h; ++y)
+                for (int x = 0; x < _w; ++x)
+                {
+                    ISite a {x, y};
+                    if (map.has_lock(a))
+                        continue;
+                    for (int s = 0; s < map.identity.length; ++s)
+                        if (cross_step(a, s))
+                        {
+                            ISite b {x + map.identity.horizontal[s], y + map.identity.vertical[s]};
+                            groups[{cluster_index(a), cluster_index(b)}].push_back({a, s});
+                        }
+                }
+            for (auto &group : groups)
+            {
+                std::vector<crossing> &list = group.second;
+                std::size_t begin = 0;
+                while (begin < list.size())
+                {
+                    // a run is a stretch of neighbouring border cells
+                    std::size_t end = begin + 1;
+                    while (end < list.size() && std::abs(list[end].a.x - list[end - 1].a.x) <= 1
+                           && std::abs(list[end].a.y - list[end - 1].a.y) <= 1)
+                        ++end;
+                    kept.push_back(list[begin]);
+                    if (end - begin > 2)
+                        kept.push_back(list[begin + (end - begin) / 2]);
+                    if (end - begin > 1)
+                        kept.push_back(list[end - 1]);
+                    begin = end;
+                }
+            }
+        }
+
+        // 2. nodes and the inter-cluster edges (the step costs are symmetric: add both directions)
+        auto node_for = [&](const ISite &cell) {
+            int &id = _node_of[index_of(cell)];
+            if (id < 0)
+            {
+                id = static_cast<int>(_sites.size());
+                _sites.push_back(cell);
+                _adj.emplace_back();
+            }
+            return id;
+        };
+        for (const crossing &c : kept)
+        {
+            ISite b {c.a.x + map.identity.horizontal[c.s], c.a.y + map.identity.vertical[c.s]};
+            int na = node_for(c.a), nb = node_for(b);
+            _adj[na].push_back({nb, map.identity.g_weight[c.s]});
+            if (sparse)
+                _adj[nb].push_back({na, map.identity.g_weight[c.s]});
+        }
 
         // 3. intra-cluster edges: exact costs between the nodes of one cluster
         std::vector<std::vector<int>> by_cluster(static_cast<std::size_t>(clusters_x()) * clusters_y());
@@ -192,7 +249,7 @@ public:
                 relax(ed);
         }
         if (best[G] >= unreachable)
-            return false;
+            return _sparse ? fallback(from, to, out, cost_out) : false;
 
         // refine the abstract path into cells
         std::vector<int> chain;
@@ -227,6 +284,20 @@ public:
     }
 
 private:
+    // sparse graphs may miss a route: ask the plain search of the map
+    template <typename list_type>
+    bool fallback(const ISite &from, const ISite &to, list_type &out, weight_t *cost_out)
+    {
+        navigate_result<list_type> result;
+        if (!_map->find(pathfinder_algo::AStar, result, from, to, search_mode::UniDirectional))
+            return false;
+        for (const auto &p : result.connections)
+            out.push_back(p);
+        if (cost_out)
+            *cost_out = _map->get(to)->g;
+        return true;
+    }
+
     static constexpr weight_t unreachable = std::numeric_limits<weight_t>::max() / 2;
 
     struct edge
@@ -314,6 +385,7 @@ private:
     map_type *_map = nullptr;
     int _cs = 8, _w = 0, _h = 0;
     bool _built = false;
+    bool _sparse = false;
     std::vector<ISite> _sites;
     std::vector<int> _node_of;
     std::vector<std::vector<edge>> _adj;

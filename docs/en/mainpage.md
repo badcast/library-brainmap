@@ -84,7 +84,8 @@ cluster becomes a node), so it only pays off with many queries on a static map. 
 
 ```cpp
 brain::hpa_graph graph;
-graph.build(map, 16);                       // cluster size 16
+graph.build(map, 16);                       // cluster size 16, exact graph
+graph.build(map, 32, true);                 // sparse graph: much faster to build, paths may be slightly longer
 std::vector<brain::the_site> path;
 graph.find({0, 0}, {1023, 1023}, path);
 ```

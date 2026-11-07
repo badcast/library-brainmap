@@ -150,6 +150,24 @@ static void fuzz_algorithms()
             }
         }
 
+        // sparse HPA*: same reachability (fallback), valid paths, never cheaper than the optimum
+        {
+            hpa_graph sparse;
+            sparse.build(m, 2 + rng() % 11, true);
+            std::vector<the_site> sp;
+            weight_t sc = -1;
+            bool sok = sparse.find(a, b, sp, &sc);
+            CHECK(sok == ref_found, "it %d: sparse hpa found %d vs %d", it, sok, ref_found);
+            if (sok && ref_found)
+            {
+                brain_map::result_site sr;
+                sr.connections = sp;
+                CHECK(valid_path(m, sr, a, b), "it %d: sparse hpa invalid path", it);
+                CHECK(path_cost(sr) >= path_cost(ref), "it %d: sparse hpa beats the optimum?", it);
+                CHECK(sc == path_cost(sr), "it %d: sparse hpa reported cost %d vs %d", it, sc, path_cost(sr));
+            }
+        }
+
         // flow field
         flow_field field;
         CHECK(field.build(m, b), "it %d: flow field build", it);
