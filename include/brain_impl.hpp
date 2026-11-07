@@ -833,7 +833,9 @@ bool BRAIN_DEFINE::_find_best_first(
         weight_t f;
         INeuron *neuron;
     };
-    auto worse = [](const open_entry &lhs, const open_entry &rhs) { return lhs.f > rhs.f; };
+    auto worse = [](const open_entry &lhs, const open_entry &rhs) {
+        return lhs.f > rhs.f;
+    };
     std::priority_queue<open_entry, std::vector<open_entry>, decltype(worse)> openList(worse);
 
     INeuron *current, *self;
@@ -952,8 +954,8 @@ bool BRAIN_DEFINE::_find_bfs(navigate_result<list_type> &navigationResult, INeur
             self_site.y = current_site.y + identity.vertical[s];
             self = get(self_site);
             // visited (open or closed) neurons are never revisited
-            if (self == nullptr || self->flags == NEURON_CAPTURE_OPEN_LIST
-                || self->flags == NEURON_CAPTURE_CLOSED_LIST || has_lock(self_site))
+            if (self == nullptr || self->flags == NEURON_CAPTURE_OPEN_LIST || self->flags == NEURON_CAPTURE_CLOSED_LIST
+                || has_lock(self_site))
                 continue;
             if (!_find_can_step(current_site, s))
                 continue;
@@ -995,7 +997,9 @@ bool BRAIN_DEFINE::_find_bfs_bidirectional(
     };
     INeuron *base = this->front();
     std::vector<bwd_t> bwd(this->size());
-    auto idx = [base](INeuron *n) { return static_cast<std::size_t>(n - base); };
+    auto idx = [base](INeuron *n) {
+        return static_cast<std::size_t>(n - base);
+    };
 
     std::vector<INeuron *> fwd_layer {firstNeuron}, bwd_layer {lastNeuron}, next_layer;
     firstNeuron->g = 0;
@@ -1270,7 +1274,9 @@ bool BRAIN_DEFINE::_find_jps(navigate_result<list_type> &navigationResult, INeur
         weight_t f;
         INeuron *neuron;
     };
-    auto worse = [](const open_entry &lhs, const open_entry &rhs) { return lhs.f > rhs.f; };
+    auto worse = [](const open_entry &lhs, const open_entry &rhs) {
+        return lhs.f > rhs.f;
+    };
     std::priority_queue<open_entry, std::vector<open_entry>, decltype(worse)> openList(worse);
 
     firstNeuron->g = 0;
@@ -1534,7 +1540,9 @@ bool BRAIN_DEFINE::_find_theta(navigate_result<list_type> &navigationResult, INe
         weight_t f;
         INeuron *neuron;
     };
-    auto worse = [](const open_entry &lhs, const open_entry &rhs) { return lhs.f > rhs.f; };
+    auto worse = [](const open_entry &lhs, const open_entry &rhs) {
+        return lhs.f > rhs.f;
+    };
     std::priority_queue<open_entry, std::vector<open_entry>, decltype(worse)> openList(worse);
 
     firstNeuron->g = 0;
@@ -1750,12 +1758,17 @@ bool BRAIN_DEFINE::_find_bidirectional(
     // Dijkstra is A* with a zero heuristic
     heuristic_function saved_heuristic = __heuristic__;
     if (pathfinder == pathfinder_algo::Dijkstra)
-        __heuristic__ = [](weight_t, weight_t) -> weight_t { return 0; };
+        __heuristic__ = [](weight_t, weight_t) -> weight_t {
+            return 0;
+        };
     struct restore_t
     {
         heuristic_function &ref;
         heuristic_function value;
-        ~restore_t() { ref = value; }
+        ~restore_t()
+        {
+            ref = value;
+        }
     } restore {__heuristic__, saved_heuristic};
 
     using navigate_result_t = navigate_result<list_type>;

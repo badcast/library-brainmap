@@ -119,6 +119,10 @@ int main()
     t2.x = map.get_width() - 2;
     t2.y = map.get_height() - 2;
 
+    // The reference mazes/level-*.maze scores were recorded with Pythagorean heuristic and corner cutting enabled
+    map.set_custom_corner_cutting(true);
+    map.set_heuristic(heuristic_method::Pythagorean);
+
     cout << "Path-finding:" << endl;
 
     maxIterate = maxLevels;

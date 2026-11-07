@@ -53,7 +53,9 @@ public:
             weight_t cost;
             int index;
         };
-        auto worse = [](const entry &lhs, const entry &rhs) { return lhs.cost > rhs.cost; };
+        auto worse = [](const entry &lhs, const entry &rhs) {
+            return lhs.cost > rhs.cost;
+        };
         std::priority_queue<entry, std::vector<entry>, decltype(worse)> open(worse);
 
         const int goal_index = index_of(goal);
@@ -91,13 +93,22 @@ public:
     }
 
     /// @return true once build() succeeded
-    bool is_built() const { return _built; }
+    bool is_built() const
+    {
+        return _built;
+    }
 
     /// @return the goal of the field
-    ISite goal() const { return _goal; }
+    ISite goal() const
+    {
+        return _goal;
+    }
 
     /// @return true if the cell is inside the map and the goal can be reached from it
-    bool reachable(const ISite &site) const { return cost(site) < unreachable; }
+    bool reachable(const ISite &site) const
+    {
+        return cost(site) < unreachable;
+    }
 
     /// @return the cost of the cheapest path from the cell to the goal, or unreachable
     weight_t cost(const ISite &site) const
@@ -166,8 +177,14 @@ public:
     }
 
 private:
-    bool inside(const ISite &site) const { return site.x >= 0 && site.y >= 0 && site.x < _width && site.y < _height; }
-    int index_of(const ISite &site) const { return site.y * _width + site.x; }
+    bool inside(const ISite &site) const
+    {
+        return site.x >= 0 && site.y >= 0 && site.x < _width && site.y < _height;
+    }
+    int index_of(const ISite &site) const
+    {
+        return site.y * _width + site.x;
+    }
 
     map_type *_map = nullptr;
     ISite _goal {0, 0};

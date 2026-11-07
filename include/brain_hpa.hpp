@@ -37,7 +37,8 @@ public:
      * @param sparse false: every border step is represented, the graph is exact but big.
      *        true: only the first, the middle and the last step of every free stretch of a border are kept. The graph
      *        is several times smaller and much faster to build, the paths may be slightly longer than optimal, and when
-     *        the sparse graph finds no route find() falls back to a plain A* search of the map, so reachability stays exact.
+     *        the sparse graph finds no route find() falls back to a plain A* search of the map, so reachability stays
+     * exact.
      */
     bool build(map_type &map, int cluster_size = 8, bool sparse = false)
     {
@@ -116,8 +117,7 @@ public:
                 {
                     // a run is a stretch of neighbouring border cells
                     std::size_t end = begin + 1;
-                    while (end < g_end
-                           && std::abs(all_crossings[end].c.a.x - all_crossings[end - 1].c.a.x) <= 1
+                    while (end < g_end && std::abs(all_crossings[end].c.a.x - all_crossings[end - 1].c.a.x) <= 1
                            && std::abs(all_crossings[end].c.a.y - all_crossings[end - 1].c.a.y) <= 1)
                         ++end;
                     kept.push_back(all_crossings[begin].c);
@@ -177,13 +177,22 @@ public:
     }
 
     /// @return true once build() succeeded
-    bool is_built() const { return _built; }
+    bool is_built() const
+    {
+        return _built;
+    }
 
     /// @return the number of abstract nodes (entrance cells)
-    std::size_t node_count() const { return _sites.size(); }
+    std::size_t node_count() const
+    {
+        return _sites.size();
+    }
 
     /// @return the cluster side the graph was built with
-    int cluster_size() const { return _cs; }
+    int cluster_size() const
+    {
+        return _cs;
+    }
 
     /**
      * @brief find a path
@@ -239,7 +248,9 @@ public:
             weight_t cost;
             int node;
         };
-        auto worse = [](const entry &a, const entry &b) { return a.cost > b.cost; };
+        auto worse = [](const entry &a, const entry &b) {
+            return a.cost > b.cost;
+        };
         std::priority_queue<entry, std::vector<entry>, decltype(worse)> open(worse);
         std::vector<weight_t> best(n_nodes + 2, unreachable);
         std::vector<int> prev(n_nodes + 2, -1);
@@ -276,7 +287,9 @@ public:
         for (int n = G; n != -1; n = prev[n])
             chain.push_back(n);
         std::reverse(chain.begin(), chain.end());
-        auto site_of = [&](int n) { return n == S ? from : (n == G ? to : _sites[n]); };
+        auto site_of = [&](int n) {
+            return n == S ? from : (n == G ? to : _sites[n]);
+        };
 
         out.push_back(from);
         for (std::size_t i = 1; i < chain.size(); ++i)
@@ -328,19 +341,40 @@ private:
     struct rect
     {
         int x0, y0, x1, y1;
-        int width() const { return x1 - x0 + 1; }
-        int height() const { return y1 - y0 + 1; }
+        int width() const
+        {
+            return x1 - x0 + 1;
+        }
+        int height() const
+        {
+            return y1 - y0 + 1;
+        }
     };
 
-    bool inside(const ISite &s) const { return s.x >= 0 && s.y >= 0 && s.x < _w && s.y < _h; }
-    std::size_t index_of(const ISite &s) const { return static_cast<std::size_t>(s.y) * _w + s.x; }
-    int clusters_x() const { return (_w + _cs - 1) / _cs; }
-    int clusters_y() const { return (_h + _cs - 1) / _cs; }
+    bool inside(const ISite &s) const
+    {
+        return s.x >= 0 && s.y >= 0 && s.x < _w && s.y < _h;
+    }
+    std::size_t index_of(const ISite &s) const
+    {
+        return static_cast<std::size_t>(s.y) * _w + s.x;
+    }
+    int clusters_x() const
+    {
+        return (_w + _cs - 1) / _cs;
+    }
+    int clusters_y() const
+    {
+        return (_h + _cs - 1) / _cs;
+    }
     std::size_t cluster_index(const ISite &s) const
     {
         return static_cast<std::size_t>(s.y / _cs) * clusters_x() + s.x / _cs;
     }
-    bool same_cluster(const ISite &a, const ISite &b) const { return cluster_index(a) == cluster_index(b); }
+    bool same_cluster(const ISite &a, const ISite &b) const
+    {
+        return cluster_index(a) == cluster_index(b);
+    }
     rect cluster_rect(const ISite &s) const
     {
         rect r;
@@ -371,7 +405,9 @@ private:
             weight_t cost;
             int cell;
         };
-        auto worse = [](const entry &a, const entry &b) { return a.cost > b.cost; };
+        auto worse = [](const entry &a, const entry &b) {
+            return a.cost > b.cost;
+        };
         std::priority_queue<entry, std::vector<entry>, decltype(worse)> open(worse);
 
         int start = (src.y - r.y0) * rw + (src.x - r.x0);
