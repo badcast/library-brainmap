@@ -26,6 +26,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Examples](#examples)
+- [Documentation](#documentation)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -91,6 +92,11 @@ Utilizing **library-brainmap** is straightforward:
 ## Examples
 
 Explore the [examples](test/) directory for detailed usage scenarios and inspiration for your own projects.
+
+## Documentation
+
+Full API documentation is built with Doxygen and published to GitHub Pages in English and Russian (see `Doxygen` and `Doxygen.ru`).
+Build it locally with `doxygen Doxygen` and `doxygen Doxygen.ru`.
 
 ## Contributing
 

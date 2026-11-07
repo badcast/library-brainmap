@@ -46,3 +46,6 @@ CTestTestfile.cmake
 _deps
 build
 imgui.ini
+
+# Generated documentation
+/documentation/

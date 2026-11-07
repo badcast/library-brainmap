@@ -532,8 +532,7 @@ namespace
 
                 if(meeting_neuron != nullptr)
                 {
-                    if(std::max(top_fwd->f, bwd_info[top_bwd_idx].f) >= best_path_cost ||
-                       (top_fwd->g + bwd_info[top_bwd_idx].g) >= best_path_cost)
+                    if(std::max(top_fwd->f, bwd_info[top_bwd_idx].f) >= best_path_cost)
                     {
                         SearchStep final_step;
                         final_step.active_site = state.map->get_point(meeting_neuron);

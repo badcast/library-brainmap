@@ -1,7 +1,7 @@
 #include "brain_map.hpp"
 #include <cstdio>
 #include <cstdlib>
-#include <cstdlib>
+#include <random>
 
 using namespace brain;
 
@@ -45,8 +45,50 @@ static bool valid_path(brain_map &m, const brain_map::result_site &r, the_site a
     return true;
 }
 
+// Regression: bidirectional A*/Dijkstra must return the same cost as the unidirectional search
+static void fuzz_bidirectional()
+{
+    std::mt19937 rng(7);
+    const matrix_identity ids[] {matrix_identity::PlusMethod, matrix_identity::DiagonalMethod};
+    const heuristic_method heuristics[] {
+        heuristic_method::Manhattan, heuristic_method::Chebyshev, heuristic_method::Octile, heuristic_method::Hypot};
+    for (int it = 0; it < 3000; ++it)
+    {
+        int w = 5 + rng() % 30, h = 5 + rng() % 30;
+        brain_map m(w, h);
+        int density = rng() % 45;
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+                if (static_cast<int>(rng() % 100) < density)
+                    m.set_lock(m.get(the_site {x, y}), true);
+        the_site a {static_cast<int>(rng() % w), static_cast<int>(rng() % h)};
+        the_site b {static_cast<int>(rng() % w), static_cast<int>(rng() % h)};
+        m.set_lock(m.get(a), false);
+        m.set_lock(m.get(b), false);
+        m.set_identity(ids[rng() % 2]);
+        m.set_heuristic(heuristics[rng() % 4]);
+
+        for (auto algo : {pathfinder_algo::AStar, pathfinder_algo::Dijkstra})
+        {
+            brain_map::result_site uni, bi;
+            bool ok_uni = m.find(algo, uni, a, b, search_mode::UniDirectional);
+            bool ok_bi = m.find(algo, bi, a, b, search_mode::BiDirectional);
+            CHECK(ok_uni == ok_bi, "iteration %d: found %d vs %d", it, ok_uni, ok_bi);
+            if (ok_uni && ok_bi)
+            {
+                CHECK(valid_path(m, bi, a, b), "iteration %d: invalid bidirectional path", it);
+                CHECK(path_cost(uni) == path_cost(bi), "iteration %d: cost %d vs %d", it, path_cost(uni), path_cost(bi));
+            }
+            if (failures > 10)
+                return;
+        }
+    }
+}
+
 int main()
 {
+    fuzz_bidirectional();
+
     const pathfinder_algo algos[] {
         pathfinder_algo::AStar,
         pathfinder_algo::Dijkstra,

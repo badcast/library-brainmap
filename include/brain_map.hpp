@@ -85,13 +85,13 @@ enum class maze_algorithm
     CellularAutomata = 12
 };
 
-// Pathfinder algorithms, AStar is the default one
+/// Pathfinder algorithms, AStar is the default one
 enum class pathfinder_algo
 {
-    AStar = 0,
-    Dijkstra = 1,
-    BreadthFirstSearch = 2,
-    DepthFirstSearch = 3
+    AStar = 0,              ///< best-first search guided by the heuristic, optimal with an admissible heuristic
+    Dijkstra = 1,           ///< best-first search without a heuristic, optimal for any non-negative step costs
+    BreadthFirstSearch = 2, ///< explores the map layer by layer, optimal for equal step costs
+    DepthFirstSearch = 3    ///< goes as deep as possible first, the path is not optimal
 };
 
 typedef int weight_t;
@@ -402,6 +402,16 @@ public:
     template <typename list_type = result_site>
     bool find(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron, search_mode mode);
 
+    /**
+     * @brief find a path with the selected algorithm. The search state of the map is reset before the search,
+     * locks are kept. BreadthFirstSearch and DepthFirstSearch ignore search_mode::BiDirectional.
+     * @param pathfinder the algorithm
+     * @param navResult the result of the search
+     * @param firstNeuron the start
+     * @param lastNeuron the goal
+     * @param mode unidirectional or bidirectional search
+     * @return true if the path is found
+     */
     template <typename list_type = result_site>
     bool find(
         pathfinder_algo pathfinder,

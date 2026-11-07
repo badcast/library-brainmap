@@ -696,6 +696,9 @@ bool BRAIN_DEFINE::find(
     INeuron *lastNeuron,
     search_mode mode)
 {
+    // Every search starts from a clean state (locks are kept)
+    this->clear(false);
+
     if (mode == search_mode::BiDirectional)
     {
         return this->_find_bidirectional(pathfinder, navigationResult, firstNeuron, lastNeuron);
@@ -806,31 +809,40 @@ bool BRAIN_DEFINE::_find_best_first(
     if (!_find_begin(navigationResult, firstNeuron, lastNeuron))
         return false;
 
-    // OpenList for algorithm, auto sort, builds, and combines
-    std::multiset<INeuron *, decltype(&immune_system::compare_neuron<INeuron>)> openList(
-        &immune_system::compare_neuron<INeuron>);
+    // Binary heap with lazy deletion: an improved neuron is pushed again and the stale entry is skipped on pop.
+    struct open_entry
+    {
+        weight_t f;
+        INeuron *neuron;
+    };
+    auto worse = [](const open_entry &lhs, const open_entry &rhs) { return lhs.f > rhs.f; };
+    std::priority_queue<open_entry, std::vector<open_entry>, decltype(worse)> openList(worse);
 
     INeuron *current, *self;
-    typename decltype(openList)::iterator cur_iter;
     ISite first_site = get_point(firstNeuron), last_site = get_point(lastNeuron), self_site, current_site;
 
     firstNeuron->g = 0;
     firstNeuron->h = use_heuristic ? __heuristic__(first_site.x - last_site.x, first_site.y - last_site.y) : 0;
     firstNeuron->f = firstNeuron->h;
     firstNeuron->parent = nullptr;
+    firstNeuron->flags = NEURON_CAPTURE_OPEN_LIST;
 
-    openList.insert(firstNeuron);
+    openList.push({firstNeuron->f, firstNeuron});
 
     while (openList.empty() == false)
     {
-        cur_iter = openList.begin();
-        current = *cur_iter;
+        open_entry entry = openList.top();
+        openList.pop();
+        current = entry.neuron;
+        // stale entry: already expanded, or a better one was pushed after it
+        if (current->flags == NEURON_CAPTURE_CLOSED_LIST || entry.f != current->f)
+            continue;
+
         if (current == lastNeuron)
         {
             _find_build_path(navigationResult, current);
             break;
         }
-        openList.erase(cur_iter);
         current->flags = NEURON_CAPTURE_CLOSED_LIST;
 
         current_site = get_point(current);
@@ -848,25 +860,20 @@ bool BRAIN_DEFINE::_find_best_first(
             int newG = current->g + identity.g_weight[s];
             if (self->flags == NEURON_CAPTURE_OPEN_LIST)
             {
-                if (newG < self->g)
-                {
-                    auto pair_range = openList.equal_range(self);
-                    auto it = std::find(pair_range.first, pair_range.second, self);
-                    if (it != pair_range.second)
-                        openList.erase(it);
-                }
-                else
+                if (newG >= self->g)
                     continue;
             }
             else
+            {
                 self->flags = NEURON_CAPTURE_OPEN_LIST;
+                self->h = use_heuristic ? __heuristic__(self_site.x - last_site.x, self_site.y - last_site.y) : 0;
+            }
 
             self->parent = current;
             self->g = newG;
-            self->h = use_heuristic ? __heuristic__(self_site.x - last_site.x, self_site.y - last_site.y) : 0;
             self->f = self->g + self->h;
 
-            openList.insert(self);
+            openList.push({self->f, self});
         }
     }
 
@@ -1115,8 +1122,10 @@ bool BRAIN_DEFINE::_find_bidirectional(
 
         if (meeting_neuron != nullptr)
         {
-            if (std::max(top_fwd->f, bwd_info[top_bwd_idx].f) >= best_path_cost
-                || (top_fwd->g + bwd_info[top_bwd_idx].g) >= best_path_cost)
+            // Pohl's criterion: the path can't improve once the smallest f of either frontier reaches the best cost.
+            // (Do not add a "gF + gB >= best" test here: the top of an A* frontier is not the smallest-g node,
+            // so it stops too early and returns non-optimal paths.)
+            if (std::max(top_fwd->f, bwd_info[top_bwd_idx].f) >= best_path_cost)
                 break;
         }
 
