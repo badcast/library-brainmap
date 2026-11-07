@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>library-brainmap: library-brainmap</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">library-brainmap<span id="projectnumber">&#160;1.1.0</span>
+   </div>
+   <div id="projectbrief">Maze generation and path finding on a neuron grid (A*, Dijkstra, BFS, DFS)</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Поиск',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('index.html','',''); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Загрузка...</div>
+<div class="SRStatus" id="Searching">Поиск...</div>
+<div class="SRStatus" id="NoMatches">Не найдено</div>
+</div>
+</div>
+</div>
+</div>
+
+<div><div class="header">
+  <div class="headertitle"><div class="title">library-brainmap </div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p><a class="anchor" id="mainpage"></a></p>
+<p><a href="../en/index.html">English</a> | <a href="../ru/index.html">Русский</a></p>
+<div class="image">
+<img src="preview.gif" alt=""/>
+<div class="caption">
+Поиск пути и генерация лабиринтов</div></div>
+    <p><b>library-brainmap</b> — header-only библиотека на C++17 для <b>генерации лабиринтов</b> и <b>поиска пути</b> на сетке «нейронов». В комплекте есть интерактивный визуализатор на ImGui (<span class="tt">guitest</span>), который анимирует каждый шаг поиска.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md0"></a>
+Возможности</h1>
+<ul>
+<li>Алгоритмы поиска пути (<span class="tt">brain::pathfinder_algo</span>): <b>A*</b>, <b>Dijkstra</b>, <b>поиск в ширину</b>, <b>поиск в глубину</b>, <b>жадный поиск (Greedy Best-First)</b>, <b>Jump Point Search (JPS)</b>, <b>Theta*</b>, <b>IDA*</b>.</li>
+<li><b>Flow Field</b> (карта Дейкстры, <span class="tt">brain::flow_field</span>): один поиск от цели даёт каждой клетке стоимость и следующий шаг.</li>
+<li><b>Иерархический поиск</b> (<span class="tt">brain::hpa_graph</span>): кластерный HPA* в точном и разреженном режимах.</li>
+<li>Однонаправленный и двунаправленный поиск (<span class="tt">brain::search_mode</span>) для A*, Dijkstra и BFS.</li>
+<li>Эвристики (<span class="tt">brain::heuristic_method</span>): Манхэттен (по умолчанию), Чебышёв, Octile, Hypot, Pythagorean и пользовательская.</li>
+<li>13 генераторов лабиринтов (<span class="tt">brain::maze_algorithm</span>): Recursive Backtracker, Recursive Division, Прим, Краскал, Эллер, Hunt-and-Kill, Binary Tree, Sidewinder, Олдос-Бродер, Вильсон, Cellular Automata и другие.</li>
+<li>Собственная стоимость шагов, соседство по 4 или 8 направлениям, необязательное срезание углов.</li>
+<li>Сохранение и загрузка всей карты.</li>
+</ul>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
+Быстрый старт</h1>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;brain_map.hpp&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">using namespace </span>brain;</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> main()</div>
+<div class="line">{</div>
+<div class="line">    brain_map map(51, 51);</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">// сгенерировать лабиринт</span></div>
+<div class="line">    map.create_maze_ex(maze_algorithm::RecursiveBacktracer, {0, 0}, {50, 50});</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">// найти путь</span></div>
+<div class="line">    brain_map::result_site result;</div>
+<div class="line">    <span class="keywordtype">bool</span> found = map.find(pathfinder_algo::AStar, result, <a class="code hl_struct" href="structbrain_1_1the__site.html">the_site</a> {0, 0}, <a class="code hl_struct" href="structbrain_1_1the__site.html">the_site</a> {50, 50},</div>
+<div class="line">                          search_mode::UniDirectional);</div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordflow">if</span> (found)</div>
+<div class="line">    {</div>
+<div class="line">        <span class="keywordflow">for</span> (<span class="keyword">const</span> <a class="code hl_struct" href="structbrain_1_1the__site.html">the_site</a> &amp;p : result.connections)</div>
+<div class="line">            ; <span class="comment">// p.x, p.y</span></div>
+<div class="line">    }</div>
+<div class="line">}</div>
+<div class="ttc" id="astructbrain_1_1the__site_html"><div class="ttname"><a href="structbrain_1_1the__site.html">brain::the_site</a></div><div class="ttdef"><b>Определения</b> brain_map.hpp:121</div></div>
+</div><!-- fragment --><p>Каждый вызов <span class="tt">find()</span> начинает с чистого состояния поиска, стены (блокировки) сохраняются. Алгоритм по умолчанию можно задать один раз через <span class="tt"><a class="el" href="classbrain_1_1basic__brain__map.html#a6f2648bc8a061d1367d77f2875ab2795" title="set the default pathfinder algorithm used by find() without an explicit pathfinder">brain::basic_brain_map::set_pathfinder()</a></span>.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md2"></a>
+Алгоритмы вкратце</h1>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Алгоритм  </th><th class="markdownTableHeadNone">Оптимальный путь  </th><th class="markdownTableHeadNone">Эвристика  </th><th class="markdownTableHeadNone">Применение  </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">A*  </td><td class="markdownTableBodyNone">да (при допустимой эвристике)  </td><td class="markdownTableBodyNone">да  </td><td class="markdownTableBodyNone">универсальный и самый быстрый  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Dijkstra  </td><td class="markdownTableBodyNone">да  </td><td class="markdownTableBodyNone">нет  </td><td class="markdownTableBodyNone">карты с весами без хорошей эвристики  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">BFS  </td><td class="markdownTableBodyNone">при равной стоимости шагов  </td><td class="markdownTableBodyNone">нет  </td><td class="markdownTableBodyNone">простые карты без весов  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">DFS  </td><td class="markdownTableBodyNone">нет  </td><td class="markdownTableBodyNone">нет  </td><td class="markdownTableBodyNone">проверка достижимости, визуализация  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Greedy Best-First  </td><td class="markdownTableBodyNone">нет  </td><td class="markdownTableBodyNone">да (только она)  </td><td class="markdownTableBodyNone">очень быстрые «достаточно хорошие» пути  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Jump Point Search  </td><td class="markdownTableBodyNone">да  </td><td class="markdownTableBodyNone">да  </td><td class="markdownTableBodyNone">быстрый поиск с пропуском симметричных путей на 8-связной сетке  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Theta*  </td><td class="markdownTableBodyNone">близкий к оптимальному (any-angle)  </td><td class="markdownTableBodyNone">да  </td><td class="markdownTableBodyNone">сглаженные пути по прямой видимости  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">IDA*  </td><td class="markdownTableBodyNone">да  </td><td class="markdownTableBodyNone">да  </td><td class="markdownTableBodyNone">итеративное углубление с отсечением по порогу  </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Flow Field  </td><td class="markdownTableBodyNone">да  </td><td class="markdownTableBodyNone">нет  </td><td class="markdownTableBodyNone">много агентов идут к одной цели  </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">HPA* (<span class="tt">hpa_graph</span>)  </td><td class="markdownTableBodyNone">точный или разреженный  </td><td class="markdownTableBodyNone">да  </td><td class="markdownTableBodyNone">многократные запросы на больших статичных картах  </td></tr>
+</table>
+<blockquote class="doxtable">
+<p><b>Примечание:</b> по умолчанию используется эвристика Манхэттена: она точна для стандартной стоимости шагов (прямой шаг 1, диагональный 2), поэтому A* даёт ту же стоимость, что и Dijkstra. Эвристика Pythagorean (квадрат расстояния) быстрая, но недопустимая. </p>
+</blockquote>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md3"></a>
+Flow field для множества агентов</h1>
+<div class="fragment"><div class="line">brain::flow_field field;</div>
+<div class="line">field.<a class="code hl_function" href="classbrain_1_1basic__flow__field.html#af3e3c005504557806a9d0802ea129798">build</a>(map, <a class="code hl_struct" href="structbrain_1_1the__site.html">the_site</a> {50, 50});        <span class="comment">// один запуск Dijkstra от цели</span></div>
+<div class="line"> </div>
+<div class="line"><a class="code hl_struct" href="structbrain_1_1the__site.html">brain::the_site</a> step = field.<a class="code hl_function" href="classbrain_1_1basic__flow__field.html#a125f57a2a3e8afb05b3e7427b86039c1">direction</a>({3, 7}); <span class="comment">// шаг к цели, O(1)</span></div>
+<div class="line">std::vector&lt;brain::the_site&gt; path;</div>
+<div class="line">field.<a class="code hl_function" href="classbrain_1_1basic__flow__field.html#a0e18497262de2c19e6270ac73225e0e6">path</a>({3, 7}, path);                       <span class="comment">// или весь путь</span></div>
+<div class="ttc" id="aclassbrain_1_1basic__flow__field_html_a0e18497262de2c19e6270ac73225e0e6"><div class="ttname"><a href="classbrain_1_1basic__flow__field.html#a0e18497262de2c19e6270ac73225e0e6">brain::basic_flow_field::path</a></div><div class="ttdeci">bool path(const ISite &amp;from, list_type &amp;out) const</div><div class="ttdoc">the whole path from a cell to the goal (both ends included)</div><div class="ttdef"><b>Определения</b> brain_map.hpp:147</div></div>
+<div class="ttc" id="aclassbrain_1_1basic__flow__field_html_a125f57a2a3e8afb05b3e7427b86039c1"><div class="ttname"><a href="classbrain_1_1basic__flow__field.html#a125f57a2a3e8afb05b3e7427b86039c1">brain::basic_flow_field::direction</a></div><div class="ttdeci">ISite direction(const ISite &amp;site) const</div><div class="ttdoc">the unit step (dx, dy) toward the goal, (0, 0) at the goal or if there is no path</div><div class="ttdef"><b>Определения</b> brain_map.hpp:132</div></div>
+<div class="ttc" id="aclassbrain_1_1basic__flow__field_html_af3e3c005504557806a9d0802ea129798"><div class="ttname"><a href="classbrain_1_1basic__flow__field.html#af3e3c005504557806a9d0802ea129798">brain::basic_flow_field::build</a></div><div class="ttdeci">bool build(map_type &amp;map, const ISite &amp;goal)</div><div class="ttdoc">build the field</div><div class="ttdef"><b>Определения</b> brain_map.hpp:38</div></div>
+</div><!-- fragment --><p>После изменения карты вызовите <span class="tt">build()</span> снова.</p>
+<h1 class="doxsection"><a class="anchor" id="autotoc_md4"></a>
+Иерархический поиск (HPA*)</h1>
+<p><span class="tt">brain::hpa_graph</span> режет карту на кластеры и ищет путь по небольшому абстрактному графу входов в кластеры. Граф точный: стоимость совпадает с Dijkstra, но построение требует времени и памяти (каждая клетка с шагом в другой кластер становится узлом), поэтому выгоден при множестве запросов на статичной карте. После изменения карты вызовите <span class="tt">build()</span> снова.</p>
+<div class="fragment"><div class="line">brain::hpa_graph graph;</div>
+<div class="line">graph.<a class="code hl_function" href="classbrain_1_1basic__hpa__graph.html#a987e30e76023bb8a47a8d19ed6c84917">build</a>(map, 16);                       <span class="comment">// размер кластера 16, точный граф</span></div>
+<div class="line">graph.<a class="code hl_function" href="classbrain_1_1basic__hpa__graph.html#a987e30e76023bb8a47a8d19ed6c84917">build</a>(map, 32, <span class="keyword">true</span>);                 <span class="comment">// разреженный граф: строится быстрее, пути могут быть чуть длиннее</span></div>
+<div class="line">std::vector&lt;brain::the_site&gt; path;</div>
+<div class="line">graph.<a class="code hl_function" href="classbrain_1_1basic__hpa__graph.html#adfb28a646b8fe3414a47fbd29ab3870f">find</a>({0, 0}, {1023, 1023}, path);</div>
+<div class="ttc" id="aclassbrain_1_1basic__hpa__graph_html_a987e30e76023bb8a47a8d19ed6c84917"><div class="ttname"><a href="classbrain_1_1basic__hpa__graph.html#a987e30e76023bb8a47a8d19ed6c84917">brain::basic_hpa_graph::build</a></div><div class="ttdeci">bool build(map_type &amp;map, int cluster_size=8, bool sparse=false)</div><div class="ttdoc">build the abstract graph</div><div class="ttdef"><b>Определения</b> brain_map.hpp:44</div></div>
+<div class="ttc" id="aclassbrain_1_1basic__hpa__graph_html_adfb28a646b8fe3414a47fbd29ab3870f"><div class="ttname"><a href="classbrain_1_1basic__hpa__graph.html#adfb28a646b8fe3414a47fbd29ab3870f">brain::basic_hpa_graph::find</a></div><div class="ttdeci">bool find(const ISite &amp;from, const ISite &amp;to, list_type &amp;out, weight_t *cost_out=nullptr)</div><div class="ttdoc">find a path</div><div class="ttdef"><b>Определения</b> brain_map.hpp:226</div></div>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md5"></a>
+Сборка</h1>
+<div class="fragment"><div class="line">cmake -B build -DCMAKE_BUILD_TYPE=Release</div>
+<div class="line">cmake --build build</div>
+<div class="line">ctest --test-dir build</div>
+</div><!-- fragment --><h1 class="doxsection"><a class="anchor" id="autotoc_md6"></a>
+Справочник API</h1>
+<p>Начните с класса <span class="tt"><a class="el" href="classbrain_1_1basic__brain__map.html">brain::basic_brain_map</a></span> (псевдоним <span class="tt">brain::brain_map</span>) и перечислений <span class="tt">brain::pathfinder_algo</span>, <span class="tt">brain::search_mode</span>, <span class="tt">brain::heuristic_method</span>, <span class="tt">brain::maze_algorithm</span>. </p>
+</div></div><!-- PageDoc -->
+<a href="doxygen_crawl.html"></a>
+</div><!-- contents -->
+</div><!-- doc-content -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Создано системой <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>library-brainmap: Класс basic_hpa_graph</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">library-brainmap<span id="projectnumber">&#160;1.1.0</span>
+   </div>
+   <div id="projectbrief">Maze generation and path finding on a neuron grid (A*, Dijkstra, BFS, DFS)</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Поиск',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('classbasic__hpa__graph.html','','classbasic__hpa__graph-members'); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Загрузка...</div>
+<div class="SRStatus" id="Searching">Поиск...</div>
+<div class="SRStatus" id="NoMatches">Не найдено</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Класс basic_hpa_graph</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Hierarchical path finding (HPA*).  
+ <a href="#details">Подробнее...</a></p>
+
+<p><code>#include &lt;<a class="el" href="brain__hpa_8hpp_source.html">brain_hpa.hpp</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-types" class="groupheader"><a id="pub-types" name="pub-types"></a>
+Открытые типы</h2></td></tr>
+<tr class="memitem:afc4f5280738ddea3efd3231a7402fd5e" id="r_afc4f5280738ddea3efd3231a7402fd5e"><td class="memItemLeft" align="right" valign="top"><a id="afc4f5280738ddea3efd3231a7402fd5e" name="afc4f5280738ddea3efd3231a7402fd5e"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>map_type</b> = basic_brain_map&lt;ISite, INeuron&gt;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Открытые члены</h2></td></tr>
+<tr class="memitem:a1661153bcdc3cefd252d64af9eef0de9" id="r_a1661153bcdc3cefd252d64af9eef0de9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1661153bcdc3cefd252d64af9eef0de9">build</a> (map_type &amp;map, int <a class="el" href="#a513e00bf00013276300a8724652488ae">cluster_size</a>=8, bool sparse=false)</td></tr>
+<tr class="memdesc:a1661153bcdc3cefd252d64af9eef0de9"><td class="mdescLeft">&#160;</td><td class="mdescRight">build the abstract graph  <br /></td></tr>
+<tr class="memitem:ad2b3d8745295eae1c93673566ee4c69e" id="r_ad2b3d8745295eae1c93673566ee4c69e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad2b3d8745295eae1c93673566ee4c69e">is_built</a> () const</td></tr>
+<tr class="memitem:a312cabbb90a6e4e1a3ab6f7518d9abda" id="r_a312cabbb90a6e4e1a3ab6f7518d9abda"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a312cabbb90a6e4e1a3ab6f7518d9abda">node_count</a> () const</td></tr>
+<tr class="memitem:a513e00bf00013276300a8724652488ae" id="r_a513e00bf00013276300a8724652488ae"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a513e00bf00013276300a8724652488ae">cluster_size</a> () const</td></tr>
+<tr class="memitem:ac2ca9631bd9a1c7baf4db4f18f721572" id="r_ac2ca9631bd9a1c7baf4db4f18f721572"><td class="memTemplParams" colspan="2">template&lt;typename list_type&gt; </td></tr>
+<tr class="memitem:ac2ca9631bd9a1c7baf4db4f18f721572 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac2ca9631bd9a1c7baf4db4f18f721572">find</a> (const ISite &amp;from, const ISite &amp;to, list_type &amp;out, weight_t *cost_out=nullptr)</td></tr>
+<tr class="memdesc:ac2ca9631bd9a1c7baf4db4f18f721572"><td class="mdescLeft">&#160;</td><td class="mdescRight">find a path  <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Подробное описание</h2>
+<div class="textblock"><p>Hierarchical path finding (HPA*). </p>
+<p>The map is cut into square clusters. Every free cell that has a legal step into another cluster is an "entrance" node of the abstract graph; the nodes of one cluster are linked by their exact in-cluster costs, the nodes of neighbour clusters by the border step. A query inserts the start and the goal into the graph, searches the small abstract graph and refines every abstract edge into real cells.</p>
+<p>Because every border step is represented, the abstract graph is exact: the returned cost equals the cost of a Dijkstra search (the path itself may differ between equal-cost alternatives). The price is the memory and the build time of the graph, so the class pays off on big maps with many queries.</p>
+<p>The graph stores its own data. It is built for the walls, the identity, the step costs and the corner cutting rule of the map at the moment of <a class="el" href="#a1661153bcdc3cefd252d64af9eef0de9" title="build the abstract graph">build()</a>; call <a class="el" href="#a1661153bcdc3cefd252d64af9eef0de9" title="build the abstract graph">build()</a> again after the map changes. </p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Методы</h2>
+<a id="a1661153bcdc3cefd252d64af9eef0de9" name="a1661153bcdc3cefd252d64af9eef0de9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1661153bcdc3cefd252d64af9eef0de9">&#9670;&#160;</a></span>build()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool basic_hpa_graph::build </td>
+          <td>(</td>
+          <td class="paramtype">map_type &amp;</td>          <td class="paramname"><span class="paramname"><em>map</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>cluster_size</em></span><span class="paramdefsep"> = </span><span class="paramdefval">8</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>sparse</em></span><span class="paramdefsep"> = </span><span class="paramdefval">false</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>build the abstract graph </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">map</td><td>the map to read, it is not modified </td></tr>
+    <tr><td class="paramname">cluster_size</td><td>the side of a square cluster (at least 2), bigger clusters mean a smaller abstract graph but slower queries </td></tr>
+    <tr><td class="paramname">sparse</td><td>false: every border step is represented, the graph is exact but big. true: only the first, the middle and the last step of every free stretch of a border are kept. The graph is several times smaller and much faster to build, the paths may be slightly longer than optimal, and when the sparse graph finds no route <a class="el" href="#ac2ca9631bd9a1c7baf4db4f18f721572" title="find a path">find()</a> falls back to a plain A* search of the map, so reachability stays exact. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a513e00bf00013276300a8724652488ae" name="a513e00bf00013276300a8724652488ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a513e00bf00013276300a8724652488ae">&#9670;&#160;</a></span>cluster_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int basic_hpa_graph::cluster_size </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Возвращает</dt><dd>the cluster side the graph was built with </dd></dl>
+
+</div>
+</div>
+<a id="ac2ca9631bd9a1c7baf4db4f18f721572" name="ac2ca9631bd9a1c7baf4db4f18f721572"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2ca9631bd9a1c7baf4db4f18f721572">&#9670;&#160;</a></span>find()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename list_type&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool basic_hpa_graph::find </td>
+          <td>(</td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>from</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>to</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">list_type &amp;</td>          <td class="paramname"><span class="paramname"><em>out</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">weight_t *</td>          <td class="paramname"><span class="paramname"><em>cost_out</em></span><span class="paramdefsep"> = </span><span class="paramdefval">nullptr</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>find a path </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from</td><td>the start </td></tr>
+    <tr><td class="paramname">to</td><td>the goal </td></tr>
+    <tr><td class="paramname">out</td><td>receives the cells from start to goal (both included), cleared before </td></tr>
+    <tr><td class="paramname">cost_out</td><td>optional, receives the cost of the path </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>false if the goal can not be reached, or a cell is locked or outside of the map </dd></dl>
+
+</div>
+</div>
+<a id="ad2b3d8745295eae1c93673566ee4c69e" name="ad2b3d8745295eae1c93673566ee4c69e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2b3d8745295eae1c93673566ee4c69e">&#9670;&#160;</a></span>is_built()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool basic_hpa_graph::is_built </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Возвращает</dt><dd>true once <a class="el" href="#a1661153bcdc3cefd252d64af9eef0de9" title="build the abstract graph">build()</a> succeeded </dd></dl>
+
+</div>
+</div>
+<a id="a312cabbb90a6e4e1a3ab6f7518d9abda" name="a312cabbb90a6e4e1a3ab6f7518d9abda"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a312cabbb90a6e4e1a3ab6f7518d9abda">&#9670;&#160;</a></span>node_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t basic_hpa_graph::node_count </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Возвращает</dt><dd>the number of abstract nodes (entrance cells) </dd></dl>
+
+</div>
+</div>
+<hr/>Объявления и описания членов класса находятся в файле:<ul>
+<li>include/<a class="el" href="brain__hpa_8hpp_source.html">brain_hpa.hpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a href="classbasic__hpa__graph.html">basic_hpa_graph</a></li>
+    <li class="footer">Создано системой <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>

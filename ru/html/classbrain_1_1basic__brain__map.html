@@ -1,0 +1,1525 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>library-brainmap: Класс brain::basic_brain_map</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">library-brainmap<span id="projectnumber">&#160;1.1.0</span>
+   </div>
+   <div id="projectbrief">Maze generation and path finding on a neuron grid (A*, Dijkstra, BFS, DFS)</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Поиск',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('classbrain_1_1basic__brain__map.html','','classbrain_1_1basic__brain__map-members'); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Загрузка...</div>
+<div class="SRStatus" id="Searching">Поиск...</div>
+<div class="SRStatus" id="NoMatches">Не найдено</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Класс brain::basic_brain_map</div></div>
+</div><!--header-->
+<div class="contents">
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Классы</h2></td></tr>
+<tr class="memitem:bwd_5Fslot" id="r_bwd_5Fslot"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbrain_1_1basic__brain__map_1_1bwd__slot.html">bwd_slot</a></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-types" class="groupheader"><a id="pub-types" name="pub-types"></a>
+Открытые типы</h2></td></tr>
+<tr class="memitem:a018e4bf74a74479049de2ad8bd742bef" id="r_a018e4bf74a74479049de2ad8bd742bef"><td class="memTemplParams" colspan="2"><a id="a018e4bf74a74479049de2ad8bd742bef" name="a018e4bf74a74479049de2ad8bd742bef"></a>
+template&lt;typename T&gt; </td></tr>
+<tr class="memitem:a018e4bf74a74479049de2ad8bd742bef template"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><b>basic_list</b> = std::vector&lt;T&gt;</td></tr>
+<tr class="memitem:a05de8a83886e50867aea06b1f6a45147" id="r_a05de8a83886e50867aea06b1f6a45147"><td class="memItemLeft" align="right" valign="top"><a id="a05de8a83886e50867aea06b1f6a45147" name="a05de8a83886e50867aea06b1f6a45147"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>site_type</b> = ISite</td></tr>
+<tr class="memitem:af125f26bb0da4f9790c209ec899efe77" id="r_af125f26bb0da4f9790c209ec899efe77"><td class="memItemLeft" align="right" valign="top"><a id="af125f26bb0da4f9790c209ec899efe77" name="af125f26bb0da4f9790c209ec899efe77"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>neuron_type</b> = INeuron</td></tr>
+<tr class="memitem:a93716b8393cd758b84a6d08b17560800" id="r_a93716b8393cd758b84a6d08b17560800"><td class="memItemLeft" align="right" valign="top"><a id="a93716b8393cd758b84a6d08b17560800" name="a93716b8393cd758b84a6d08b17560800"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>list_site</b> = basic_list&lt;ISite&gt;</td></tr>
+<tr class="memitem:a69b7bb5e0dad1b9390bbbe9f5a257f04" id="r_a69b7bb5e0dad1b9390bbbe9f5a257f04"><td class="memItemLeft" align="right" valign="top"><a id="a69b7bb5e0dad1b9390bbbe9f5a257f04" name="a69b7bb5e0dad1b9390bbbe9f5a257f04"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>list_neuron</b> = basic_list&lt;INeuron *&gt;</td></tr>
+<tr class="memitem:a822a72b8ac63fe66a7bd30b12b207387" id="r_a822a72b8ac63fe66a7bd30b12b207387"><td class="memItemLeft" align="right" valign="top"><a id="a822a72b8ac63fe66a7bd30b12b207387" name="a822a72b8ac63fe66a7bd30b12b207387"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>result_site</b> = <a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt;list_site&gt;</td></tr>
+<tr class="memitem:a858fdf12b98eb56b5f8697fb716bdf5e" id="r_a858fdf12b98eb56b5f8697fb716bdf5e"><td class="memItemLeft" align="right" valign="top"><a id="a858fdf12b98eb56b5f8697fb716bdf5e" name="a858fdf12b98eb56b5f8697fb716bdf5e"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>result_neuron</b> = <a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt;list_neuron&gt;</td></tr>
+<tr class="memitem:add617adc457b45cb440102facf195adb" id="r_add617adc457b45cb440102facf195adb"><td class="memItemLeft" align="right" valign="top"><a id="add617adc457b45cb440102facf195adb" name="add617adc457b45cb440102facf195adb"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>randomize_function</b> = std::function&lt;int(void)&gt;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Открытые члены</h2></td></tr>
+<tr class="memitem:a1e54f7a5e703bdbf6274e1dafe5cc90b" id="r_a1e54f7a5e703bdbf6274e1dafe5cc90b"><td class="memItemLeft" align="right" valign="top"><a id="a1e54f7a5e703bdbf6274e1dafe5cc90b" name="a1e54f7a5e703bdbf6274e1dafe5cc90b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>basic_brain_map</b> (std::uint32_t xlength, std::uint32_t ylength)</td></tr>
+<tr class="memitem:a4da3f47320a4a89043e65f658fd99be6" id="r_a4da3f47320a4a89043e65f658fd99be6"><td class="memItemLeft" align="right" valign="top"><a id="a4da3f47320a4a89043e65f658fd99be6" name="a4da3f47320a4a89043e65f658fd99be6"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>basic_brain_map</b> (const basic_brain_map &amp;)=delete</td></tr>
+<tr class="memitem:acaa5bb03679c293c3df5a6a3ca84fe2f" id="r_acaa5bb03679c293c3df5a6a3ca84fe2f"><td class="memItemLeft" align="right" valign="top"><a id="acaa5bb03679c293c3df5a6a3ca84fe2f" name="acaa5bb03679c293c3df5a6a3ca84fe2f"></a>
+basic_brain_map &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const basic_brain_map &amp;)=delete</td></tr>
+<tr class="memitem:a0a13781a43e7cdbb6c38f156dab32c64" id="r_a0a13781a43e7cdbb6c38f156dab32c64"><td class="memItemLeft" align="right" valign="top"><a id="a0a13781a43e7cdbb6c38f156dab32c64" name="a0a13781a43e7cdbb6c38f156dab32c64"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>basic_brain_map</b> (basic_brain_map &amp;&amp;other) noexcept</td></tr>
+<tr class="memitem:a29d6fd55975b9bbd1059085af99a85c0" id="r_a29d6fd55975b9bbd1059085af99a85c0"><td class="memItemLeft" align="right" valign="top"><a id="a29d6fd55975b9bbd1059085af99a85c0" name="a29d6fd55975b9bbd1059085af99a85c0"></a>
+basic_brain_map &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (basic_brain_map &amp;&amp;other) noexcept</td></tr>
+<tr class="memitem:a8a56794e8477ac053e3b775d57952952" id="r_a8a56794e8477ac053e3b775d57952952"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8a56794e8477ac053e3b775d57952952">data</a> () const</td></tr>
+<tr class="memdesc:a8a56794e8477ac053e3b775d57952952"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the raw brain data (with locks)  <br /></td></tr>
+<tr class="memitem:a0d7d63f8eb54ae5110b81e6e693ccda4" id="r_a0d7d63f8eb54ae5110b81e6e693ccda4"><td class="memItemLeft" align="right" valign="top"><a id="a0d7d63f8eb54ae5110b81e6e693ccda4" name="a0d7d63f8eb54ae5110b81e6e693ccda4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>clear</b> (bool clearLocks=false)</td></tr>
+<tr class="memdesc:a0d7d63f8eb54ae5110b81e6e693ccda4"><td class="mdescLeft">&#160;</td><td class="mdescRight">clear neurons @clearLocks also clear locked data <br /></td></tr>
+<tr class="memitem:aa95f045158f3a5af261dfed2cf814ca8" id="r_aa95f045158f3a5af261dfed2cf814ca8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa95f045158f3a5af261dfed2cf814ca8">fill</a> (bool fillLocks=false)</td></tr>
+<tr class="memdesc:aa95f045158f3a5af261dfed2cf814ca8"><td class="mdescLeft">&#160;</td><td class="mdescRight">fill data  <br /></td></tr>
+<tr class="memitem:a473558a5399e11532723391542df3d78" id="r_a473558a5399e11532723391542df3d78"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a473558a5399e11532723391542df3d78">fill_locks</a> (bool state)</td></tr>
+<tr class="memdesc:a473558a5399e11532723391542df3d78"><td class="mdescLeft">&#160;</td><td class="mdescRight">fill lock data  <br /></td></tr>
+<tr class="memitem:a293189230919c29df4a1473dbf55504a" id="r_a293189230919c29df4a1473dbf55504a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a293189230919c29df4a1473dbf55504a">randomize_hardware</a> (int flagFilter=0xdeadbeff)</td></tr>
+<tr class="memdesc:a293189230919c29df4a1473dbf55504a"><td class="mdescLeft">&#160;</td><td class="mdescRight">randomize_hardware the function for randomized data  <br /></td></tr>
+<tr class="memitem:ae697fd32d08fd4d5c164f1504fc2d4fb" id="r_ae697fd32d08fd4d5c164f1504fc2d4fb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae697fd32d08fd4d5c164f1504fc2d4fb">set_random_function</a> (const randomize_function &amp;randomizer)</td></tr>
+<tr class="memdesc:ae697fd32d08fd4d5c164f1504fc2d4fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">set the custom randomize functions  <br /></td></tr>
+<tr class="memitem:a8c81a7bc3cac32c4c1abcdce2bbcd22b" id="r_a8c81a7bc3cac32c4c1abcdce2bbcd22b"><td class="memItemLeft" align="right" valign="top"><a id="a8c81a7bc3cac32c4c1abcdce2bbcd22b" name="a8c81a7bc3cac32c4c1abcdce2bbcd22b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>create_maze</b> ()</td></tr>
+<tr class="memdesc:a8c81a7bc3cac32c4c1abcdce2bbcd22b"><td class="mdescLeft">&#160;</td><td class="mdescRight">create maze for map <br /></td></tr>
+<tr class="memitem:ad6f9c3ccdce425e987992495c0304541" id="r_ad6f9c3ccdce425e987992495c0304541"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad6f9c3ccdce425e987992495c0304541">create_maze_ex</a> (maze_algorithm mazeAlgoritm, ISite startOf={0, 0}, ISite endOf={0, 0})</td></tr>
+<tr class="memdesc:ad6f9c3ccdce425e987992495c0304541"><td class="mdescLeft">&#160;</td><td class="mdescRight">create maze for map with extensions  <br /></td></tr>
+<tr class="memitem:a7ae6d93a07fc7997ad3f9d81ee9661d0" id="r_a7ae6d93a07fc7997ad3f9d81ee9661d0"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7ae6d93a07fc7997ad3f9d81ee9661d0">size</a> ()</td></tr>
+<tr class="memdesc:a7ae6d93a07fc7997ad3f9d81ee9661d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">size of the neurons  <br /></td></tr>
+<tr class="memitem:a2bcdf9350ec65f8dc085a34575581319" id="r_a2bcdf9350ec65f8dc085a34575581319"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2bcdf9350ec65f8dc085a34575581319">reserved_bits</a> ()</td></tr>
+<tr class="memdesc:a2bcdf9350ec65f8dc085a34575581319"><td class="mdescLeft">&#160;</td><td class="mdescRight">free bits and not used diaposoned from 0 to 7  <br /></td></tr>
+<tr class="memitem:aeed57fa101d2b8511b133e39286a9b44" id="r_aeed57fa101d2b8511b133e39286a9b44"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeed57fa101d2b8511b133e39286a9b44">set_identity</a> (matrix_identity identity)</td></tr>
+<tr class="memdesc:aeed57fa101d2b8511b133e39286a9b44"><td class="mdescLeft">&#160;</td><td class="mdescRight">set the identity  <br /></td></tr>
+<tr class="memitem:a72f0936a92b7363a9e20f083c0871b3c" id="r_a72f0936a92b7363a9e20f083c0871b3c"><td class="memItemLeft" align="right" valign="top">matrix_identity&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a72f0936a92b7363a9e20f083c0871b3c">get_identity</a> ()</td></tr>
+<tr class="memdesc:a72f0936a92b7363a9e20f083c0871b3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the identity method  <br /></td></tr>
+<tr class="memitem:aaaaa28e15647397a4f8c0e467354bace" id="r_aaaaa28e15647397a4f8c0e467354bace"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaaaa28e15647397a4f8c0e467354bace">set_custom_weights</a> (weight_t orthogonal, weight_t diagonal)</td></tr>
+<tr class="memdesc:aaaaa28e15647397a4f8c0e467354bace"><td class="mdescLeft">&#160;</td><td class="mdescRight">use own step costs instead of the built-in ones of the matrix identity  <br /></td></tr>
+<tr class="memitem:a40c3ffec7943fe07ec9fb02299405165" id="r_a40c3ffec7943fe07ec9fb02299405165"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a40c3ffec7943fe07ec9fb02299405165">set_custom_heuristic</a> (heuristic_function heuristic)</td></tr>
+<tr class="memdesc:a40c3ffec7943fe07ec9fb02299405165"><td class="mdescLeft">&#160;</td><td class="mdescRight">use an own heuristic function (<a class="el" href="#ad454ca6477c0d2e98e059744c2f7fa45" title="get the heuristic method">get_heuristic()</a> then returns HeuristicMethod::Custom)  <br /></td></tr>
+<tr class="memitem:a1c117800cf0f2028732d66e88a934bdc" id="r_a1c117800cf0f2028732d66e88a934bdc"><td class="memItemLeft" align="right" valign="top"><a id="a1c117800cf0f2028732d66e88a934bdc" name="a1c117800cf0f2028732d66e88a934bdc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_custom_corner_cutting</b> (bool allow)</td></tr>
+<tr class="memdesc:a1c117800cf0f2028732d66e88a934bdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">allow (true) or forbid (false, default) a diagonal step between two locked cells touching at their corner <br /></td></tr>
+<tr class="memitem:a89fa2ba7595ee839476554ebbbbc4714" id="r_a89fa2ba7595ee839476554ebbbbc4714"><td class="memItemLeft" align="right" valign="top"><a id="a89fa2ba7595ee839476554ebbbbc4714" name="a89fa2ba7595ee839476554ebbbbc4714"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>get_custom_corner_cutting</b> () const</td></tr>
+<tr class="memdesc:a89fa2ba7595ee839476554ebbbbc4714"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the corner cutting rule <br /></td></tr>
+<tr class="memitem:ab6236b54c579c45130631011e1fa4000" id="r_ab6236b54c579c45130631011e1fa4000"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab6236b54c579c45130631011e1fa4000">set_heuristic</a> (heuristic_method method)</td></tr>
+<tr class="memdesc:ab6236b54c579c45130631011e1fa4000"><td class="mdescLeft">&#160;</td><td class="mdescRight">set the heuristic method  <br /></td></tr>
+<tr class="memitem:ad454ca6477c0d2e98e059744c2f7fa45" id="r_ad454ca6477c0d2e98e059744c2f7fa45"><td class="memItemLeft" align="right" valign="top">heuristic_method&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad454ca6477c0d2e98e059744c2f7fa45">get_heuristic</a> ()</td></tr>
+<tr class="memdesc:ad454ca6477c0d2e98e059744c2f7fa45"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the heuristic method  <br /></td></tr>
+<tr class="memitem:ac7d4659e4cf1e60e7de755d997e2bc9b" id="r_ac7d4659e4cf1e60e7de755d997e2bc9b"><td class="memItemLeft" align="right" valign="top">std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac7d4659e4cf1e60e7de755d997e2bc9b">get_width</a> ()</td></tr>
+<tr class="memdesc:ac7d4659e4cf1e60e7de755d997e2bc9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">horizontal length of the neurons  <br /></td></tr>
+<tr class="memitem:afd4b344b029f344112322f0c48b96b4c" id="r_afd4b344b029f344112322f0c48b96b4c"><td class="memItemLeft" align="right" valign="top">std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afd4b344b029f344112322f0c48b96b4c">get_height</a> ()</td></tr>
+<tr class="memdesc:afd4b344b029f344112322f0c48b96b4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">vertical length of the neurons  <br /></td></tr>
+<tr class="memitem:a776c50e4ee050ad3bef14a13f7cb452b" id="r_a776c50e4ee050ad3bef14a13f7cb452b"><td class="memItemLeft" align="right" valign="top">INeuron *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a776c50e4ee050ad3bef14a13f7cb452b">get</a> (int x, int y)</td></tr>
+<tr class="memdesc:a776c50e4ee050ad3bef14a13f7cb452b"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the neuron  <br /></td></tr>
+<tr class="memitem:a036d56737d30ef54a457f8c1c655f020" id="r_a036d56737d30ef54a457f8c1c655f020"><td class="memItemLeft" align="right" valign="top">INeuron *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a036d56737d30ef54a457f8c1c655f020">get</a> (const ISite &amp;site)</td></tr>
+<tr class="memdesc:a036d56737d30ef54a457f8c1c655f020"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the neuron  <br /></td></tr>
+<tr class="memitem:aa9647c110cd8a202333ca7f05f3c9c0f" id="r_aa9647c110cd8a202333ca7f05f3c9c0f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa9647c110cd8a202333ca7f05f3c9c0f">contains</a> (const ISite &amp;site)</td></tr>
+<tr class="memdesc:aa9647c110cd8a202333ca7f05f3c9c0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">contains site location  <br /></td></tr>
+<tr class="memitem:a85a242a237588dedd514b4adb86b9523" id="r_a85a242a237588dedd514b4adb86b9523"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a85a242a237588dedd514b4adb86b9523">contains</a> (const INeuron *neuron)</td></tr>
+<tr class="memdesc:a85a242a237588dedd514b4adb86b9523"><td class="mdescLeft">&#160;</td><td class="mdescRight">contains neuron  <br /></td></tr>
+<tr class="memitem:a1f6352c6003eb1af8ad9a05e17ec929c" id="r_a1f6352c6003eb1af8ad9a05e17ec929c"><td class="memItemLeft" align="right" valign="top">INeuron *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1f6352c6003eb1af8ad9a05e17ec929c">front</a> ()</td></tr>
+<tr class="memdesc:a1f6352c6003eb1af8ad9a05e17ec929c"><td class="mdescLeft">&#160;</td><td class="mdescRight">front neuron (the most first)  <br /></td></tr>
+<tr class="memitem:a83950679aa625b6685f23e8e0432c46a" id="r_a83950679aa625b6685f23e8e0432c46a"><td class="memItemLeft" align="right" valign="top">INeuron *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a83950679aa625b6685f23e8e0432c46a">back</a> ()</td></tr>
+<tr class="memdesc:a83950679aa625b6685f23e8e0432c46a"><td class="mdescLeft">&#160;</td><td class="mdescRight">back neuron (the most last)  <br /></td></tr>
+<tr class="memitem:aa23a33d1024cb808b614839c64fd1977" id="r_aa23a33d1024cb808b614839c64fd1977"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa23a33d1024cb808b614839c64fd1977">has_lock</a> (const ISite &amp;site)</td></tr>
+<tr class="memdesc:aa23a33d1024cb808b614839c64fd1977"><td class="mdescLeft">&#160;</td><td class="mdescRight">check location has been locked  <br /></td></tr>
+<tr class="memitem:a518a619fded8f77d89dc31fb799a05d0" id="r_a518a619fded8f77d89dc31fb799a05d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a518a619fded8f77d89dc31fb799a05d0">set_lock</a> (const ISite &amp;site, const bool lock_state)</td></tr>
+<tr class="memdesc:a518a619fded8f77d89dc31fb799a05d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">set lock site location  <br /></td></tr>
+<tr class="memitem:abde6e5c7cef83021e26d77772df89260" id="r_abde6e5c7cef83021e26d77772df89260"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abde6e5c7cef83021e26d77772df89260">has_lock</a> (const INeuron *neuron)</td></tr>
+<tr class="memdesc:abde6e5c7cef83021e26d77772df89260"><td class="mdescLeft">&#160;</td><td class="mdescRight">check neuron has been locked  <br /></td></tr>
+<tr class="memitem:a5d184e378a25b632a8b42fc08eb52274" id="r_a5d184e378a25b632a8b42fc08eb52274"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5d184e378a25b632a8b42fc08eb52274">set_lock</a> (const INeuron *neuron, const bool lock_state)</td></tr>
+<tr class="memdesc:a5d184e378a25b632a8b42fc08eb52274"><td class="mdescLeft">&#160;</td><td class="mdescRight">set lock neuron  <br /></td></tr>
+<tr class="memitem:a371bcbd26b25bb562165d5b53a4326c6" id="r_a371bcbd26b25bb562165d5b53a4326c6"><td class="memItemLeft" align="right" valign="top">const ISite&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a371bcbd26b25bb562165d5b53a4326c6">get_point</a> (const INeuron *neuron)</td></tr>
+<tr class="memdesc:a371bcbd26b25bb562165d5b53a4326c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">convert neuron to location (site) obejct  <br /></td></tr>
+<tr class="memitem:a59f369f1c6b3638d6d290c7ea3dd7f26" id="r_a59f369f1c6b3638d6d290c7ea3dd7f26"><td class="memTemplParams" colspan="2">template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:a59f369f1c6b3638d6d290c7ea3dd7f26 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a59f369f1c6b3638d6d290c7ea3dd7f26">find</a> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memdesc:a59f369f1c6b3638d6d290c7ea3dd7f26"><td class="mdescLeft">&#160;</td><td class="mdescRight">find neurons for selects  <br /></td></tr>
+<tr class="memitem:af9d1666e003c5976ebe7998bc813e47a" id="r_af9d1666e003c5976ebe7998bc813e47a"><td class="memTemplParams" colspan="2"><a id="af9d1666e003c5976ebe7998bc813e47a" name="af9d1666e003c5976ebe7998bc813e47a"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:af9d1666e003c5976ebe7998bc813e47a template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>find</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron, search_mode mode)</td></tr>
+<tr class="memitem:a3fd41c8a4eee2201208c9e917aa7d69c" id="r_a3fd41c8a4eee2201208c9e917aa7d69c"><td class="memTemplParams" colspan="2">template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:a3fd41c8a4eee2201208c9e917aa7d69c template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3fd41c8a4eee2201208c9e917aa7d69c">find</a> (pathfinder_algo pathfinder, <a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron, search_mode mode)</td></tr>
+<tr class="memdesc:a3fd41c8a4eee2201208c9e917aa7d69c"><td class="mdescLeft">&#160;</td><td class="mdescRight">find a path with the selected algorithm.  <br /></td></tr>
+<tr class="memitem:a64d516e37a0779fbf1fe7baa0b041a31" id="r_a64d516e37a0779fbf1fe7baa0b041a31"><td class="memTemplParams" colspan="2">template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:a64d516e37a0779fbf1fe7baa0b041a31 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a64d516e37a0779fbf1fe7baa0b041a31">find</a> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, const ISite &amp;first, const ISite &amp;last)</td></tr>
+<tr class="memdesc:a64d516e37a0779fbf1fe7baa0b041a31"><td class="mdescLeft">&#160;</td><td class="mdescRight">find locations for selects  <br /></td></tr>
+<tr class="memitem:ae772fbe41dcc4faa2102b273c7a33842" id="r_ae772fbe41dcc4faa2102b273c7a33842"><td class="memTemplParams" colspan="2"><a id="ae772fbe41dcc4faa2102b273c7a33842" name="ae772fbe41dcc4faa2102b273c7a33842"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:ae772fbe41dcc4faa2102b273c7a33842 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>find</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, const ISite &amp;first, const ISite &amp;last, search_mode mode)</td></tr>
+<tr class="memitem:a2be408f4522828589be1dbdeb9225c57" id="r_a2be408f4522828589be1dbdeb9225c57"><td class="memTemplParams" colspan="2"><a id="a2be408f4522828589be1dbdeb9225c57" name="a2be408f4522828589be1dbdeb9225c57"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:a2be408f4522828589be1dbdeb9225c57 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>find</b> (pathfinder_algo pathfinder, <a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, const ISite &amp;first, const ISite &amp;last, search_mode mode)</td></tr>
+<tr class="memitem:a37836e4580cb513af98c0587268c7793" id="r_a37836e4580cb513af98c0587268c7793"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a37836e4580cb513af98c0587268c7793">set_trace</a> (std::vector&lt; ISite &gt; *trace)</td></tr>
+<tr class="memdesc:a37836e4580cb513af98c0587268c7793"><td class="mdescLeft">&#160;</td><td class="mdescRight">record the order in which the next searches expand sites (nullptr disables).  <br /></td></tr>
+<tr class="memitem:a376f4510e94e44c02c855c7018d48033" id="r_a376f4510e94e44c02c855c7018d48033"><td class="memItemLeft" align="right" valign="top"><a id="a376f4510e94e44c02c855c7018d48033" name="a376f4510e94e44c02c855c7018d48033"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_search_mode</b> (search_mode mode)</td></tr>
+<tr class="memdesc:a376f4510e94e44c02c855c7018d48033"><td class="mdescLeft">&#160;</td><td class="mdescRight">set search mode (UniDirectional or BiDirectional) <br /></td></tr>
+<tr class="memitem:a6f2648bc8a061d1367d77f2875ab2795" id="r_a6f2648bc8a061d1367d77f2875ab2795"><td class="memItemLeft" align="right" valign="top"><a id="a6f2648bc8a061d1367d77f2875ab2795" name="a6f2648bc8a061d1367d77f2875ab2795"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_pathfinder</b> (pathfinder_algo pathfinder)</td></tr>
+<tr class="memdesc:a6f2648bc8a061d1367d77f2875ab2795"><td class="mdescLeft">&#160;</td><td class="mdescRight">set the default pathfinder algorithm used by <a class="el" href="#a59f369f1c6b3638d6d290c7ea3dd7f26" title="find neurons for selects">find()</a> without an explicit pathfinder <br /></td></tr>
+<tr class="memitem:a88ec556c1ac627b068da1a39feaa7ba0" id="r_a88ec556c1ac627b068da1a39feaa7ba0"><td class="memItemLeft" align="right" valign="top"><a id="a88ec556c1ac627b068da1a39feaa7ba0" name="a88ec556c1ac627b068da1a39feaa7ba0"></a>
+pathfinder_algo&#160;</td><td class="memItemRight" valign="bottom"><b>get_pathfinder</b> () const</td></tr>
+<tr class="memdesc:a88ec556c1ac627b068da1a39feaa7ba0"><td class="mdescLeft">&#160;</td><td class="mdescRight">get the default pathfinder algorithm <br /></td></tr>
+<tr class="memitem:a1af1f0f76cb7463d6794123d160d480b" id="r_a1af1f0f76cb7463d6794123d160d480b"><td class="memItemLeft" align="right" valign="top"><a id="a1af1f0f76cb7463d6794123d160d480b" name="a1af1f0f76cb7463d6794123d160d480b"></a>
+search_mode&#160;</td><td class="memItemRight" valign="bottom"><b>get_search_mode</b> () const</td></tr>
+<tr class="memdesc:a1af1f0f76cb7463d6794123d160d480b"><td class="mdescLeft">&#160;</td><td class="mdescRight">get current search mode <br /></td></tr>
+<tr class="memitem:adbf252cdb9930a01986ae9487d535d1c" id="r_adbf252cdb9930a01986ae9487d535d1c"><td class="memItemLeft" align="right" valign="top"><a id="adbf252cdb9930a01986ae9487d535d1c" name="adbf252cdb9930a01986ae9487d535d1c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>load</b> (const <a class="el" href="structbrain_1_1brain__breakfast.html">brain_breakfast</a> &amp;)</td></tr>
+<tr class="memdesc:adbf252cdb9930a01986ae9487d535d1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">load breakfast <br /></td></tr>
+<tr class="memitem:a68378f2ff7024a6fda199b680bfcf064" id="r_a68378f2ff7024a6fda199b680bfcf064"><td class="memItemLeft" align="right" valign="top"><a id="a68378f2ff7024a6fda199b680bfcf064" name="a68378f2ff7024a6fda199b680bfcf064"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>save</b> (<a class="el" href="structbrain_1_1brain__breakfast.html">brain_breakfast</a> *)</td></tr>
+<tr class="memdesc:a68378f2ff7024a6fda199b680bfcf064"><td class="mdescLeft">&#160;</td><td class="mdescRight">save to breakfast <br /></td></tr>
+<tr class="memitem:a2a35ed2a6e4e410aac27e1de13ac3731" id="r_a2a35ed2a6e4e410aac27e1de13ac3731"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a35ed2a6e4e410aac27e1de13ac3731">get_cached_size</a> ()</td></tr>
+<tr class="memdesc:a2a35ed2a6e4e410aac27e1de13ac3731"><td class="mdescLeft">&#160;</td><td class="mdescRight">cached size of the finded last result  <br /></td></tr>
+<tr class="memitem:ac79f403bbdbad991e9b141a181395654" id="r_ac79f403bbdbad991e9b141a181395654"><td class="memTemplParams" colspan="2">template&lt;typename list_type = list_site, typename target_type = typename list_type::value_type&gt; </td></tr>
+<tr class="memitem:ac79f403bbdbad991e9b141a181395654 template"><td class="memItemLeft" align="right" valign="top">list_type&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac79f403bbdbad991e9b141a181395654">get_neighbours</a> (matrix_identity matrixIdentity, const target_type &amp;from)</td></tr>
+<tr class="memdesc:ac79f403bbdbad991e9b141a181395654"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get Neighbours offset selective.  <br /></td></tr>
+<tr class="memitem:afb9b56a1acc402002641e872ceaf8a28" id="r_afb9b56a1acc402002641e872ceaf8a28"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afb9b56a1acc402002641e872ceaf8a28">random_number</a> (int min, int max)</td></tr>
+<tr class="memdesc:afb9b56a1acc402002641e872ceaf8a28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the random value of min to max.  <br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pro-methods" class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Защищенные члены</h2></td></tr>
+<tr class="memitem:a618e948356654e74d33af9669c1b1379" id="r_a618e948356654e74d33af9669c1b1379"><td class="memItemLeft" align="right" valign="top"><a id="a618e948356654e74d33af9669c1b1379" name="a618e948356654e74d33af9669c1b1379"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>_begin_search</b> ()</td></tr>
+<tr class="memitem:ac6131573d93b4479e2eb3791b90cad37" id="r_ac6131573d93b4479e2eb3791b90cad37"><td class="memItemLeft" align="right" valign="top"><a id="ac6131573d93b4479e2eb3791b90cad37" name="ac6131573d93b4479e2eb3791b90cad37"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>_touch</b> (INeuron *neuron)</td></tr>
+<tr class="memitem:a34d2be9cf37e9e544a77cddeaf550428" id="r_a34d2be9cf37e9e544a77cddeaf550428"><td class="memItemLeft" align="right" valign="top"><a id="a34d2be9cf37e9e544a77cddeaf550428" name="a34d2be9cf37e9e544a77cddeaf550428"></a>
+INeuron *&#160;</td><td class="memItemRight" valign="bottom"><b>_node</b> (const ISite &amp;site)</td></tr>
+<tr class="memitem:ac7a813fa46e8c1710e66dbff32f193c4" id="r_ac7a813fa46e8c1710e66dbff32f193c4"><td class="memItemLeft" align="right" valign="top"><a id="ac7a813fa46e8c1710e66dbff32f193c4" name="ac7a813fa46e8c1710e66dbff32f193c4"></a>
+<a class="el" href="structbrain_1_1basic__brain__map_1_1bwd__slot.html">bwd_slot</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>_bwd_at</b> (std::size_t index)</td></tr>
+<tr class="memitem:ad8dfeec48b4417a85c6a67760ba93ca6" id="r_ad8dfeec48b4417a85c6a67760ba93ca6"><td class="memItemLeft" align="right" valign="top"><a id="ad8dfeec48b4417a85c6a67760ba93ca6" name="ad8dfeec48b4417a85c6a67760ba93ca6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>_apply_custom_weights</b> ()</td></tr>
+<tr class="memitem:a2f6af7b587ce364593bf26bdb0cc026b" id="r_a2f6af7b587ce364593bf26bdb0cc026b"><td class="memItemLeft" align="right" valign="top"><a id="a2f6af7b587ce364593bf26bdb0cc026b" name="a2f6af7b587ce364593bf26bdb0cc026b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>_lock_bit</b> (std::size_t index) const</td></tr>
+<tr class="memitem:a935b26fb2112d87ba7a211a19dc6305e" id="r_a935b26fb2112d87ba7a211a19dc6305e"><td class="memItemLeft" align="right" valign="top"><a id="a935b26fb2112d87ba7a211a19dc6305e" name="a935b26fb2112d87ba7a211a19dc6305e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>_set_lock_bit</b> (std::size_t index, bool state)</td></tr>
+<tr class="memitem:ad3a7d778cdac64f96694a613bb854a06" id="r_ad3a7d778cdac64f96694a613bb854a06"><td class="memTemplParams" colspan="2"><a id="ad3a7d778cdac64f96694a613bb854a06" name="ad3a7d778cdac64f96694a613bb854a06"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:ad3a7d778cdac64f96694a613bb854a06 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_unidirectional</b> (pathfinder_algo pathfinder, <a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:ad9812a7899fdfdc6d31159bc9010223d" id="r_ad9812a7899fdfdc6d31159bc9010223d"><td class="memTemplParams" colspan="2"><a id="ad9812a7899fdfdc6d31159bc9010223d" name="ad9812a7899fdfdc6d31159bc9010223d"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:ad9812a7899fdfdc6d31159bc9010223d template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_bidirectional</b> (pathfinder_algo pathfinder, <a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:a61b0c7523cc6cd2c06004835fb508a6c" id="r_a61b0c7523cc6cd2c06004835fb508a6c"><td class="memTemplParams" colspan="2"><a id="a61b0c7523cc6cd2c06004835fb508a6c" name="a61b0c7523cc6cd2c06004835fb508a6c"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:a61b0c7523cc6cd2c06004835fb508a6c template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_astar</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:adbd7f39fe6e6c049ca2c4ac8cdafd3b6" id="r_adbd7f39fe6e6c049ca2c4ac8cdafd3b6"><td class="memTemplParams" colspan="2"><a id="adbd7f39fe6e6c049ca2c4ac8cdafd3b6" name="adbd7f39fe6e6c049ca2c4ac8cdafd3b6"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:adbd7f39fe6e6c049ca2c4ac8cdafd3b6 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_best_first</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron, bool use_heuristic, bool greedy=false)</td></tr>
+<tr class="memitem:af81414866958e679f91c9997dd1de2b1" id="r_af81414866958e679f91c9997dd1de2b1"><td class="memTemplParams" colspan="2"><a id="af81414866958e679f91c9997dd1de2b1" name="af81414866958e679f91c9997dd1de2b1"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:af81414866958e679f91c9997dd1de2b1 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_greedy</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:ade50ad7e47481adfccbd955475f57513" id="r_ade50ad7e47481adfccbd955475f57513"><td class="memTemplParams" colspan="2"><a id="ade50ad7e47481adfccbd955475f57513" name="ade50ad7e47481adfccbd955475f57513"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:ade50ad7e47481adfccbd955475f57513 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_bfs_bidirectional</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:a690546f079d48b03d1e7c7cb10054bac" id="r_a690546f079d48b03d1e7c7cb10054bac"><td class="memTemplParams" colspan="2"><a id="a690546f079d48b03d1e7c7cb10054bac" name="a690546f079d48b03d1e7c7cb10054bac"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:a690546f079d48b03d1e7c7cb10054bac template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_dijkstra</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:ad6742a38317e35f45aac957c93fc006f" id="r_ad6742a38317e35f45aac957c93fc006f"><td class="memTemplParams" colspan="2"><a id="ad6742a38317e35f45aac957c93fc006f" name="ad6742a38317e35f45aac957c93fc006f"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:ad6742a38317e35f45aac957c93fc006f template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_bfs</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:a0b8e7053e46dd3dfc9358475fc88e946" id="r_a0b8e7053e46dd3dfc9358475fc88e946"><td class="memTemplParams" colspan="2"><a id="a0b8e7053e46dd3dfc9358475fc88e946" name="a0b8e7053e46dd3dfc9358475fc88e946"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:a0b8e7053e46dd3dfc9358475fc88e946 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_dfs</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:addeb85f8ed7932e005c6f489f758196e" id="r_addeb85f8ed7932e005c6f489f758196e"><td class="memTemplParams" colspan="2"><a id="addeb85f8ed7932e005c6f489f758196e" name="addeb85f8ed7932e005c6f489f758196e"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:addeb85f8ed7932e005c6f489f758196e template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_jps</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:ade7c3c24cbd78ec8f3197c4407d4419a" id="r_ade7c3c24cbd78ec8f3197c4407d4419a"><td class="memTemplParams" colspan="2"><a id="ade7c3c24cbd78ec8f3197c4407d4419a" name="ade7c3c24cbd78ec8f3197c4407d4419a"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:ade7c3c24cbd78ec8f3197c4407d4419a template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_theta</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:a6c121e45bca009bbdfc702d95c904a93" id="r_a6c121e45bca009bbdfc702d95c904a93"><td class="memTemplParams" colspan="2"><a id="a6c121e45bca009bbdfc702d95c904a93" name="a6c121e45bca009bbdfc702d95c904a93"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:a6c121e45bca009bbdfc702d95c904a93 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_ida</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:adb7a8ba9b4cd4e86a63bcd25a3f5b3d3" id="r_adb7a8ba9b4cd4e86a63bcd25a3f5b3d3"><td class="memTemplParams" colspan="2"><a id="adb7a8ba9b4cd4e86a63bcd25a3f5b3d3" name="adb7a8ba9b4cd4e86a63bcd25a3f5b3d3"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:adb7a8ba9b4cd4e86a63bcd25a3f5b3d3 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_begin</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:a232609fb05c75b7b38c17d7c1dbb58e1" id="r_a232609fb05c75b7b38c17d7c1dbb58e1"><td class="memTemplParams" colspan="2"><a id="a232609fb05c75b7b38c17d7c1dbb58e1" name="a232609fb05c75b7b38c17d7c1dbb58e1"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:a232609fb05c75b7b38c17d7c1dbb58e1 template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><b>_find_build_path</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *last)</td></tr>
+<tr class="memitem:aaa20b67830a0f0afb3bae5076982a270" id="r_aaa20b67830a0f0afb3bae5076982a270"><td class="memTemplParams" colspan="2"><a id="aaa20b67830a0f0afb3bae5076982a270" name="aaa20b67830a0f0afb3bae5076982a270"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:aaa20b67830a0f0afb3bae5076982a270 template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><b>_find_emit_nodes</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, const std::vector&lt; INeuron * &gt; &amp;nodes)</td></tr>
+<tr class="memitem:a5967897f48768ad28cbd42c285bab2a2" id="r_a5967897f48768ad28cbd42c285bab2a2"><td class="memTemplParams" colspan="2"><a id="a5967897f48768ad28cbd42c285bab2a2" name="a5967897f48768ad28cbd42c285bab2a2"></a>
+template&lt;typename list_type = result_site&gt; </td></tr>
+<tr class="memitem:a5967897f48768ad28cbd42c285bab2a2 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_trivial</b> (<a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;navResult, INeuron *firstNeuron, INeuron *lastNeuron)</td></tr>
+<tr class="memitem:a5e79dc8eb503692ca9905c42ea8dfe66" id="r_a5e79dc8eb503692ca9905c42ea8dfe66"><td class="memItemLeft" align="right" valign="top"><a id="a5e79dc8eb503692ca9905c42ea8dfe66" name="a5e79dc8eb503692ca9905c42ea8dfe66"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>_find_can_step</b> (const ISite &amp;from, int dir_index)</td></tr>
+<tr class="memitem:a0ec6cf7cf0d2e949db6065e324733dad" id="r_a0ec6cf7cf0d2e949db6065e324733dad"><td class="memItemLeft" align="right" valign="top"><a id="a0ec6cf7cf0d2e949db6065e324733dad" name="a0ec6cf7cf0d2e949db6065e324733dad"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>_internal_realloc</b> ()</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pro-attribs" class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
+Защищенные данные</h2></td></tr>
+<tr class="memitem:a02703245c7c0800c84616daade759206" id="r_a02703245c7c0800c84616daade759206"><td class="memItemLeft" align="right" valign="top"><a id="a02703245c7c0800c84616daade759206" name="a02703245c7c0800c84616daade759206"></a>
+INeuron *&#160;</td><td class="memItemRight" valign="bottom"><b>neurons</b> = nullptr</td></tr>
+<tr class="memitem:a440b453c261accf3d9ee1849fa053a4f" id="r_a440b453c261accf3d9ee1849fa053a4f"><td class="memItemLeft" align="right" valign="top"><a id="a440b453c261accf3d9ee1849fa053a4f" name="a440b453c261accf3d9ee1849fa053a4f"></a>
+randomize_function&#160;</td><td class="memItemRight" valign="bottom"><b>_rand_</b> = std::rand</td></tr>
+<tr class="memitem:a4c8148110432bce7576bd0bfcf911717" id="r_a4c8148110432bce7576bd0bfcf911717"><td class="memItemLeft" align="right" valign="top"><a id="a4c8148110432bce7576bd0bfcf911717" name="a4c8148110432bce7576bd0bfcf911717"></a>
+heuristic_function&#160;</td><td class="memItemRight" valign="bottom"><b>_heuristic_fn</b></td></tr>
+<tr class="memitem:a2ee88d27f7c339b8b84399fa07f5e5ce" id="r_a2ee88d27f7c339b8b84399fa07f5e5ce"><td class="memItemLeft" align="right" valign="top"><a id="a2ee88d27f7c339b8b84399fa07f5e5ce" name="a2ee88d27f7c339b8b84399fa07f5e5ce"></a>
+std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>_seg_off</b></td></tr>
+<tr class="memitem:af363bf842530e9707ca922d54935f223" id="r_af363bf842530e9707ca922d54935f223"><td class="memItemLeft" align="right" valign="top"><a id="af363bf842530e9707ca922d54935f223" name="af363bf842530e9707ca922d54935f223"></a>
+std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>_lock_bytes</b></td></tr>
+<tr class="memitem:a325f69e77704205d2b171e46fc8e51de" id="r_a325f69e77704205d2b171e46fc8e51de"><td class="memItemLeft" align="right" valign="top"><a id="a325f69e77704205d2b171e46fc8e51de" name="a325f69e77704205d2b171e46fc8e51de"></a>
+std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>_xsize</b></td></tr>
+<tr class="memitem:a7c72631b7e563b7c2d401177e84fc648" id="r_a7c72631b7e563b7c2d401177e84fc648"><td class="memItemLeft" align="right" valign="top"><a id="a7c72631b7e563b7c2d401177e84fc648" name="a7c72631b7e563b7c2d401177e84fc648"></a>
+std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>_ysize</b></td></tr>
+<tr class="memitem:a9089a8e48f5ac0f7f1f3db35f7c77235" id="r_a9089a8e48f5ac0f7f1f3db35f7c77235"><td class="memItemLeft" align="right" valign="top"><a id="a9089a8e48f5ac0f7f1f3db35f7c77235" name="a9089a8e48f5ac0f7f1f3db35f7c77235"></a>
+<a class="el" href="structbrain_1_1brain__identity.html">brain_identity</a>&#160;</td><td class="memItemRight" valign="bottom"><b>identity</b></td></tr>
+<tr class="memitem:a8a73657a7a1d76ec4b2941fa79a72eb9" id="r_a8a73657a7a1d76ec4b2941fa79a72eb9"><td class="memItemLeft" align="right" valign="top"><a id="a8a73657a7a1d76ec4b2941fa79a72eb9" name="a8a73657a7a1d76ec4b2941fa79a72eb9"></a>
+search_mode&#160;</td><td class="memItemRight" valign="bottom"><b>_search_mode</b> = search_mode::UniDirectional</td></tr>
+<tr class="memitem:acd460afaf5c0eefb1fe60c7c73ab4a3a" id="r_acd460afaf5c0eefb1fe60c7c73ab4a3a"><td class="memItemLeft" align="right" valign="top"><a id="acd460afaf5c0eefb1fe60c7c73ab4a3a" name="acd460afaf5c0eefb1fe60c7c73ab4a3a"></a>
+pathfinder_algo&#160;</td><td class="memItemRight" valign="bottom"><b>_pathfinder</b> = pathfinder_algo::AStar</td></tr>
+<tr class="memitem:a7ee44be589800e788ec6dce1b66dddbe" id="r_a7ee44be589800e788ec6dce1b66dddbe"><td class="memItemLeft" align="right" valign="top"><a id="a7ee44be589800e788ec6dce1b66dddbe" name="a7ee44be589800e788ec6dce1b66dddbe"></a>
+std::vector&lt; ISite &gt; *&#160;</td><td class="memItemRight" valign="bottom"><b>_trace</b> = nullptr</td></tr>
+<tr class="memitem:a5487b05effd18b2bd95f224fc2ab27a7" id="r_a5487b05effd18b2bd95f224fc2ab27a7"><td class="memItemLeft" align="right" valign="top"><a id="a5487b05effd18b2bd95f224fc2ab27a7" name="a5487b05effd18b2bd95f224fc2ab27a7"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>_custom_weights</b> = false</td></tr>
+<tr class="memitem:a51a5ddd005b1e85d0ab4b978d5bbc297" id="r_a51a5ddd005b1e85d0ab4b978d5bbc297"><td class="memItemLeft" align="right" valign="top"><a id="a51a5ddd005b1e85d0ab4b978d5bbc297" name="a51a5ddd005b1e85d0ab4b978d5bbc297"></a>
+weight_t&#160;</td><td class="memItemRight" valign="bottom"><b>_custom_orthogonal</b> = 0</td></tr>
+<tr class="memitem:a0c0976bc6f657c7a9d2ff4f3aacb831b" id="r_a0c0976bc6f657c7a9d2ff4f3aacb831b"><td class="memItemLeft" align="right" valign="top"><a id="a0c0976bc6f657c7a9d2ff4f3aacb831b" name="a0c0976bc6f657c7a9d2ff4f3aacb831b"></a>
+weight_t&#160;</td><td class="memItemRight" valign="bottom"><b>_custom_diagonal</b> = 0</td></tr>
+<tr class="memitem:aa45505006ddcd79d49d7f91b295b7330" id="r_aa45505006ddcd79d49d7f91b295b7330"><td class="memItemLeft" align="right" valign="top"><a id="aa45505006ddcd79d49d7f91b295b7330" name="aa45505006ddcd79d49d7f91b295b7330"></a>
+weight_t&#160;</td><td class="memItemRight" valign="bottom"><b>_custom_g_weight</b> [8] {}</td></tr>
+<tr class="memitem:a478513656e26419741d0a1167a674e67" id="r_a478513656e26419741d0a1167a674e67"><td class="memItemLeft" align="right" valign="top"><a id="a478513656e26419741d0a1167a674e67" name="a478513656e26419741d0a1167a674e67"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>_corner_cutting</b> = false</td></tr>
+<tr class="memitem:ab326905fc2389db34865d6f78d23a8a7" id="r_ab326905fc2389db34865d6f78d23a8a7"><td class="memItemLeft" align="right" valign="top"><a id="ab326905fc2389db34865d6f78d23a8a7" name="ab326905fc2389db34865d6f78d23a8a7"></a>
+std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>_search_id</b> = 0</td></tr>
+<tr class="memitem:a94307ee526a876dd521f5407bd37ff69" id="r_a94307ee526a876dd521f5407bd37ff69"><td class="memItemLeft" align="right" valign="top"><a id="a94307ee526a876dd521f5407bd37ff69" name="a94307ee526a876dd521f5407bd37ff69"></a>
+std::vector&lt; <a class="el" href="structbrain_1_1basic__brain__map_1_1bwd__slot.html">bwd_slot</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_bwd_cache</b></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-friends" class="groupheader"><a id="friends" name="friends"></a>
+Друзья</h2></td></tr>
+<tr class="memitem:acc5d2313341e2e45e152210f1ddfae0c" id="r_acc5d2313341e2e45e152210f1ddfae0c"><td class="memItemLeft" align="right" valign="top"><a id="acc5d2313341e2e45e152210f1ddfae0c" name="acc5d2313341e2e45e152210f1ddfae0c"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>basic_flow_field&lt; ISite, INeuron &gt;</b></td></tr>
+<tr class="memitem:a50f6c447b7416b34aeaf953f9041259a" id="r_a50f6c447b7416b34aeaf953f9041259a"><td class="memItemLeft" align="right" valign="top"><a id="a50f6c447b7416b34aeaf953f9041259a" name="a50f6c447b7416b34aeaf953f9041259a"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>basic_hpa_graph&lt; ISite, INeuron &gt;</b></td></tr>
+</table>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Методы</h2>
+<a id="a83950679aa625b6685f23e8e0432c46a" name="a83950679aa625b6685f23e8e0432c46a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a83950679aa625b6685f23e8e0432c46a">&#9670;&#160;</a></span>back()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">INeuron * brain::basic_brain_map::back </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>back neuron (the most last) </p>
+<dl class="section return"><dt>Возвращает</dt><dd>get neuron pointer </dd></dl>
+
+</div>
+</div>
+<a id="a85a242a237588dedd514b4adb86b9523" name="a85a242a237588dedd514b4adb86b9523"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a85a242a237588dedd514b4adb86b9523">&#9670;&#160;</a></span>contains() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_brain_map::contains </td>
+          <td>(</td>
+          <td class="paramtype">const INeuron *</td>          <td class="paramname"><span class="paramname"><em>neuron</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>contains neuron </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">neuron</td><td>for select </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>status contains </dd></dl>
+
+</div>
+</div>
+<a id="aa9647c110cd8a202333ca7f05f3c9c0f" name="aa9647c110cd8a202333ca7f05f3c9c0f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9647c110cd8a202333ca7f05f3c9c0f">&#9670;&#160;</a></span>contains() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_brain_map::contains </td>
+          <td>(</td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>site</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>contains site location </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">site</td><td>for select </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>status contains </dd></dl>
+
+</div>
+</div>
+<a id="ad6f9c3ccdce425e987992495c0304541" name="ad6f9c3ccdce425e987992495c0304541"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6f9c3ccdce425e987992495c0304541">&#9670;&#160;</a></span>create_maze_ex()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void brain::basic_brain_map::create_maze_ex </td>
+          <td>(</td>
+          <td class="paramtype">maze_algorithm</td>          <td class="paramname"><span class="paramname"><em>mazeAlgoritm</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ISite</td>          <td class="paramname"><span class="paramname"><em>startOf</em></span><span class="paramdefsep"> = </span><span class="paramdefval">{0,&#160;0}</span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ISite</td>          <td class="paramname"><span class="paramname"><em>endOf</em></span><span class="paramdefsep"> = </span><span class="paramdefval">{0,&#160;0}</span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>create maze for map with extensions </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mazeAlgorithm</td><td>The Algoritm for generate maze system </td></tr>
+    <tr><td class="paramname">startOf</td><td>The candidate for start generation </td></tr>
+    <tr><td class="paramname">endOf</td><td>The candidate for end generation </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a8a56794e8477ac053e3b775d57952952" name="a8a56794e8477ac053e3b775d57952952"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a56794e8477ac053e3b775d57952952">&#9670;&#160;</a></span>data()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void * brain::basic_brain_map::data </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>get the raw brain data (with locks) </p>
+<dl class="section return"><dt>Возвращает</dt><dd>raw data of the brain map (with locks) </dd></dl>
+
+</div>
+</div>
+<a id="aa95f045158f3a5af261dfed2cf814ca8" name="aa95f045158f3a5af261dfed2cf814ca8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa95f045158f3a5af261dfed2cf814ca8">&#9670;&#160;</a></span>fill()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void brain::basic_brain_map::fill </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>fillLocks</em></span><span class="paramdefsep"> = </span><span class="paramdefval">false</span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>fill data </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">fillLocks</td><td>can fill locks </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a473558a5399e11532723391542df3d78" name="a473558a5399e11532723391542df3d78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a473558a5399e11532723391542df3d78">&#9670;&#160;</a></span>fill_locks()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void brain::basic_brain_map::fill_locks </td>
+          <td>(</td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>state</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>fill lock data </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">state</td><td>fill with </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a64d516e37a0779fbf1fe7baa0b041a31" name="a64d516e37a0779fbf1fe7baa0b041a31"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64d516e37a0779fbf1fe7baa0b041a31">&#9670;&#160;</a></span>find() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename list_type = result_site&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_brain_map::find </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>navResult</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>first</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>last</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>find locations for selects </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">navResult</td><td>the result of the selected (for the site result type or the neurons) </td></tr>
+    <tr><td class="paramname">first</td><td>the start of the find to end </td></tr>
+    <tr><td class="paramname">last</td><td>the end of the find to start </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>status of the finded </dd></dl>
+
+</div>
+</div>
+<a id="a59f369f1c6b3638d6d290c7ea3dd7f26" name="a59f369f1c6b3638d6d290c7ea3dd7f26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59f369f1c6b3638d6d290c7ea3dd7f26">&#9670;&#160;</a></span>find() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename list_type = result_site&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_brain_map::find </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>navResult</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">INeuron *</td>          <td class="paramname"><span class="paramname"><em>firstNeuron</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">INeuron *</td>          <td class="paramname"><span class="paramname"><em>lastNeuron</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>find neurons for selects </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">navResult</td><td>the result of the selected (for the site result type or the neurons) </td></tr>
+    <tr><td class="paramname">firstNeuron</td><td>the start of the find to end </td></tr>
+    <tr><td class="paramname">lastNeuron</td><td>the end of the find to start </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>status of the finded </dd></dl>
+
+</div>
+</div>
+<a id="a3fd41c8a4eee2201208c9e917aa7d69c" name="a3fd41c8a4eee2201208c9e917aa7d69c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3fd41c8a4eee2201208c9e917aa7d69c">&#9670;&#160;</a></span>find() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename list_type = result_site&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_brain_map::find </td>
+          <td>(</td>
+          <td class="paramtype">pathfinder_algo</td>          <td class="paramname"><span class="paramname"><em>pathfinder</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbrain_1_1navigate__result.html">navigate_result</a>&lt; list_type &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>navResult</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">INeuron *</td>          <td class="paramname"><span class="paramname"><em>firstNeuron</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">INeuron *</td>          <td class="paramname"><span class="paramname"><em>lastNeuron</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">search_mode</td>          <td class="paramname"><span class="paramname"><em>mode</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>find a path with the selected algorithm. </p>
+<p>The search state of the map is reset before the search, locks are kept. BreadthFirstSearch and DepthFirstSearch ignore search_mode::BiDirectional. </p><dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pathfinder</td><td>the algorithm </td></tr>
+    <tr><td class="paramname">navResult</td><td>the result of the search </td></tr>
+    <tr><td class="paramname">firstNeuron</td><td>the start </td></tr>
+    <tr><td class="paramname">lastNeuron</td><td>the goal </td></tr>
+    <tr><td class="paramname">mode</td><td>unidirectional or bidirectional search </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>true if the path is found </dd></dl>
+
+</div>
+</div>
+<a id="a1f6352c6003eb1af8ad9a05e17ec929c" name="a1f6352c6003eb1af8ad9a05e17ec929c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f6352c6003eb1af8ad9a05e17ec929c">&#9670;&#160;</a></span>front()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">INeuron * brain::basic_brain_map::front </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>front neuron (the most first) </p>
+<dl class="section return"><dt>Возвращает</dt><dd>get neuron pointer </dd></dl>
+
+</div>
+</div>
+<a id="a036d56737d30ef54a457f8c1c655f020" name="a036d56737d30ef54a457f8c1c655f020"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a036d56737d30ef54a457f8c1c655f020">&#9670;&#160;</a></span>get() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">INeuron * brain::basic_brain_map::get </td>
+          <td>(</td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>site</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>get the neuron </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">site</td><td>the neuron site location </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>get neuron pointer </dd></dl>
+
+</div>
+</div>
+<a id="a776c50e4ee050ad3bef14a13f7cb452b" name="a776c50e4ee050ad3bef14a13f7cb452b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a776c50e4ee050ad3bef14a13f7cb452b">&#9670;&#160;</a></span>get() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">INeuron * brain::basic_brain_map::get </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>y</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>get the neuron </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>the horizontal site </td></tr>
+    <tr><td class="paramname">y</td><td>the vertical site </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>get neuron pointer </dd></dl>
+
+</div>
+</div>
+<a id="a2a35ed2a6e4e410aac27e1de13ac3731" name="a2a35ed2a6e4e410aac27e1de13ac3731"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a35ed2a6e4e410aac27e1de13ac3731">&#9670;&#160;</a></span>get_cached_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t brain::basic_brain_map::get_cached_size </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>cached size of the finded last result </p>
+<dl class="section return"><dt>Возвращает</dt><dd>size of the cache </dd></dl>
+
+</div>
+</div>
+<a id="afd4b344b029f344112322f0c48b96b4c" name="afd4b344b029f344112322f0c48b96b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd4b344b029f344112322f0c48b96b4c">&#9670;&#160;</a></span>get_height()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint32_t brain::basic_brain_map::get_height </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>vertical length of the neurons </p>
+<dl class="section return"><dt>Возвращает</dt><dd>vertical length </dd></dl>
+
+</div>
+</div>
+<a id="ad454ca6477c0d2e98e059744c2f7fa45" name="ad454ca6477c0d2e98e059744c2f7fa45"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad454ca6477c0d2e98e059744c2f7fa45">&#9670;&#160;</a></span>get_heuristic()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">heuristic_method brain::basic_brain_map::get_heuristic </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>get the heuristic method </p>
+<dl class="section see"><dt>См. также</dt><dd>HeuristicMethod </dd></dl>
+<dl class="section return"><dt>Возвращает</dt><dd>get heuristic method value </dd></dl>
+
+</div>
+</div>
+<a id="a72f0936a92b7363a9e20f083c0871b3c" name="a72f0936a92b7363a9e20f083c0871b3c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72f0936a92b7363a9e20f083c0871b3c">&#9670;&#160;</a></span>get_identity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">matrix_identity brain::basic_brain_map::get_identity </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>get the identity method </p>
+<dl class="section see"><dt>См. также</dt><dd>MatrixIdentity </dd></dl>
+<dl class="section return"><dt>Возвращает</dt><dd>MatrixIdentity value </dd></dl>
+
+</div>
+</div>
+<a id="ac79f403bbdbad991e9b141a181395654" name="ac79f403bbdbad991e9b141a181395654"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac79f403bbdbad991e9b141a181395654">&#9670;&#160;</a></span>get_neighbours()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename list_type = list_site, typename target_type = typename list_type::value_type&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">list_type brain::basic_brain_map::get_neighbours </td>
+          <td>(</td>
+          <td class="paramtype">matrix_identity</td>          <td class="paramname"><span class="paramname"><em>matrixIdentity</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const target_type &amp;</td>          <td class="paramname"><span class="paramname"><em>from</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get Neighbours offset selective. </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">identity</td><td>method </td></tr>
+    <tr><td class="paramname">offset</td><td>selective </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>the result of the selected (for the site result type or the neurons) </dd></dl>
+
+</div>
+</div>
+<a id="a371bcbd26b25bb562165d5b53a4326c6" name="a371bcbd26b25bb562165d5b53a4326c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a371bcbd26b25bb562165d5b53a4326c6">&#9670;&#160;</a></span>get_point()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const ISite brain::basic_brain_map::get_point </td>
+          <td>(</td>
+          <td class="paramtype">const INeuron *</td>          <td class="paramname"><span class="paramname"><em>neuron</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>convert neuron to location (site) obejct </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">select</td><td>for convertable </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>location result </dd></dl>
+
+</div>
+</div>
+<a id="ac7d4659e4cf1e60e7de755d997e2bc9b" name="ac7d4659e4cf1e60e7de755d997e2bc9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7d4659e4cf1e60e7de755d997e2bc9b">&#9670;&#160;</a></span>get_width()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint32_t brain::basic_brain_map::get_width </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>horizontal length of the neurons </p>
+<dl class="section return"><dt>Возвращает</dt><dd>horizontal length </dd></dl>
+
+</div>
+</div>
+<a id="abde6e5c7cef83021e26d77772df89260" name="abde6e5c7cef83021e26d77772df89260"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abde6e5c7cef83021e26d77772df89260">&#9670;&#160;</a></span>has_lock() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_brain_map::has_lock </td>
+          <td>(</td>
+          <td class="paramtype">const INeuron *</td>          <td class="paramname"><span class="paramname"><em>neuron</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>check neuron has been locked </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">neuron</td><td>for select </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>status locked </dd></dl>
+
+</div>
+</div>
+<a id="aa23a33d1024cb808b614839c64fd1977" name="aa23a33d1024cb808b614839c64fd1977"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa23a33d1024cb808b614839c64fd1977">&#9670;&#160;</a></span>has_lock() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_brain_map::has_lock </td>
+          <td>(</td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>site</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>check location has been locked </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">site</td><td>location for select </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>status locked </dd></dl>
+
+</div>
+</div>
+<a id="afb9b56a1acc402002641e872ceaf8a28" name="afb9b56a1acc402002641e872ceaf8a28"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb9b56a1acc402002641e872ceaf8a28">&#9670;&#160;</a></span>random_number()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int brain::basic_brain_map::random_number </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>min</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>max</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the random value of min to max. </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">min</td><td>the minimum </td></tr>
+    <tr><td class="paramname">max</td><td>the maximum </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>unique randomized value </dd></dl>
+
+</div>
+</div>
+<a id="a293189230919c29df4a1473dbf55504a" name="a293189230919c29df4a1473dbf55504a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a293189230919c29df4a1473dbf55504a">&#9670;&#160;</a></span>randomize_hardware()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void brain::basic_brain_map::randomize_hardware </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>flagFilter</em></span><span class="paramdefsep"> = </span><span class="paramdefval">0xdeadbeff</span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>randomize_hardware the function for randomized data </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">flagFilter</td><td>the filter only source </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a2bcdf9350ec65f8dc085a34575581319" name="a2bcdf9350ec65f8dc085a34575581319"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bcdf9350ec65f8dc085a34575581319">&#9670;&#160;</a></span>reserved_bits()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int brain::basic_brain_map::reserved_bits </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>free bits and not used diaposoned from 0 to 7 </p>
+<dl class="section return"><dt>Возвращает</dt><dd>free bits </dd></dl>
+
+</div>
+</div>
+<a id="a40c3ffec7943fe07ec9fb02299405165" name="a40c3ffec7943fe07ec9fb02299405165"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a40c3ffec7943fe07ec9fb02299405165">&#9670;&#160;</a></span>set_custom_heuristic()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_brain_map::set_custom_heuristic </td>
+          <td>(</td>
+          <td class="paramtype">heuristic_function</td>          <td class="paramname"><span class="paramname"><em>heuristic</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>use an own heuristic function (<a class="el" href="#ad454ca6477c0d2e98e059744c2f7fa45" title="get the heuristic method">get_heuristic()</a> then returns HeuristicMethod::Custom) </p>
+<dl class="section return"><dt>Возвращает</dt><dd>false when the function is null </dd></dl>
+
+</div>
+</div>
+<a id="aaaaa28e15647397a4f8c0e467354bace" name="aaaaa28e15647397a4f8c0e467354bace"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaaaa28e15647397a4f8c0e467354bace">&#9670;&#160;</a></span>set_custom_weights()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void brain::basic_brain_map::set_custom_weights </td>
+          <td>(</td>
+          <td class="paramtype">weight_t</td>          <td class="paramname"><span class="paramname"><em>orthogonal</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">weight_t</td>          <td class="paramname"><span class="paramname"><em>diagonal</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>use own step costs instead of the built-in ones of the matrix identity </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">orthogonal</td><td>cost of a horizontal/vertical step (0 together with diagonal = built-in costs again) </td></tr>
+    <tr><td class="paramname">diagonal</td><td>cost of a diagonal step </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Заметки</dt><dd>the costs are applied to the current and to every later identity; keep the heuristic in the same scale </dd></dl>
+
+</div>
+</div>
+<a id="ab6236b54c579c45130631011e1fa4000" name="ab6236b54c579c45130631011e1fa4000"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6236b54c579c45130631011e1fa4000">&#9670;&#160;</a></span>set_heuristic()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_brain_map::set_heuristic </td>
+          <td>(</td>
+          <td class="paramtype">heuristic_method</td>          <td class="paramname"><span class="paramname"><em>method</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>set the heuristic method </p>
+<dl class="section see"><dt>См. также</dt><dd>HeuristicMethod </dd></dl>
+<dl class="section return"><dt>Возвращает</dt><dd>accepted heuristic method value </dd></dl>
+
+</div>
+</div>
+<a id="aeed57fa101d2b8511b133e39286a9b44" name="aeed57fa101d2b8511b133e39286a9b44"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeed57fa101d2b8511b133e39286a9b44">&#9670;&#160;</a></span>set_identity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_brain_map::set_identity </td>
+          <td>(</td>
+          <td class="paramtype">matrix_identity</td>          <td class="paramname"><span class="paramname"><em>identity</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>set the identity </p>
+<dl class="section see"><dt>См. также</dt><dd>MatrixIdentity </dd></dl>
+<dl class="section return"><dt>Возвращает</dt><dd>accepted identity value </dd></dl>
+
+</div>
+</div>
+<a id="a5d184e378a25b632a8b42fc08eb52274" name="a5d184e378a25b632a8b42fc08eb52274"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d184e378a25b632a8b42fc08eb52274">&#9670;&#160;</a></span>set_lock() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void brain::basic_brain_map::set_lock </td>
+          <td>(</td>
+          <td class="paramtype">const INeuron *</td>          <td class="paramname"><span class="paramname"><em>neuron</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const bool</td>          <td class="paramname"><span class="paramname"><em>lock_state</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>set lock neuron </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">site</td><td>the neuron for select </td></tr>
+    <tr><td class="paramname">lock_state</td><td>lock state </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a518a619fded8f77d89dc31fb799a05d0" name="a518a619fded8f77d89dc31fb799a05d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a518a619fded8f77d89dc31fb799a05d0">&#9670;&#160;</a></span>set_lock() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void brain::basic_brain_map::set_lock </td>
+          <td>(</td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>site</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const bool</td>          <td class="paramname"><span class="paramname"><em>lock_state</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>set lock site location </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">site</td><td>the location for select </td></tr>
+    <tr><td class="paramname">lock_state</td><td>lock state </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ae697fd32d08fd4d5c164f1504fc2d4fb" name="ae697fd32d08fd4d5c164f1504fc2d4fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae697fd32d08fd4d5c164f1504fc2d4fb">&#9670;&#160;</a></span>set_random_function()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void brain::basic_brain_map::set_random_function </td>
+          <td>(</td>
+          <td class="paramtype">const randomize_function &amp;</td>          <td class="paramname"><span class="paramname"><em>randomizer</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>set the custom randomize functions </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">randomizer</td><td>The candidate for set (default std::rand()) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a37836e4580cb513af98c0587268c7793" name="a37836e4580cb513af98c0587268c7793"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37836e4580cb513af98c0587268c7793">&#9670;&#160;</a></span>set_trace()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void brain::basic_brain_map::set_trace </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; ISite &gt; *</td>          <td class="paramname"><span class="paramname"><em>trace</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>record the order in which the next searches expand sites (nullptr disables). </p>
+<p>Used by visualisers. </p><dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">trace</td><td>the vector to append the expanded sites to, owned by the caller </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a7ae6d93a07fc7997ad3f9d81ee9661d0" name="a7ae6d93a07fc7997ad3f9d81ee9661d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ae6d93a07fc7997ad3f9d81ee9661d0">&#9670;&#160;</a></span>size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::size_t brain::basic_brain_map::size </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>size of the neurons </p>
+<dl class="section return"><dt>Возвращает</dt><dd>size </dd></dl>
+
+</div>
+</div>
+<hr/>Объявления и описания членов класса находятся в файле:<ul>
+<li>include/<a class="el" href="brain__map_8hpp_source.html">brain_map.hpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><b>brain</b></li><li class="navelem"><a href="classbrain_1_1basic__brain__map.html">basic_brain_map</a></li>
+    <li class="footer">Создано системой <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>
