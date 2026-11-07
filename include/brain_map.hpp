@@ -164,6 +164,9 @@ class basic_brain_map;
 BRAIN_TEMPLATE
 class basic_flow_field;
 
+BRAIN_TEMPLATE
+class basic_hpa_graph;
+
 template <typename IList>
 struct navigate_result
 {
@@ -177,6 +180,7 @@ BRAIN_TEMPLATE
 class basic_brain_map
 {
     friend class basic_flow_field<ISite, INeuron>;
+    friend class basic_hpa_graph<ISite, INeuron>;
 
 public:
     template <typename T>
@@ -575,9 +579,11 @@ protected:
 #include "brain_impl.hpp"
 #include "brain_maze.hpp"
 #include "brain_flow_field.hpp"
+#include "brain_hpa.hpp"
 
 typedef basic_brain_map<the_site, the_neuron> brain_map;
 typedef basic_flow_field<the_site, the_neuron> flow_field;
+typedef basic_hpa_graph<the_site, the_neuron> hpa_graph;
 
 } // namespace brain
 

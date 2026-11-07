@@ -131,6 +131,25 @@ static void fuzz_algorithms()
                         (int) mode, path_cost(r), path_cost(ref));
             }
 
+        // hierarchical A*: exact costs, valid paths, same reachability
+        {
+            hpa_graph hpa;
+            CHECK(hpa.build(m, 2 + rng() % 11), "it %d: hpa build", it);
+            std::vector<the_site> hp;
+            weight_t hc = -1;
+            bool hok = hpa.find(a, b, hp, &hc);
+            CHECK(hok == ref_found, "it %d: hpa found %d vs %d", it, hok, ref_found);
+            if (hok && ref_found)
+            {
+                brain_map::result_site hr;
+                hr.connections = hp;
+                CHECK(valid_path(m, hr, a, b), "it %d: hpa invalid path (cluster %d)", it, hpa.cluster_size());
+                CHECK(path_cost(hr) == path_cost(ref), "it %d: hpa cost %d vs %d (cluster %d)", it, path_cost(hr),
+                    path_cost(ref), hpa.cluster_size());
+                CHECK(hc == path_cost(ref), "it %d: hpa reported cost %d vs %d", it, hc, path_cost(ref));
+            }
+        }
+
         // flow field
         flow_field field;
         CHECK(field.build(m, b), "it %d: flow field build", it);

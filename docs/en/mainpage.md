@@ -76,6 +76,19 @@ field.path({3, 7}, path);                       // or the whole path
 
 Call `build()` again after the map changes.
 
+## Hierarchical search (HPA*)
+
+`brain::hpa_graph` cuts the map into clusters and searches a small abstract graph of cluster entrances.
+The graph is exact: costs equal Dijkstra's, but building it costs time and memory (every cell with a step into another
+cluster becomes a node), so it only pays off with many queries on a static map. Call `build()` again after the map changes.
+
+```cpp
+brain::hpa_graph graph;
+graph.build(map, 16);                       // cluster size 16
+std::vector<brain::the_site> path;
+graph.find({0, 0}, {1023, 1023}, path);
+```
+
 ## Building
 
 ```bash
