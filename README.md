@@ -4,6 +4,9 @@
     <a href="https://github.com/badcast/ronin-engine">
         <img alt="Ronin Engine" src="https://img.shields.io/badge/Ronin%20Engine-Integrated-blueviolet">
     </a>
+    <a href="https://badcast.github.io/library-brainmap/">
+        <img alt="Documentation" src="https://img.shields.io/badge/docs-GitHub%20Pages-blue">
+    </a>
 </p>
 
 <p align="center">
@@ -51,6 +54,9 @@
     <a href="https://github.com/badcast/ronin-engine">
         <img alt="Ronin Engine" src="https://img.shields.io/badge/Ronin%20Engine-Integrated-blueviolet">
     </a>
+    <a href="https://badcast.github.io/library-brainmap/">
+        <img alt="Documentation" src="https://img.shields.io/badge/docs-GitHub%20Pages-blue">
+    </a>
 </p>
 
 ## Installation
@@ -95,8 +101,13 @@ Explore the [examples](test/) directory for detailed usage scenarios and inspira
 
 ## Documentation
 
-Full API documentation is built with Doxygen and published to GitHub Pages in English and Russian (see `Doxygen` and `Doxygen.ru`).
-Build it locally with `doxygen Doxygen` and `doxygen Doxygen.ru`.
+Full API documentation is built with Doxygen and published to GitHub Pages:
+
+- **Landing page:** [https://badcast.github.io/library-brainmap/](https://badcast.github.io/library-brainmap/)
+- **English documentation:** [https://badcast.github.io/library-brainmap/en/index.html](https://badcast.github.io/library-brainmap/en/index.html)
+- **Russian documentation (Русский):** [https://badcast.github.io/library-brainmap/ru/index.html](https://badcast.github.io/library-brainmap/ru/index.html)
+
+Build it locally with `mkdir -p documentation/en documentation/ru && doxygen Doxygen && doxygen Doxygen.ru`.
 
 ## Contributing
 
