@@ -3,8 +3,8 @@
 int main()
 {
     brain_map test_map {51, 51};
-    test_map.set_identity(MatrixIdentity::PlusMethod);
-    test_map.set_heuristic(HeuristicMethod::Manhattan);
+    test_map.set_identity(matrix_identity::PlusMethod);
+    test_map.set_heuristic(heuristic_method::Manhattan);
 
     // Test 1: Empty grid path
     the_site start {5, 5};
@@ -13,10 +13,10 @@ int main()
     brain_map::result_site res_uni;
     brain_map::result_site res_bi;
 
-    bool ok_uni = test_map.find(res_uni, start, goal, SearchMode::UniDirectional);
+    bool ok_uni = test_map.find(res_uni, start, goal, search_mode::UniDirectional);
     test_map.clear(false);
 
-    bool ok_bi = test_map.find(res_bi, start, goal, SearchMode::BiDirectional);
+    bool ok_bi = test_map.find(res_bi, start, goal, search_mode::BiDirectional);
     test_map.clear(false);
 
     if(!ok_uni || !ok_bi)
@@ -46,9 +46,9 @@ int main()
 
     // Test 2: Identical start and goal
     brain_map::result_site res_same;
-    bool ok_same = test_map.find(res_same, start, start, SearchMode::BiDirectional);
+    bool ok_same = test_map.find(res_same, start, start, search_mode::BiDirectional);
     test_map.clear(false);
-    if(!ok_same || res_same.connections.size() != 1 || res_same.status != NavigationStatus::Opened)
+    if(!ok_same || res_same.connections.size() != 1 || res_same.status != navigation_status::Opened)
     {
         cerr << "Test 2 failed: Identical start and goal." << endl;
         return 1;
@@ -57,9 +57,9 @@ int main()
     // Test 3: Locked start or goal
     test_map.set_lock(start, true);
     brain_map::result_site res_locked;
-    bool ok_locked = test_map.find(res_locked, start, goal, SearchMode::BiDirectional);
+    bool ok_locked = test_map.find(res_locked, start, goal, search_mode::BiDirectional);
     test_map.clear(false);
-    if(ok_locked || res_locked.status != NavigationStatus::Locked)
+    if(ok_locked || res_locked.status != navigation_status::Locked)
     {
         cerr << "Test 3 failed: Locked node not detected." << endl;
         return 1;
@@ -71,9 +71,9 @@ int main()
         test_map.set_lock({25, y}, true);
 
     brain_map::result_site res_blocked;
-    bool ok_blocked = test_map.find(res_blocked, start, goal, SearchMode::BiDirectional);
+    bool ok_blocked = test_map.find(res_blocked, start, goal, search_mode::BiDirectional);
     test_map.clear(false);
-    if(ok_blocked || res_blocked.status != NavigationStatus::Closed)
+    if(ok_blocked || res_blocked.status != navigation_status::Closed)
     {
         cerr << "Test 4 failed: Blocked path did not return Closed." << endl;
         return 1;
@@ -85,15 +85,15 @@ int main()
 
     // Test 5: Verify on generated mazes
     std::srand(42);
-    MazeAlgorithm algorithms[] = {
-        MazeAlgorithm::RecursiveBacktracer,
-        MazeAlgorithm::RandomizedPrim,
-        MazeAlgorithm::RandomizedKruskal,
-        MazeAlgorithm::Ellers,
-        MazeAlgorithm::HuntAndKill,
-        MazeAlgorithm::BinaryTree,
-        MazeAlgorithm::Sidewinder,
-        MazeAlgorithm::Wilsons
+    maze_algorithm algorithms[] = {
+        maze_algorithm::RecursiveBacktracer,
+        maze_algorithm::RandomizedPrim,
+        maze_algorithm::RandomizedKruskal,
+        maze_algorithm::Ellers,
+        maze_algorithm::HuntAndKill,
+        maze_algorithm::BinaryTree,
+        maze_algorithm::Sidewinder,
+        maze_algorithm::Wilsons
     };
 
     for(auto alg : algorithms)
@@ -112,10 +112,10 @@ int main()
         brain_map::result_site r_uni;
         brain_map::result_site r_bi;
 
-        bool f_uni = test_map.find(r_uni, s, g, SearchMode::UniDirectional);
+        bool f_uni = test_map.find(r_uni, s, g, search_mode::UniDirectional);
         test_map.clear(false);
 
-        bool f_bi = test_map.find(r_bi, s, g, SearchMode::BiDirectional);
+        bool f_bi = test_map.find(r_bi, s, g, search_mode::BiDirectional);
         test_map.clear(false);
 
         if(f_uni != f_bi)
@@ -142,12 +142,12 @@ int main()
     }
 
     // Test 6: Verify all heuristics with BiDirectional search (ensuring both frontiers expand)
-    HeuristicMethod heuristics[] = {
-        HeuristicMethod::Manhattan,
-        HeuristicMethod::Hypot,
-        HeuristicMethod::Pythagorean,
-        HeuristicMethod::Chebyshev,
-        HeuristicMethod::Octile
+    heuristic_method heuristics[] = {
+        heuristic_method::Manhattan,
+        heuristic_method::Hypot,
+        heuristic_method::Pythagorean,
+        heuristic_method::Chebyshev,
+        heuristic_method::Octile
     };
 
     test_map.clear(true);
@@ -155,8 +155,8 @@ int main()
     {
         test_map.set_heuristic(heur);
         brain_map::result_site r_heur;
-        bool ok_heur = test_map.find(r_heur, start, goal, SearchMode::BiDirectional);
-        if(!ok_heur || r_heur.status != NavigationStatus::Opened || r_heur.connections.empty())
+        bool ok_heur = test_map.find(r_heur, start, goal, search_mode::BiDirectional);
+        if(!ok_heur || r_heur.status != navigation_status::Opened || r_heur.connections.empty())
         {
             cerr << "Test 6 failed: Heuristic " << static_cast<int>(heur) << " failed in BiDirectional search." << endl;
             return 1;
@@ -179,7 +179,7 @@ int main()
             return 1;
         }
 
-        if(heur == HeuristicMethod::Hypot)
+        if(heur == heuristic_method::Hypot)
         {
             if(fwd_nodes < 10 || bwd_nodes < 10)
             {

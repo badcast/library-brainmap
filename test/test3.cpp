@@ -63,7 +63,7 @@ int load_breakfast(const char *path, brain_breakfast *breakfast)
 
 the_neuron *get_free_neuron(the_neuron *candidate)
 {
-    brain_map::list_neuron neighbours = map.get_neighbours<brain_map::list_neuron>(MatrixIdentity::DiagonalMethod, candidate);
+    brain_map::list_neuron neighbours = map.get_neighbours<brain_map::list_neuron>(matrix_identity::DiagonalMethod, candidate);
     for(auto iter = std::begin(neighbours); iter != std::end(neighbours); ++iter)
     {
         if(!map.has_lock(*iter))

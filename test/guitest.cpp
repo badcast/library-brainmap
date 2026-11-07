@@ -19,6 +19,7 @@
 #include <fstream>
 #include <memory>
 #include <numeric>
+#include <deque>
 #include <set>
 #include <string>
 #include <vector>
@@ -29,24 +30,38 @@ namespace
 {
     struct AlgorithmItem
     {
-        MazeAlgorithm alg;
+        maze_algorithm alg;
         const char *label;
     };
 
     constexpr AlgorithmItem kAlgorithms[] = {
-        {MazeAlgorithm::RecursiveBacktracer, "0: Recursive Backtracer (DFS)"},
-        {MazeAlgorithm::RecursiveDivision, "1: Recursive Division"},
-        {MazeAlgorithm::SelectiveStormChaos, "2: Selective Storm Chaos"},
-        {MazeAlgorithm::ForcedChaos, "3: Forced Chaos"},
-        {MazeAlgorithm::RandomizedPrim, "4: Randomized Prim's"},
-        {MazeAlgorithm::RandomizedKruskal, "5: Randomized Kruskal's"},
-        {MazeAlgorithm::Ellers, "6: Eller's Algorithm"},
-        {MazeAlgorithm::HuntAndKill, "7: Hunt-and-Kill"},
-        {MazeAlgorithm::BinaryTree, "8: Binary Tree"},
-        {MazeAlgorithm::Sidewinder, "9: Sidewinder"},
-        {MazeAlgorithm::AldousBroder, "10: Aldous-Broder"},
-        {MazeAlgorithm::Wilsons, "11: Wilson's (Loop-Erased)"},
-        {MazeAlgorithm::CellularAutomata, "12: Cellular Automata (Cave)"},
+        {maze_algorithm::RecursiveBacktracer, "0: Recursive Backtracer (DFS)"},
+        {maze_algorithm::RecursiveDivision, "1: Recursive Division"},
+        {maze_algorithm::SelectiveStormChaos, "2: Selective Storm Chaos"},
+        {maze_algorithm::ForcedChaos, "3: Forced Chaos"},
+        {maze_algorithm::RandomizedPrim, "4: Randomized Prim's"},
+        {maze_algorithm::RandomizedKruskal, "5: Randomized Kruskal's"},
+        {maze_algorithm::Ellers, "6: Eller's Algorithm"},
+        {maze_algorithm::HuntAndKill, "7: Hunt-and-Kill"},
+        {maze_algorithm::BinaryTree, "8: Binary Tree"},
+        {maze_algorithm::Sidewinder, "9: Sidewinder"},
+        {maze_algorithm::AldousBroder, "10: Aldous-Broder"},
+        {maze_algorithm::Wilsons, "11: Wilson's (Loop-Erased)"},
+        {maze_algorithm::CellularAutomata, "12: Cellular Automata (Cave)"},
+    };
+
+    struct PathfinderItem
+    {
+        pathfinder_algo algo;
+        const char *label;
+        const char *name;
+    };
+
+    constexpr PathfinderItem kPathfinders[] = {
+        {pathfinder_algo::AStar, "A* (heuristic)", "A*"},
+        {pathfinder_algo::Dijkstra, "Dijkstra", "Dijkstra"},
+        {pathfinder_algo::BreadthFirstSearch, "Breadth-First Search", "BFS"},
+        {pathfinder_algo::DepthFirstSearch, "Depth-First Search", "DFS"},
     };
 
     struct MazeTemplateInfo
@@ -63,30 +78,30 @@ namespace
 
     struct HeuristicItem
     {
-        HeuristicMethod method;
+        heuristic_method method;
         const char *label;
         const char *short_label;
     };
 
     constexpr HeuristicItem kHeuristics[] = {
-        {HeuristicMethod::Pythagorean, "Euclidean (dx^2+dy^2)", "Euclidean"},
-        {HeuristicMethod::Hypot, "Hypot (std::hypot)", "Hypot"},
-        {HeuristicMethod::Manhattan, "Manhattan (|dx|+|dy|)", "Manhattan"},
-        {HeuristicMethod::Chebyshev, "Chebyshev (max(|dx|,|dy|))", "Chebyshev"},
-        {HeuristicMethod::Octile, "Octile (diagonal shortcut)", "Octile"},
+        {heuristic_method::Pythagorean, "Euclidean (dx^2+dy^2)", "Euclidean"},
+        {heuristic_method::Hypot, "Hypot (std::hypot)", "Hypot"},
+        {heuristic_method::Manhattan, "Manhattan (|dx|+|dy|)", "Manhattan"},
+        {heuristic_method::Chebyshev, "Chebyshev (max(|dx|,|dy|))", "Chebyshev"},
+        {heuristic_method::Octile, "Octile (diagonal shortcut)", "Octile"},
     };
 
     struct IdentityItem
     {
-        MatrixIdentity identity;
+        matrix_identity identity;
         const char *label;
         const char *short_label;
     };
 
     constexpr IdentityItem kIdentities[] = {
-        {MatrixIdentity::PlusMethod, "Plus (4-dir orthogonal)", "4-Dir"},
-        {MatrixIdentity::DiagonalMethod, "Diagonal (8-dir all neighbours)", "8-Dir"},
-        {MatrixIdentity::CrossMethod, "Cross (4-diag diagonal only)", "4-Diag"},
+        {matrix_identity::PlusMethod, "Plus (4-dir orthogonal)", "4-Dir"},
+        {matrix_identity::DiagonalMethod, "Diagonal (8-dir all neighbours)", "8-Dir"},
+        {matrix_identity::CrossMethod, "Cross (4-diag diagonal only)", "4-Diag"},
     };
 
     struct StepChange
@@ -113,6 +128,8 @@ namespace
         the_site end_site {50, 50};
 
         int algorithm_idx = 0;
+        int pathfinder_idx = 0; // A* default
+        int maze_gen_idx = -1;  // -1: random maze algorithm
         int heuristic_idx = 0; // Euclidean default
         int identity_idx = 0;  // 4-Dir default
 
@@ -203,6 +220,99 @@ namespace
         }
     }
 
+    // BFS / DFS have no bidirectional variant (the library falls back to one direction)
+    bool effective_bidirectional(const GuiAppState &state)
+    {
+        pathfinder_algo a = kPathfinders[state.pathfinder_idx].algo;
+        return state.bidirectional && (a == pathfinder_algo::AStar || a == pathfinder_algo::Dijkstra);
+    }
+
+    // Single-direction steppers for BFS and DFS (mirror _find_bfs/_find_dfs of the library)
+    void record_uninformed_steps(GuiAppState &state, bool depth_first, brain_identity &id_matrix)
+    {
+        the_neuron *base_neuron = state.map->front();
+        the_neuron *firstNeuron = state.map->get(state.start_site);
+        the_neuron *lastNeuron = state.map->get(state.end_site);
+
+        auto can_step = [&](const the_site &cur, int s) {
+            if(id_matrix.horizontal[s] != 0 && id_matrix.vertical[s] != 0)
+            {
+                return !(state.map->has_lock({cur.x + id_matrix.horizontal[s], cur.y}) ||
+                         state.map->has_lock({cur.x, cur.y + id_matrix.vertical[s]}));
+            }
+            return true;
+        };
+
+        state.map->clear(false);
+
+        SearchStep init_step;
+        init_step.active_site = state.start_site;
+        init_step.changes.push_back({static_cast<int>(firstNeuron - base_neuron), NEURON_CAPTURE_OPEN_LIST});
+        state.recorded_steps.push_back(std::move(init_step));
+
+        std::deque<std::pair<the_neuron *, the_neuron *>> frontier; // (neuron, came from)
+        frontier.emplace_back(firstNeuron, nullptr);
+        firstNeuron->flags = NEURON_CAPTURE_OPEN_LIST;
+
+        while(!frontier.empty())
+        {
+            std::pair<the_neuron *, the_neuron *> item;
+            if(depth_first)
+            {
+                item = frontier.back();
+                frontier.pop_back();
+                if(item.first->flags == NEURON_CAPTURE_CLOSED_LIST)
+                    continue;
+            }
+            else
+            {
+                item = frontier.front();
+                frontier.pop_front();
+            }
+
+            the_neuron *current = item.first;
+            current->parent = item.second;
+            current->flags = NEURON_CAPTURE_CLOSED_LIST;
+
+            the_site cur_site = state.map->get_point(current);
+            SearchStep step;
+            step.active_site = cur_site;
+            step.changes.push_back({static_cast<int>(current - base_neuron), NEURON_CAPTURE_CLOSED_LIST});
+
+            if(current == lastNeuron)
+            {
+                step.path_found = true;
+                state.recorded_steps.push_back(std::move(step));
+                break;
+            }
+
+            for(int k = 0; k < id_matrix.length; ++k)
+            {
+                // DFS pops from the back, so push in reverse to explore the first direction first
+                int s = depth_first ? id_matrix.length - 1 - k : k;
+                the_site nb_site {cur_site.x + id_matrix.horizontal[s], cur_site.y + id_matrix.vertical[s]};
+                the_neuron *self = state.map->get(nb_site);
+                if(!self || self->flags == NEURON_CAPTURE_CLOSED_LIST || state.map->has_lock(nb_site) || !can_step(cur_site, s))
+                    continue;
+                if(!depth_first && self->flags == NEURON_CAPTURE_OPEN_LIST)
+                    continue;
+
+                if(self->flags != NEURON_CAPTURE_OPEN_LIST)
+                    step.changes.push_back({static_cast<int>(self - base_neuron), NEURON_CAPTURE_OPEN_LIST});
+                self->flags = NEURON_CAPTURE_OPEN_LIST;
+                if(depth_first)
+                    frontier.emplace_back(self, current);
+                else
+                {
+                    self->parent = current;
+                    frontier.emplace_back(self, current);
+                }
+            }
+            state.recorded_steps.push_back(std::move(step));
+        }
+        state.map->clear(false);
+    }
+
     void record_search_steps(GuiAppState &state)
     {
         state.recorded_steps.clear();
@@ -233,19 +343,19 @@ namespace
         auto heuristic_fn = immune_system::heuristic_manhtattan;
         switch(kHeuristics[state.heuristic_idx].method)
         {
-            case HeuristicMethod::Pythagorean:
+            case heuristic_method::Pythagorean:
                 heuristic_fn = immune_system::heuristic_pythagorean;
                 break;
-            case HeuristicMethod::Hypot:
+            case heuristic_method::Hypot:
                 heuristic_fn = immune_system::heuristic_hypot;
                 break;
-            case HeuristicMethod::Manhattan:
+            case heuristic_method::Manhattan:
                 heuristic_fn = immune_system::heuristic_manhtattan;
                 break;
-            case HeuristicMethod::Chebyshev:
+            case heuristic_method::Chebyshev:
                 heuristic_fn = immune_system::heuristic_chebyshev;
                 break;
-            case HeuristicMethod::Octile:
+            case heuristic_method::Octile:
                 heuristic_fn = immune_system::heuristic_octile;
                 break;
             default:
@@ -263,7 +373,15 @@ namespace
             return;
         }
 
-        if(!state.bidirectional)
+        const pathfinder_algo algo = kPathfinders[state.pathfinder_idx].algo;
+        if(algo == pathfinder_algo::Dijkstra)
+            heuristic_fn = [](weight_t, weight_t) -> weight_t { return 0; };
+
+        if(algo == pathfinder_algo::BreadthFirstSearch || algo == pathfinder_algo::DepthFirstSearch)
+        {
+            record_uninformed_steps(state, algo == pathfinder_algo::DepthFirstSearch, id_matrix);
+        }
+        else if(!effective_bidirectional(state))
         {
             state.map->clear(false);
 
@@ -605,7 +723,12 @@ namespace
         state.path_result.connections.clear();
 
         auto t0 = std::chrono::steady_clock::now();
-        state.map->find(state.path_result, state.start_site, state.end_site, state.bidirectional ? SearchMode::BiDirectional : SearchMode::UniDirectional);
+        state.map->find(
+            kPathfinders[state.pathfinder_idx].algo,
+            state.path_result,
+            state.start_site,
+            state.end_site,
+            effective_bidirectional(state) ? search_mode::BiDirectional : search_mode::UniDirectional);
         auto t1 = std::chrono::steady_clock::now();
         state.path_time_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
 
@@ -765,7 +888,9 @@ namespace
         the_site gen_start {0, 0};
         the_site gen_end {w - 1, h - 1};
 
-        MazeAlgorithm alg = static_cast<MazeAlgorithm>(std::rand() % 13);
+        maze_algorithm alg = state.maze_gen_idx >= 0
+            ? kAlgorithms[state.maze_gen_idx].alg
+            : static_cast<maze_algorithm>(std::rand() % 13);
         auto t0 = std::chrono::steady_clock::now();
         state.map->create_maze_ex(alg, gen_start, gen_end);
         auto t1 = std::chrono::steady_clock::now();
@@ -902,7 +1027,7 @@ int main(int, char **)
         ImGui::BeginChild("Controls", ImVec2(0.0f, 62.0f), ImGuiChildFlags_Borders, ImGuiWindowFlags_NoScrollbar);
 
         // Row 1: Heuristics, Adjacency, Actions (Zero Comboboxes!)
-        ImGui::TextDisabled("Heuristic:");
+        ImGui::TextDisabled("Heuristic (A*):");
         ImGui::SameLine();
         for(int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kHeuristics)); ++i)
         {
@@ -961,19 +1086,62 @@ int main(int, char **)
         if(ImGui::IsItemHovered()) ImGui::SetTooltip("Clear all walls");
 
         ImGui::SameLine();
-        if(ImGui::Button("Gen Random"))
+        if(ImGui::Button("Generate"))
         {
             generate_maze(state);
         }
-        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Generate random procedural maze");
+        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Generate a maze with the selected generator");
+
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(210.0f);
+        {
+            const char *maze_preview = state.maze_gen_idx < 0 ? "Random" : kAlgorithms[state.maze_gen_idx].label;
+            if(ImGui::BeginCombo("##mazegen", maze_preview))
+            {
+                if(ImGui::Selectable("Random", state.maze_gen_idx < 0))
+                    state.maze_gen_idx = -1;
+                for(int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kAlgorithms)); ++i)
+                {
+                    bool sel = (state.maze_gen_idx == i);
+                    if(ImGui::Selectable(kAlgorithms[i].label, sel))
+                    {
+                        state.maze_gen_idx = i;
+                        generate_maze(state);
+                    }
+                    if(sel)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+        }
+        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Maze generator algorithm");
 
         // Row 2: Search Mode (Uni / Bi), Explored Checkbox, Playback, Speed, Steps Slider, Steps Progress Bar
-        if(ImGui::RadioButton("1-Way A*", !state.bidirectional))
+        ImGui::SetNextItemWidth(170.0f);
+        if(ImGui::BeginCombo("##pathfinder", kPathfinders[state.pathfinder_idx].label))
+        {
+            for(int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kPathfinders)); ++i)
+            {
+                bool sel = (state.pathfinder_idx == i);
+                if(ImGui::Selectable(kPathfinders[i].label, sel))
+                {
+                    state.pathfinder_idx = i;
+                    run_pathfinding(state);
+                }
+                if(sel)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Pathfinder algorithm");
+
+        ImGui::SameLine();
+        if(ImGui::RadioButton("1-Way", !state.bidirectional))
         {
             state.bidirectional = false;
             run_pathfinding(state);
         }
-        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Standard unidirectional A* search");
+        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Unidirectional search");
 
         ImGui::SameLine();
         if(ImGui::RadioButton("2-Way BiDirectional", state.bidirectional))
@@ -981,7 +1149,7 @@ int main(int, char **)
             state.bidirectional = true;
             run_pathfinding(state);
         }
-        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Bidirectional A* search (meeting frontiers)");
+        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Bidirectional search (A*/Dijkstra only; BFS/DFS stay unidirectional)");
 
         ImGui::SameLine();
         ImGui::Checkbox("A* Grid", &state.show_explored);
@@ -1326,7 +1494,7 @@ int main(int, char **)
                 bool show_path = (state.current_step >= state.total_steps) ||
                                  (state.current_step > 0 && state.recorded_steps[state.current_step - 1].path_found);
 
-                if(show_path && state.path_result.status == NavigationStatus::Opened && !state.path_result.connections.empty())
+                if(show_path && state.path_result.status == navigation_status::Opened && !state.path_result.connections.empty())
                 {
                     for(const auto &pt : state.path_result.connections)
                     {
@@ -1510,15 +1678,15 @@ int main(int, char **)
         ImVec4 status_color = ImVec4(0.7f, 0.7f, 0.7f, 1.0f);
         switch(state.path_result.status)
         {
-            case NavigationStatus::Opened:
+            case navigation_status::Opened:
                 status_str = "Opened (Path found)";
                 status_color = ImVec4(0.2f, 0.9f, 0.4f, 1.0f);
                 break;
-            case NavigationStatus::Closed:
+            case navigation_status::Closed:
                 status_str = "Closed (No path)";
                 status_color = ImVec4(0.95f, 0.3f, 0.3f, 1.0f);
                 break;
-            case NavigationStatus::Locked:
+            case navigation_status::Locked:
                 status_str = "Locked (Start/Goal blocked)";
                 status_color = ImVec4(1.0f, 0.6f, 0.2f, 1.0f);
                 break;
@@ -1550,10 +1718,11 @@ int main(int, char **)
                 ImGui::SameLine();
             }
         }
-        if(state.bidirectional)
+        if(effective_bidirectional(state))
         {
-            ImGui::Text("Path: %zu | A* (Fwd: %zu, Bwd: %zu, Total: %zu / %d steps) | Walls: %zu | Search: %.2f ms [BiDirectional]",
+            ImGui::Text("Path: %zu | %s (Fwd: %zu, Bwd: %zu, Total: %zu / %d steps) | Walls: %zu | Search: %.2f ms [BiDirectional]",
                         state.path_result.connections.size(),
+                        kPathfinders[state.pathfinder_idx].name,
                         fwd_cells,
                         bwd_cells,
                         explored_cells,
@@ -1563,8 +1732,9 @@ int main(int, char **)
         }
         else
         {
-            ImGui::Text("Path: %zu | A*: %zu / %d steps | Open: %zu | Walls: %zu | Search: %.2f ms [UniDirectional]",
+            ImGui::Text("Path: %zu | %s: %zu / %d steps | Open: %zu | Walls: %zu | Search: %.2f ms [UniDirectional]",
                         state.path_result.connections.size(),
+                        kPathfinders[state.pathfinder_idx].name,
                         explored_cells,
                         state.total_steps,
                         open_cells,

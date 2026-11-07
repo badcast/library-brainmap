@@ -4,6 +4,7 @@ add_executable(test3_pathfind test3.cpp)
 add_executable(test4_maze_algorithms test4.cpp)
 add_executable(test5_bidirectional test5_bidirectional.cpp)
 add_executable(test6_custom test6_custom.cpp)
+add_executable(test7_pathfinders test7_pathfinders.cpp)
 
 target_link_libraries(test1_indexer PUBLIC brainmap)
 target_link_libraries(test2_locker PUBLIC brainmap)
@@ -11,6 +12,7 @@ target_link_libraries(test3_pathfind PUBLIC brainmap)
 target_link_libraries(test4_maze_algorithms PUBLIC brainmap)
 target_link_libraries(test5_bidirectional PUBLIC brainmap)
 target_link_libraries(test6_custom PUBLIC brainmap)
+target_link_libraries(test7_pathfinders PUBLIC brainmap)
 
 if(TARGET imgui)
     add_executable(guitest guitest.cpp)
@@ -23,6 +25,7 @@ add_test(NAME Test3 COMMAND test3_pathfind)
 add_test(NAME Test4 COMMAND test4_maze_algorithms)
 add_test(NAME Test5 COMMAND test5_bidirectional)
 add_test(NAME Test6 COMMAND test6_custom)
+add_test(NAME Test7 COMMAND test7_pathfinders)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mazes
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)

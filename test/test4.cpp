@@ -2,7 +2,7 @@
 
 struct AlgorithmEntry
 {
-    MazeAlgorithm algorithm;
+    maze_algorithm algorithm;
     const char *name;
     bool guaranteedConnected;
 };
@@ -13,7 +13,7 @@ static the_neuron *find_nearest_free(brain_map &m, const the_site &site)
     if(candidate != nullptr && !m.has_lock(candidate))
         return candidate;
 
-    auto neighbours = m.get_neighbours<brain_map::list_neuron>(MatrixIdentity::DiagonalMethod, candidate);
+    auto neighbours = m.get_neighbours<brain_map::list_neuron>(matrix_identity::DiagonalMethod, candidate);
     for(auto *nb : neighbours)
     {
         if(!m.has_lock(nb))
@@ -25,25 +25,25 @@ static the_neuron *find_nearest_free(brain_map &m, const the_site &site)
 int main()
 {
     const AlgorithmEntry algorithms[] = {
-        {MazeAlgorithm::RecursiveBacktracer, "RecursiveBacktracer", true},
-        {MazeAlgorithm::RecursiveDivision, "RecursiveDivision", true},
-        {MazeAlgorithm::SelectiveStormChaos, "SelectiveStormChaos", false},
-        {MazeAlgorithm::ForcedChaos, "ForcedChaos", false},
-        {MazeAlgorithm::RandomizedPrim, "RandomizedPrim", true},
-        {MazeAlgorithm::RandomizedKruskal, "RandomizedKruskal", true},
-        {MazeAlgorithm::Ellers, "Ellers", true},
-        {MazeAlgorithm::HuntAndKill, "HuntAndKill", true},
-        {MazeAlgorithm::BinaryTree, "BinaryTree", true},
-        {MazeAlgorithm::Sidewinder, "Sidewinder", true},
-        {MazeAlgorithm::AldousBroder, "AldousBroder", true},
-        {MazeAlgorithm::Wilsons, "Wilsons", true},
-        {MazeAlgorithm::CellularAutomata, "CellularAutomata", true},
+        {maze_algorithm::RecursiveBacktracer, "RecursiveBacktracer", true},
+        {maze_algorithm::RecursiveDivision, "RecursiveDivision", true},
+        {maze_algorithm::SelectiveStormChaos, "SelectiveStormChaos", false},
+        {maze_algorithm::ForcedChaos, "ForcedChaos", false},
+        {maze_algorithm::RandomizedPrim, "RandomizedPrim", true},
+        {maze_algorithm::RandomizedKruskal, "RandomizedKruskal", true},
+        {maze_algorithm::Ellers, "Ellers", true},
+        {maze_algorithm::HuntAndKill, "HuntAndKill", true},
+        {maze_algorithm::BinaryTree, "BinaryTree", true},
+        {maze_algorithm::Sidewinder, "Sidewinder", true},
+        {maze_algorithm::AldousBroder, "AldousBroder", true},
+        {maze_algorithm::Wilsons, "Wilsons", true},
+        {maze_algorithm::CellularAutomata, "CellularAutomata", true},
     };
 
     std::srand(19992023);
     brain_map test_map {41, 41};
-    test_map.set_identity(MatrixIdentity::PlusMethod);
-    test_map.set_heuristic(HeuristicMethod::Manhattan);
+    test_map.set_identity(matrix_identity::PlusMethod);
+    test_map.set_heuristic(heuristic_method::Manhattan);
 
     the_site start_site {0, 0};
     the_site end_site {40, 40};

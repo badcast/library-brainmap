@@ -15,10 +15,10 @@ namespace
 int main()
 {
     brain_map map {10, 10};
-    map.set_identity(MatrixIdentity::DiagonalMethod);
+    map.set_identity(matrix_identity::DiagonalMethod);
 
     // Custom heuristic
-    if(!map.set_custom_heuristic(octile10) || map.get_heuristic() != HeuristicMethod::Custom)
+    if(!map.set_custom_heuristic(octile10) || map.get_heuristic() != heuristic_method::Custom)
     {
         cerr << "custom heuristic was not accepted" << endl;
         return 1;
@@ -31,7 +31,7 @@ int main()
 
     // Custom costs survive a change of the identity
     map.set_custom_weights(10, 14);
-    for(MatrixIdentity id : {MatrixIdentity::DiagonalMethod, MatrixIdentity::PlusMethod, MatrixIdentity::CrossMethod})
+    for(matrix_identity id : {matrix_identity::DiagonalMethod, matrix_identity::PlusMethod, matrix_identity::CrossMethod})
     {
         map.set_identity(id);
         for(int s = 0; s < map.identity.length; ++s)
@@ -51,7 +51,7 @@ int main()
     }
 
     // Corner cutting: two locked cells touching at the corner
-    map.set_identity(MatrixIdentity::DiagonalMethod);
+    map.set_identity(matrix_identity::DiagonalMethod);
     map.set_lock(the_site {1, 0}, true);
     map.set_lock(the_site {0, 1}, true);
     brain_map::result_site res;
@@ -73,7 +73,7 @@ int main()
 
     // Back to the built-in costs
     map.set_custom_weights(0, 0);
-    map.set_identity(MatrixIdentity::PlusMethod);
+    map.set_identity(matrix_identity::PlusMethod);
     if(map.identity.g_weight[0] != 1)
     {
         cerr << "built-in costs were not restored" << endl;

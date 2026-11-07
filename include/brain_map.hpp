@@ -24,13 +24,16 @@
 #include <cstring>
 #include <algorithm>
 #include <functional>
+#include <queue>
+#include <tuple>
+#include <utility>
 
 #define BRAIN_TEMPLATE template <typename ISite, typename INeuron>
 #define BRAIN_DEFINE basic_brain_map<ISite, INeuron>
 
 namespace brain
 {
-enum class NavigationStatus
+enum class navigation_status
 {
     Undefined,
     Locked,
@@ -38,20 +41,20 @@ enum class NavigationStatus
     Opened
 };
 
-enum class MatrixIdentity
+enum class matrix_identity
 {
     DiagonalMethod = 0,
     PlusMethod = 1,
     CrossMethod = 2
 };
 
-enum class SearchMode
+enum class search_mode
 {
     UniDirectional = 0,
     BiDirectional = 1
 };
 
-enum class HeuristicMethod
+enum class heuristic_method
 {
     Invalid = -1,
     Pythagorean = 0,
@@ -64,7 +67,7 @@ enum class HeuristicMethod
     Custom = 5
 };
 
-enum class MazeAlgorithm
+enum class maze_algorithm
 {
     RecursiveBacktracer = 0,
     RecursiveDivison = 1,
@@ -80,6 +83,15 @@ enum class MazeAlgorithm
     AldousBroder = 10,
     Wilsons = 11,
     CellularAutomata = 12
+};
+
+// Pathfinder algorithms, AStar is the default one
+enum class pathfinder_algo
+{
+    AStar = 0,
+    Dijkstra = 1,
+    BreadthFirstSearch = 2,
+    DepthFirstSearch = 3
 };
 
 typedef int weight_t;
@@ -151,7 +163,7 @@ class basic_brain_map;
 template <typename IList>
 struct navigate_result
 {
-    NavigationStatus status;
+    navigation_status status;
     typename IList::value_type from;
     typename IList::value_type to;
     IList connections;
@@ -223,7 +235,7 @@ public:
      * @param startOf The candidate for start generation
      * @param endOf The candidate for end generation
      */
-    inline void create_maze_ex(MazeAlgorithm mazeAlgoritm, ISite startOf = {0, 0}, ISite endOf = {0, 0});
+    inline void create_maze_ex(maze_algorithm mazeAlgoritm, ISite startOf = {0, 0}, ISite endOf = {0, 0});
 
     /**
      * @brief size of the neurons
@@ -242,14 +254,14 @@ public:
      * @see MatrixIdentity
      * @return accepted identity value
      */
-    inline bool set_identity(MatrixIdentity identity);
+    inline bool set_identity(matrix_identity identity);
 
     /**
      * @brief get the identity method
      * @see MatrixIdentity
      * @return MatrixIdentity value
      */
-    inline MatrixIdentity get_identity();
+    inline matrix_identity get_identity();
 
     /**
      * @brief use own step costs instead of the built-in ones of the matrix identity
@@ -280,14 +292,14 @@ public:
      * @see HeuristicMethod
      * @return accepted heuristic method value
      */
-    inline bool set_heuristic(HeuristicMethod method);
+    inline bool set_heuristic(heuristic_method method);
 
     /**
      * @brief get the heuristic method
      * @see HeuristicMethod
      * @return get heuristic method value
      */
-    inline HeuristicMethod get_heuristic();
+    inline heuristic_method get_heuristic();
 
     /**
      * @brief horizontal length of the neurons
@@ -303,18 +315,18 @@ public:
 
     /**
      * @brief get the neuron
-     * @param x the horizontal point
-     * @param y the vertical point
+     * @param x the horizontal site
+     * @param y the vertical site
      * @return get neuron pointer
      */
     inline INeuron *get(int x, int y);
 
     /**
      * @brief get the neuron
-     * @param point the neuron site location
+     * @param site the neuron site location
      * @return get neuron pointer
      */
-    inline INeuron *get(const ISite &point);
+    inline INeuron *get(const ISite &site);
 
     /**
      * @brief contains site location
@@ -388,7 +400,15 @@ public:
     bool find(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
 
     template <typename list_type = result_site>
-    bool find(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron, SearchMode mode);
+    bool find(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron, search_mode mode);
+
+    template <typename list_type = result_site>
+    bool find(
+        pathfinder_algo pathfinder,
+        navigate_result<list_type> &navResult,
+        INeuron *firstNeuron,
+        INeuron *lastNeuron,
+        search_mode mode);
 
     /**
      * @brief find locations for selects
@@ -401,17 +421,35 @@ public:
     bool find(navigate_result<list_type> &navResult, const ISite &first, const ISite &last);
 
     template <typename list_type = result_site>
-    bool find(navigate_result<list_type> &navResult, const ISite &first, const ISite &last, SearchMode mode);
+    bool find(navigate_result<list_type> &navResult, const ISite &first, const ISite &last, search_mode mode);
+
+    template <typename list_type = result_site>
+    bool find(
+        pathfinder_algo pathfinder,
+        navigate_result<list_type> &navResult,
+        const ISite &first,
+        const ISite &last,
+        search_mode mode);
 
     /**
      * @brief set search mode (UniDirectional or BiDirectional)
      */
-    inline void set_search_mode(SearchMode mode);
+    inline void set_search_mode(search_mode mode);
+
+    /**
+     * @brief set the default pathfinder algorithm used by find() without an explicit pathfinder
+     */
+    inline void set_pathfinder(pathfinder_algo pathfinder);
+
+    /**
+     * @brief get the default pathfinder algorithm
+     */
+    inline pathfinder_algo get_pathfinder() const;
 
     /**
      * @brief get current search mode
      */
-    inline SearchMode get_search_mode() const;
+    inline search_mode get_search_mode() const;
 
     /**
      * @brief load breakfast
@@ -436,7 +474,7 @@ public:
      * @return the result of the selected (for the site result type or the neurons)
      */
     template <typename list_type = list_site, typename target_type = typename list_type::value_type>
-    inline list_type get_neighbours(MatrixIdentity matrixIdentity, const target_type &from);
+    inline list_type get_neighbours(matrix_identity matrixIdentity, const target_type &from);
 
     /**
      * @brief Get the random value of min to max
@@ -453,7 +491,8 @@ protected:
     std::uint32_t _seg_off;
     std::uint32_t _xsize, _ysize;
     brain_identity identity;
-    SearchMode _search_mode = SearchMode::UniDirectional;
+    search_mode _search_mode = search_mode::UniDirectional;
+    pathfinder_algo _pathfinder = pathfinder_algo::AStar;
     // set_custom_*: own step costs (indexed like the identity directions), corner cutting rule
     bool _custom_weights = false;
     weight_t _custom_orthogonal = 0, _custom_diagonal = 0;
@@ -463,10 +502,39 @@ protected:
     void _apply_custom_weights();
 
     template <typename list_type = result_site>
-    bool _find_unidirectional(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+    bool _find_unidirectional(
+        pathfinder_algo pathfinder, navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
 
     template <typename list_type = result_site>
-    bool _find_bidirectional(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+    bool _find_bidirectional(
+        pathfinder_algo pathfinder, navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+
+    // Single-direction implementations, one per pathfinder_algo
+    template <typename list_type = result_site>
+    bool _find_astar(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+
+    // A* (use_heuristic) and Dijkstra (!use_heuristic) share this best-first search
+    template <typename list_type = result_site>
+    bool _find_best_first(
+        navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron, bool use_heuristic);
+
+    template <typename list_type = result_site>
+    bool _find_dijkstra(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+
+    template <typename list_type = result_site>
+    bool _find_bfs(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+
+    template <typename list_type = result_site>
+    bool _find_dfs(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+
+    // shared helpers of the _find_* implementations
+    template <typename list_type = result_site>
+    bool _find_begin(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
+
+    template <typename list_type = result_site>
+    void _find_build_path(navigate_result<list_type> &navResult, INeuron *last);
+
+    bool _find_can_step(const ISite &from, int dir_index);
 
     void _internal_realloc();
 };

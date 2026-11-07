@@ -44,9 +44,9 @@ int main()
     cout << "Calculating" << endl;
     map.find(result, {0, 2}, {2, 2}); // right
     cout << "\tResult.status = "
-         << (result.status == NavigationStatus::Opened       ? "Opened"
-                 : result.status == NavigationStatus::Closed ? "Closed"
-                 : result.status == NavigationStatus::Locked ? "Locked"
+         << (result.status == navigation_status::Opened       ? "Opened"
+                 : result.status == navigation_status::Closed ? "Closed"
+                 : result.status == navigation_status::Locked ? "Locked"
                                                              : "Undefined")
          << endl;
     cout << "\tResult.connections.size = " << result.connections.size() << endl;

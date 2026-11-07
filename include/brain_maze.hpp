@@ -4,12 +4,8 @@
 
 #include "brain_map.hpp"
 
-#if not defined(BRAIN_TEMPLATE)
-#error "main header not included"
-#endif
-
 #ifndef BRAIN_TEMPLATE
-#define BRAIN_TEMPLATE template <typename ISite, typename INeuron>
+#error "main header not included"
 #endif
 
 #ifndef BRAIN_DEFINE
@@ -90,7 +86,7 @@ BRAIN_TEMPLATE
 static void maze_recursive_backtrace(BRAIN_DEFINE *map, ISite start)
 {
     static brain::brain_identity maze_identity;
-    static auto __g_bss__ {brain::immune_system::get_matrix(brain::MatrixIdentity::PlusMethod, maze_identity)};
+    static auto __g_bss__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, maze_identity)};
 
     int dx, dy;
     INeuron *free_neighbours[4];
@@ -248,7 +244,7 @@ static void maze_storm_space(BRAIN_DEFINE *map, ISite start)
             if (!map->has_lock(site))
                 continue;
 
-            auto neighbours = map->get_neighbours(MatrixIdentity::PlusMethod, site);
+            auto neighbours = map->get_neighbours(matrix_identity::PlusMethod, site);
             iv = 0;
             for (auto &p : neighbours)
             {
@@ -270,7 +266,7 @@ static void maze_forced_chaos(BRAIN_DEFINE *map, ISite startOf, ISite endOf)
     int lbits, rbits, segbits;
     std::uint32_t x, y, dx = map->get_width(), dy = map->get_height();
     std::div_t locked_data;
-    decltype(map->get_neighbours(MatrixIdentity::PlusMethod, startOf)) neighbours;
+    decltype(map->get_neighbours(matrix_identity::PlusMethod, startOf)) neighbours;
 
     map->fill_locks(false);
 
@@ -300,7 +296,7 @@ static void maze_forced_chaos(BRAIN_DEFINE *map, ISite startOf, ISite endOf)
             if (!map->has_lock(site))
                 continue;
 
-            neighbours = map->get_neighbours(MatrixIdentity::PlusMethod, site);
+            neighbours = map->get_neighbours(matrix_identity::PlusMethod, site);
             bool catched = false;
             for (auto &p : neighbours)
             {
@@ -318,7 +314,7 @@ static void maze_forced_chaos(BRAIN_DEFINE *map, ISite startOf, ISite endOf)
     if (map->contains(startOf))
     {
         map->set_lock(startOf, false);
-        neighbours = map->get_neighbours(MatrixIdentity::DiagonalMethod, startOf);
+        neighbours = map->get_neighbours(matrix_identity::DiagonalMethod, startOf);
         for (auto &p : neighbours)
             map->set_lock(p, false);
     }
@@ -326,7 +322,7 @@ static void maze_forced_chaos(BRAIN_DEFINE *map, ISite startOf, ISite endOf)
     if (map->contains(endOf))
     {
         map->set_lock(endOf, false);
-        neighbours = map->get_neighbours(MatrixIdentity::DiagonalMethod, endOf);
+        neighbours = map->get_neighbours(matrix_identity::DiagonalMethod, endOf);
         for (auto &p : neighbours)
             map->set_lock(p, false);
     }
@@ -341,7 +337,7 @@ BRAIN_TEMPLATE
 static void maze_randomized_prim(BRAIN_DEFINE *map, ISite start)
 {
     static brain::brain_identity maze_identity;
-    static auto __g_bss__ {brain::immune_system::get_matrix(brain::MatrixIdentity::PlusMethod, maze_identity)};
+    static auto __g_bss__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, maze_identity)};
 
     if (!map->contains(start))
         start = {0, 0};
@@ -594,7 +590,7 @@ BRAIN_TEMPLATE
 static void maze_hunt_and_kill(BRAIN_DEFINE *map, ISite start)
 {
     static brain::brain_identity maze_identity;
-    static auto __g_bss__ {brain::immune_system::get_matrix(brain::MatrixIdentity::PlusMethod, maze_identity)};
+    static auto __g_bss__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, maze_identity)};
 
     if (!map->contains(start))
         start = {0, 0};
@@ -779,7 +775,7 @@ BRAIN_TEMPLATE
 static void maze_aldous_broder(BRAIN_DEFINE *map, ISite start)
 {
     static brain::brain_identity maze_identity;
-    static auto __g_bss__ {brain::immune_system::get_matrix(brain::MatrixIdentity::PlusMethod, maze_identity)};
+    static auto __g_bss__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, maze_identity)};
 
     if (!map->contains(start))
         start = {0, 0};
@@ -843,7 +839,7 @@ BRAIN_TEMPLATE
 static void maze_wilsons(BRAIN_DEFINE *map, ISite start)
 {
     static brain::brain_identity maze_identity;
-    static auto __g_bss__ {brain::immune_system::get_matrix(brain::MatrixIdentity::PlusMethod, maze_identity)};
+    static auto __g_bss__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, maze_identity)};
 
     if (!map->contains(start))
         start = {0, 0};
@@ -971,14 +967,14 @@ static void maze_cellular_automata(BRAIN_DEFINE *map, ISite startOf, ISite endOf
     if (map->contains(startOf))
     {
         map->set_lock(startOf, false);
-        auto neighbours = map->get_neighbours(MatrixIdentity::DiagonalMethod, startOf);
+        auto neighbours = map->get_neighbours(matrix_identity::DiagonalMethod, startOf);
         for (auto &p : neighbours)
             map->set_lock(p, false);
     }
     if (map->contains(endOf))
     {
         map->set_lock(endOf, false);
-        auto neighbours = map->get_neighbours(MatrixIdentity::DiagonalMethod, endOf);
+        auto neighbours = map->get_neighbours(matrix_identity::DiagonalMethod, endOf);
         for (auto &p : neighbours)
             map->set_lock(p, false);
     }
@@ -986,7 +982,7 @@ static void maze_cellular_automata(BRAIN_DEFINE *map, ISite startOf, ISite endOf
     // Connect disconnected cave chambers so startOf and endOf are mutually reachable
     map->clear(false);
     static brain::brain_identity plus_id;
-    static auto __g_plus__ {brain::immune_system::get_matrix(brain::MatrixIdentity::PlusMethod, plus_id)};
+    static auto __g_plus__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, plus_id)};
 
     ISite seed = map->contains(startOf) ? startOf : ISite {1, 1};
     if (map->contains(seed))
@@ -1092,7 +1088,7 @@ void BRAIN_DEFINE::create_maze()
 }
 
 BRAIN_TEMPLATE
-void BRAIN_DEFINE::create_maze_ex(brain::MazeAlgorithm mazeAlgoritm, ISite startOf, ISite endOf)
+void BRAIN_DEFINE::create_maze_ex(brain::maze_algorithm mazeAlgoritm, ISite startOf, ISite endOf)
 {
     ISite effective_end = endOf;
     if (effective_end.x == 0 && effective_end.y == 0)
@@ -1102,10 +1098,10 @@ void BRAIN_DEFINE::create_maze_ex(brain::MazeAlgorithm mazeAlgoritm, ISite start
 
     switch (mazeAlgoritm)
     {
-        case MazeAlgorithm::RecursiveBacktracer:
+        case maze_algorithm::RecursiveBacktracer:
             maze_system::maze_recursive_backtrace(this, startOf);
             break;
-        case MazeAlgorithm::RecursiveDivison:
+        case maze_algorithm::RecursiveDivison:
         {
             this->clear(true);
             int l = 0, r = static_cast<int>(_xsize) - 1, t = 0, b = static_cast<int>(_ysize) - 1;
@@ -1126,40 +1122,40 @@ void BRAIN_DEFINE::create_maze_ex(brain::MazeAlgorithm mazeAlgoritm, ISite start
             maze_system::maze_recursive_division(this, l, r, t, b);
             break;
         }
-        case MazeAlgorithm::SelectiveStormChaos:
+        case maze_algorithm::SelectiveStormChaos:
             maze_system::maze_storm_space(
                 this,
                 (startOf.x == 0 && startOf.y == 0) ? ISite {static_cast<int>(_xsize / 2), static_cast<int>(_ysize / 2)}
                                                    : startOf);
             break;
-        case MazeAlgorithm::ForcedChaos:
+        case maze_algorithm::ForcedChaos:
             maze_system::maze_forced_chaos(this, startOf, effective_end);
             break;
-        case MazeAlgorithm::RandomizedPrim:
+        case maze_algorithm::RandomizedPrim:
             maze_system::maze_randomized_prim(this, startOf);
             break;
-        case MazeAlgorithm::RandomizedKruskal:
+        case maze_algorithm::RandomizedKruskal:
             maze_system::maze_randomized_kruskal(this, startOf);
             break;
-        case MazeAlgorithm::Ellers:
+        case maze_algorithm::Ellers:
             maze_system::maze_ellers(this, startOf);
             break;
-        case MazeAlgorithm::HuntAndKill:
+        case maze_algorithm::HuntAndKill:
             maze_system::maze_hunt_and_kill(this, startOf);
             break;
-        case MazeAlgorithm::BinaryTree:
+        case maze_algorithm::BinaryTree:
             maze_system::maze_binary_tree(this, startOf);
             break;
-        case MazeAlgorithm::Sidewinder:
+        case maze_algorithm::Sidewinder:
             maze_system::maze_sidewinder(this, startOf);
             break;
-        case MazeAlgorithm::AldousBroder:
+        case maze_algorithm::AldousBroder:
             maze_system::maze_aldous_broder(this, startOf);
             break;
-        case MazeAlgorithm::Wilsons:
+        case maze_algorithm::Wilsons:
             maze_system::maze_wilsons(this, startOf);
             break;
-        case MazeAlgorithm::CellularAutomata:
+        case maze_algorithm::CellularAutomata:
             maze_system::maze_cellular_automata(this, startOf, effective_end);
             break;
     }

@@ -61,7 +61,7 @@ public:
 namespace immune_system
 {
 /**
- * Pythagorean distance (dx^2 + dy^2).
+ * Pythagorean distance (dx^2 + dy^2). Not admissible: A* with it is fast but may return non-optimal paths.
  */
 static brain::weight_t heuristic_pythagorean(brain::weight_t dx, brain::weight_t dy)
 {
@@ -111,7 +111,7 @@ static bool compare_neuron(const INeuron *lhs, const INeuron *rhs)
 }
 
 template <typename IdentityWrapper>
-static int get_matrix(brain::MatrixIdentity matrixIdentity, IdentityWrapper &place)
+static int get_matrix(brain::matrix_identity matrixIdentity, IdentityWrapper &place)
 {
     /*
      DIAGONAL
@@ -148,19 +148,19 @@ static int get_matrix(brain::MatrixIdentity matrixIdentity, IdentityWrapper &pla
 
     switch (matrixIdentity)
     {
-        case brain::MatrixIdentity::DiagonalMethod:
+        case brain::matrix_identity::DiagonalMethod:
             place.horizontal = M_DIAGONAL_H_POINT;
             place.vertical = M_DIAGONAL_V_POINT;
             place.g_weight = M_G_DIAGONAL_WEIGHT;
             return place.length = sizeof(M_DIAGONAL_H_POINT);
             break;
-        case brain::MatrixIdentity::PlusMethod:
+        case brain::matrix_identity::PlusMethod:
             place.horizontal = M_PLUS_H_POINT;
             place.vertical = M_PLUS_V_POINT;
             place.g_weight = M_G_PLUS_WEIGHT;
             return place.length = sizeof(M_PLUS_H_POINT);
             break;
-        case brain::MatrixIdentity::CrossMethod:
+        case brain::matrix_identity::CrossMethod:
             place.horizontal = M_CROSS_H_POINT;
             place.vertical = M_CROSS_V_POINT;
             place.g_weight = M_G_PLUS_WEIGHT;
@@ -182,9 +182,9 @@ BRAIN_DEFINE::basic_brain_map(std::uint32_t xlength, std::uint32_t ylength)
     this->_ysize = ylength;
 
     // The Identity vector lines
-    set_identity(MatrixIdentity::DiagonalMethod);
-    // The Pythagorean heuristic is set as default
-    set_heuristic(HeuristicMethod::Pythagorean);
+    set_identity(matrix_identity::DiagonalMethod);
+    // Manhattan is the default: it is exact for the step costs (orthogonal 1, diagonal 2), so A* stays optimal
+    set_heuristic(heuristic_method::Manhattan);
     // Alloc
     _internal_realloc();
 }
@@ -257,7 +257,7 @@ int BRAIN_DEFINE::reserved_bits()
 }
 
 BRAIN_TEMPLATE
-bool BRAIN_DEFINE::set_identity(MatrixIdentity matrixIdentity)
+bool BRAIN_DEFINE::set_identity(matrix_identity matrixIdentity)
 {
     int len;
     len = immune_system::get_matrix(matrixIdentity, this->identity);
@@ -313,15 +313,15 @@ bool BRAIN_DEFINE::get_custom_corner_cutting() const
 }
 
 BRAIN_TEMPLATE
-MatrixIdentity BRAIN_DEFINE::get_identity()
+matrix_identity BRAIN_DEFINE::get_identity()
 {
     decltype(identity) id;
 
-    int result = static_cast<int>(MatrixIdentity::DiagonalMethod);
-    int last = static_cast<int>(MatrixIdentity::CrossMethod) + 1;
+    int result = static_cast<int>(matrix_identity::DiagonalMethod);
+    int last = static_cast<int>(matrix_identity::CrossMethod) + 1;
     for (; result < last;)
     {
-        immune_system::get_matrix(MatrixIdentity(result), id);
+        immune_system::get_matrix(matrix_identity(result), id);
         if (id.horizontal == identity.horizontal)
         {
             break;
@@ -329,28 +329,28 @@ MatrixIdentity BRAIN_DEFINE::get_identity()
         ++result;
     }
 
-    return MatrixIdentity(result);
+    return matrix_identity(result);
 }
 
 BRAIN_TEMPLATE
-bool BRAIN_DEFINE::set_heuristic(HeuristicMethod method)
+bool BRAIN_DEFINE::set_heuristic(heuristic_method method)
 {
     bool status = true;
     switch (method)
     {
-        case HeuristicMethod::Pythagorean:
+        case heuristic_method::Pythagorean:
             __heuristic__ = immune_system::heuristic_pythagorean;
             break;
-        case HeuristicMethod::Hypot:
+        case heuristic_method::Hypot:
             __heuristic__ = immune_system::heuristic_hypot;
             break;
-        case HeuristicMethod::Manhattan:
+        case heuristic_method::Manhattan:
             __heuristic__ = immune_system::heuristic_manhtattan;
             break;
-        case HeuristicMethod::Chebyshev:
+        case heuristic_method::Chebyshev:
             __heuristic__ = immune_system::heuristic_chebyshev;
             break;
-        case HeuristicMethod::Octile:
+        case heuristic_method::Octile:
             __heuristic__ = immune_system::heuristic_octile;
             break;
         default:
@@ -361,22 +361,22 @@ bool BRAIN_DEFINE::set_heuristic(HeuristicMethod method)
 }
 
 BRAIN_TEMPLATE
-HeuristicMethod BRAIN_DEFINE::get_heuristic()
+heuristic_method BRAIN_DEFINE::get_heuristic()
 {
     if (__heuristic__ == immune_system::heuristic_pythagorean)
-        return HeuristicMethod::Pythagorean;
+        return heuristic_method::Pythagorean;
     else if (__heuristic__ == immune_system::heuristic_hypot)
-        return HeuristicMethod::Hypot;
+        return heuristic_method::Hypot;
     else if (__heuristic__ == immune_system::heuristic_manhtattan)
-        return HeuristicMethod::Manhattan;
+        return heuristic_method::Manhattan;
     else if (__heuristic__ == immune_system::heuristic_chebyshev)
-        return HeuristicMethod::Chebyshev;
+        return heuristic_method::Chebyshev;
     else if (__heuristic__ == immune_system::heuristic_octile)
-        return HeuristicMethod::Octile;
+        return heuristic_method::Octile;
     else if (__heuristic__ != nullptr)
-        return HeuristicMethod::Custom;
+        return heuristic_method::Custom;
     else
-        return HeuristicMethod::Invalid;
+        return heuristic_method::Invalid;
 }
 
 BRAIN_TEMPLATE
@@ -386,13 +386,25 @@ std::uint32_t BRAIN_DEFINE::get_width()
 }
 
 BRAIN_TEMPLATE
-void BRAIN_DEFINE::set_search_mode(SearchMode mode)
+void BRAIN_DEFINE::set_search_mode(search_mode mode)
 {
     this->_search_mode = mode;
 }
 
 BRAIN_TEMPLATE
-SearchMode BRAIN_DEFINE::get_search_mode() const
+void BRAIN_DEFINE::set_pathfinder(pathfinder_algo pathfinder)
+{
+    this->_pathfinder = pathfinder;
+}
+
+BRAIN_TEMPLATE
+pathfinder_algo BRAIN_DEFINE::get_pathfinder() const
+{
+    return this->_pathfinder;
+}
+
+BRAIN_TEMPLATE
+search_mode BRAIN_DEFINE::get_search_mode() const
 {
     return this->_search_mode;
 }
@@ -596,7 +608,7 @@ void BRAIN_DEFINE::save(brain_breakfast *save_to)
 
 BRAIN_TEMPLATE
 template <typename list_type, typename target_type>
-list_type BRAIN_DEFINE::get_neighbours(MatrixIdentity matrixIdentity, const target_type &from)
+list_type BRAIN_DEFINE::get_neighbours(matrix_identity matrixIdentity, const target_type &from)
 {
     decltype(this->identity) identity;
     list_type list;
@@ -637,190 +649,205 @@ BRAIN_TEMPLATE
 template <typename list_type>
 bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, const ISite &first, const ISite &last)
 {
-    return this->find(navigationResult, this->get(first), this->get(last), this->_search_mode);
+    return this->find(this->_pathfinder, navigationResult, this->get(first), this->get(last), this->_search_mode);
 }
 
 BRAIN_TEMPLATE
 template <typename list_type>
 bool BRAIN_DEFINE::find(
-    navigate_result<list_type> &navigationResult, const ISite &first, const ISite &last, SearchMode mode)
+    navigate_result<list_type> &navigationResult, const ISite &first, const ISite &last, search_mode mode)
 {
-    return this->find(navigationResult, this->get(first), this->get(last), mode);
+    return this->find(this->_pathfinder, navigationResult, this->get(first), this->get(last), mode);
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::find(
+    pathfinder_algo pathfinder,
+    navigate_result<list_type> &navigationResult,
+    const ISite &first,
+    const ISite &last,
+    search_mode mode)
+{
+    return this->find(pathfinder, navigationResult, this->get(first), this->get(last), mode);
 }
 
 BRAIN_TEMPLATE
 template <typename list_type>
 bool BRAIN_DEFINE::find(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
 {
-    return this->find(navigationResult, firstNeuron, lastNeuron, this->_search_mode);
+    return this->find(this->_pathfinder, navigationResult, firstNeuron, lastNeuron, this->_search_mode);
 }
 
 BRAIN_TEMPLATE
 template <typename list_type>
 bool BRAIN_DEFINE::find(
-    navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron, SearchMode mode)
+    navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron, search_mode mode)
 {
-    if (mode == SearchMode::BiDirectional)
+    return this->find(this->_pathfinder, navigationResult, firstNeuron, lastNeuron, mode);
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::find(
+    pathfinder_algo pathfinder,
+    navigate_result<list_type> &navigationResult,
+    INeuron *firstNeuron,
+    INeuron *lastNeuron,
+    search_mode mode)
+{
+    if (mode == search_mode::BiDirectional)
     {
-        return this->_find_bidirectional(navigationResult, firstNeuron, lastNeuron);
+        return this->_find_bidirectional(pathfinder, navigationResult, firstNeuron, lastNeuron);
     }
-    return this->_find_unidirectional(navigationResult, firstNeuron, lastNeuron);
+    return this->_find_unidirectional(pathfinder, navigationResult, firstNeuron, lastNeuron);
 }
 
 BRAIN_TEMPLATE
 template <typename list_type>
 bool BRAIN_DEFINE::_find_unidirectional(
-    navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+    pathfinder_algo pathfinder, navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
 {
-    using navigate_result_t = navigate_result<list_type>;
+    switch (pathfinder)
+    {
+        case pathfinder_algo::Dijkstra:
+            return this->_find_dijkstra(navigationResult, firstNeuron, lastNeuron);
+        case pathfinder_algo::BreadthFirstSearch:
+            return this->_find_bfs(navigationResult, firstNeuron, lastNeuron);
+        case pathfinder_algo::DepthFirstSearch:
+            return this->_find_dfs(navigationResult, firstNeuron, lastNeuron);
+        case pathfinder_algo::AStar:
+        default:
+            return this->_find_astar(navigationResult, firstNeuron, lastNeuron);
+    }
+}
+
+BRAIN_TEMPLATE
+bool BRAIN_DEFINE::_find_can_step(const ISite &from, int dir_index)
+{
+    // Prevent diagonal corner-cutting through adjacent locked tiles
+    if (!_corner_cutting && identity.horizontal[dir_index] != 0 && identity.vertical[dir_index] != 0)
+    {
+        if (has_lock({from.x + identity.horizontal[dir_index], from.y})
+            || has_lock({from.x, from.y + identity.vertical[dir_index]}))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_begin(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
     using target_type = typename list_type::value_type;
-
-    // OpenList for algorithm, auto sort, builds, and combines
-    std::multiset<INeuron *, decltype(&immune_system::compare_neuron<INeuron>)> openList(
-        &immune_system::compare_neuron<INeuron>);
-    /*Алгоритм A* (A-Star) используется для поиска кратчайшего пути в графе с весами на ребрах. Он комбинирует
-    эффективность алгоритма Дейкстры и эвристическую функцию для оценки оставшегося расстояния до цели. Вот пример
-    псевдокода A*:
-
-    ASTAR Pseudocode
-    Функция AStar(start, goal):
-    Открытый_список = пустой список с приоритетами (min-heap)
-    Закрытый_список = пустой список
-    Добавить start в Открытый_список с оценкой F(start) = G(start) + H(start)  // G(start) - расстояние от начальной
-    вершины до текущей, H(start) - эвристическая оценка от текущей до цели while Открытый_список не пуст:
-        Текущая_вершина = вершина с минимальной оценкой F в Открытом_списке
-        Удалить Текущая_вершина из Открытый_список
-        Добавить Текущая_вершина в Закрытый_список
-
-        if Текущая_вершина = goal:
-            // Путь найден
-            Вернуть построенный путь
-
-        for каждое соседнее_ребро от Текущая_вершина:
-            if соседнее_ребро в Закрытый_список:
-                Пропустить это соседнее_ребро
-
-            if соседнее_ребро не в Открытый_список:
-                Добавить соседнее_ребро в Открытый_список
-                Установить родителя соседнего_ребра равным Текущая_вершина
-                Рассчитать оценки G и H для соседнего_ребра
-                Установить оценку F для соседнего_ребра: F(соседнее_ребро) = G(соседнее_ребро) + H(соседнее_ребро)
-            else:
-                // соседнее_ребро уже есть в Открытом_списке, проверяем, является ли новый путь лучше
-                Если G(Текущая_вершина) + стоимость(Текущая_вершина, соседнее_ребро) < G(соседнее_ребро):
-                    Обновить родителя соседнего_ребра равным Текущая_вершина
-                    Рассчитать оценки G и H для соседнего_ребра
-                    Установить оценку F для соседнего_ребра: F(соседнее_ребро) = G(соседнее_ребро) + H(соседнее_ребро)
-
-    // Нет пути до цели
-    Вернуть пустой список
-    Заметки:
-
-        G(вершина) представляет собой стоимость пути от начальной вершины до данной вершины.
-        H(вершина) представляет собой эвристическую оценку расстояния от данной вершины до целевой вершины.
-        F(вершина) = G(вершина) + H(вершина) - общая оценка вершины, которая учитывает как стоимость пути от начальной
-    вершины, так и эвристическую оценку. Список с приоритетами (min-heap) в Открытом_списке используется для выбора
-    вершины с наименьшей оценкой F. Это обеспечивает, что мы исследуем более перспективные пути в первую очередь.
-
-    Примечание: Псевдокод предоставляет общую структуру алгоритма, и его точная реализация может отличаться в
-    зависимости от языка программирования и используемых структур данных. Также необходимо определить функции оценки H и
-    стоимости ребер для конкретной задачи.
-    */
 
     if (firstNeuron == nullptr || lastNeuron == nullptr)
     {
-        navigationResult.status = NavigationStatus::Undefined;
+        navigationResult.status = navigation_status::Undefined;
         return false;
     }
     if (has_lock(firstNeuron) || has_lock(lastNeuron))
     {
-        navigationResult.status = NavigationStatus::Locked;
+        navigationResult.status = navigation_status::Locked;
         return false;
     }
 
-    INeuron *current, *self;
-    typename decltype(openList)::iterator cur_iter;
-    ISite first_site = get_point(firstNeuron), last_site = get_point(lastNeuron), self_site, current_site;
-
-    navigationResult.status = NavigationStatus::Closed;
+    navigationResult.status = navigation_status::Closed;
 
     BLOCK_SITE
-    navigationResult.from = first_site;
-    navigationResult.to = last_site;
+    navigationResult.from = get_point(firstNeuron);
+    navigationResult.to = get_point(lastNeuron);
     BLOCK_NEURON
     navigationResult.from = firstNeuron;
     navigationResult.to = lastNeuron;
     BLOCK_END
 
+    return true;
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+void BRAIN_DEFINE::_find_build_path(navigate_result<list_type> &navigationResult, INeuron *last)
+{
+    using target_type = typename list_type::value_type;
+
+    navigationResult.status = navigation_status::Opened;
+
+    int size = 0;
+    for (INeuron *n = last; n; n = n->parent)
+        ++size;
+
+    navigationResult.connections.resize(size);
+    for (INeuron *n = last; n; n = n->parent)
+    {
+        --size;
+        BLOCK_SITE
+        navigationResult.connections[size] = get_point(n);
+        BLOCK_NEURON
+        navigationResult.connections[size] = n;
+        BLOCK_END
+    }
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_astar(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
+    return _find_best_first(navigationResult, firstNeuron, lastNeuron, true);
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_best_first(
+    navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron, bool use_heuristic)
+{
+    if (!_find_begin(navigationResult, firstNeuron, lastNeuron))
+        return false;
+
+    // OpenList for algorithm, auto sort, builds, and combines
+    std::multiset<INeuron *, decltype(&immune_system::compare_neuron<INeuron>)> openList(
+        &immune_system::compare_neuron<INeuron>);
+
+    INeuron *current, *self;
+    typename decltype(openList)::iterator cur_iter;
+    ISite first_site = get_point(firstNeuron), last_site = get_point(lastNeuron), self_site, current_site;
+
     firstNeuron->g = 0;
-    firstNeuron->h = __heuristic__(first_site.x - last_site.x, first_site.y - last_site.y);
+    firstNeuron->h = use_heuristic ? __heuristic__(first_site.x - last_site.x, first_site.y - last_site.y) : 0;
     firstNeuron->f = firstNeuron->h;
     firstNeuron->parent = nullptr;
 
     openList.insert(firstNeuron);
 
-    // Перестройка
     while (openList.empty() == false)
     {
         cur_iter = openList.begin();
         current = *cur_iter;
         if (current == lastNeuron)
         {
-            navigationResult.status = NavigationStatus::Opened;
-
-            int size = 0;
-            while (current && ++size)
-                current = current->parent;
-
-            current = *cur_iter;
-            navigationResult.connections.resize(size);
-            while (current)
-            {
-                --size;
-                BLOCK_SITE
-                navigationResult.connections[size] = std::move(get_point(current));
-                BLOCK_NEURON
-                navigationResult.connections[size] = std::move(current);
-                BLOCK_END
-                current = current->parent;
-            }
-            // close and combine finded connections
+            _find_build_path(navigationResult, current);
             break;
         }
         openList.erase(cur_iter);
-        // change to closied list
         current->flags = NEURON_CAPTURE_CLOSED_LIST;
 
         current_site = get_point(current);
 
         for (int s = 0; s < identity.length; ++s)
         {
-            // Get the closest neurons
             self_site.x = current_site.x + identity.horizontal[s];
             self_site.y = current_site.y + identity.vertical[s];
             self = get(self_site);
-            // self is exits
-            // self is not are closed list
-            // self is not locked
             if (self == nullptr || self->flags == NEURON_CAPTURE_CLOSED_LIST || has_lock(self_site))
-            {
                 continue;
-            }
+            if (!_find_can_step(current_site, s))
+                continue;
 
-            // Prevent diagonal corner-cutting through adjacent locked tiles
-            if (!_corner_cutting && identity.horizontal[s] != 0 && identity.vertical[s] != 0)
-            {
-                if (has_lock({current_site.x + identity.horizontal[s], current_site.y})
-                    || has_lock({current_site.x, current_site.y + identity.vertical[s]}))
-                {
-                    continue;
-                }
-            }
-
-            int newG = current->g + identity.g_weight[s]; // get weight
+            int newG = current->g + identity.g_weight[s];
             if (self->flags == NEURON_CAPTURE_OPEN_LIST)
             {
-                // Изменяем захваченный нейрон.
                 if (newG < self->g)
                 {
                     auto pair_range = openList.equal_range(self);
@@ -832,49 +859,184 @@ bool BRAIN_DEFINE::_find_unidirectional(
                     continue;
             }
             else
-                // Capture unresearched Neuron
-                // Захватываем нейтральный нейрон и помещаем ее в открытый список
                 self->flags = NEURON_CAPTURE_OPEN_LIST;
 
             self->parent = current;
-
             self->g = newG;
-            // calculate heuristic
-            self->h = __heuristic__(self_site.x - last_site.x, self_site.y - last_site.y);
-            // compute total weight
+            self->h = use_heuristic ? __heuristic__(self_site.x - last_site.x, self_site.y - last_site.y) : 0;
             self->f = self->g + self->h;
 
-            // Capture
             openList.insert(self);
         }
     }
 
-    return navigationResult.status == NavigationStatus::Opened;
+    return navigationResult.status == navigation_status::Opened;
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_dijkstra(
+    navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
+    // Dijkstra is the best-first search without a heuristic: f == g
+    return _find_best_first(navigationResult, firstNeuron, lastNeuron, false);
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_bfs(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
+    if (!_find_begin(navigationResult, firstNeuron, lastNeuron))
+        return false;
+
+    std::queue<INeuron *> queue;
+    INeuron *current, *self;
+    ISite self_site, current_site;
+
+    firstNeuron->g = firstNeuron->h = firstNeuron->f = 0;
+    firstNeuron->parent = nullptr;
+    firstNeuron->flags = NEURON_CAPTURE_OPEN_LIST;
+    queue.push(firstNeuron);
+
+    while (!queue.empty())
+    {
+        current = queue.front();
+        queue.pop();
+        current->flags = NEURON_CAPTURE_CLOSED_LIST;
+
+        if (current == lastNeuron)
+        {
+            _find_build_path(navigationResult, current);
+            break;
+        }
+
+        current_site = get_point(current);
+        for (int s = 0; s < identity.length; ++s)
+        {
+            self_site.x = current_site.x + identity.horizontal[s];
+            self_site.y = current_site.y + identity.vertical[s];
+            self = get(self_site);
+            // visited (open or closed) neurons are never revisited
+            if (self == nullptr || self->flags == NEURON_CAPTURE_OPEN_LIST
+                || self->flags == NEURON_CAPTURE_CLOSED_LIST || has_lock(self_site))
+                continue;
+            if (!_find_can_step(current_site, s))
+                continue;
+
+            self->flags = NEURON_CAPTURE_OPEN_LIST;
+            self->parent = current;
+            self->g = current->g + identity.g_weight[s];
+            self->h = 0;
+            self->f = self->g;
+            queue.push(self);
+        }
+    }
+
+    return navigationResult.status == navigation_status::Opened;
+}
+
+BRAIN_TEMPLATE
+template <typename list_type>
+bool BRAIN_DEFINE::_find_dfs(navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+{
+    if (!_find_begin(navigationResult, firstNeuron, lastNeuron))
+        return false;
+
+    // stack of (neuron, the neuron it was reached from)
+    std::vector<std::pair<INeuron *, INeuron *>> stack;
+    INeuron *current, *from, *self;
+    ISite self_site, current_site;
+
+    stack.emplace_back(firstNeuron, nullptr);
+
+    while (!stack.empty())
+    {
+        std::tie(current, from) = stack.back();
+        stack.pop_back();
+        if (current->flags == NEURON_CAPTURE_CLOSED_LIST)
+            continue;
+
+        current->flags = NEURON_CAPTURE_CLOSED_LIST;
+        current->parent = from;
+        current->g = from ? from->g : 0;
+        if (from)
+        {
+            ISite fs = get_point(from), cs = get_point(current);
+            for (int s = 0; s < identity.length; ++s)
+            {
+                if (fs.x + identity.horizontal[s] == cs.x && fs.y + identity.vertical[s] == cs.y)
+                {
+                    current->g += identity.g_weight[s];
+                    break;
+                }
+            }
+        }
+        current->h = 0;
+        current->f = current->g;
+
+        if (current == lastNeuron)
+        {
+            _find_build_path(navigationResult, current);
+            break;
+        }
+
+        current_site = get_point(current);
+        // reverse order so the first direction is explored first
+        for (int s = identity.length - 1; s >= 0; --s)
+        {
+            self_site.x = current_site.x + identity.horizontal[s];
+            self_site.y = current_site.y + identity.vertical[s];
+            self = get(self_site);
+            if (self == nullptr || self->flags == NEURON_CAPTURE_CLOSED_LIST || has_lock(self_site))
+                continue;
+            if (!_find_can_step(current_site, s))
+                continue;
+            self->flags = NEURON_CAPTURE_OPEN_LIST;
+            stack.emplace_back(self, current);
+        }
+    }
+
+    return navigationResult.status == navigation_status::Opened;
 }
 
 BRAIN_TEMPLATE
 template <typename list_type>
 bool BRAIN_DEFINE::_find_bidirectional(
-    navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
+    pathfinder_algo pathfinder, navigate_result<list_type> &navigationResult, INeuron *firstNeuron, INeuron *lastNeuron)
 {
+    // Bidirectional search is meaningful only for the weighted algorithms (A*, Dijkstra)
+    if (pathfinder == pathfinder_algo::BreadthFirstSearch || pathfinder == pathfinder_algo::DepthFirstSearch)
+        return this->_find_unidirectional(pathfinder, navigationResult, firstNeuron, lastNeuron);
+
+    // Dijkstra is A* with a zero heuristic
+    heuristic_function saved_heuristic = __heuristic__;
+    if (pathfinder == pathfinder_algo::Dijkstra)
+        __heuristic__ = [](weight_t, weight_t) -> weight_t { return 0; };
+    struct restore_t
+    {
+        heuristic_function &ref;
+        heuristic_function value;
+        ~restore_t() { ref = value; }
+    } restore {__heuristic__, saved_heuristic};
+
     using navigate_result_t = navigate_result<list_type>;
     using target_type = typename list_type::value_type;
 
     if (firstNeuron == nullptr || lastNeuron == nullptr)
     {
-        navigationResult.status = NavigationStatus::Undefined;
+        navigationResult.status = navigation_status::Undefined;
         return false;
     }
     if (has_lock(firstNeuron) || has_lock(lastNeuron))
     {
-        navigationResult.status = NavigationStatus::Locked;
+        navigationResult.status = navigation_status::Locked;
         return false;
     }
 
     ISite first_site = get_point(firstNeuron);
     ISite last_site = get_point(lastNeuron);
 
-    navigationResult.status = NavigationStatus::Closed;
+    navigationResult.status = navigation_status::Closed;
 
     BLOCK_SITE
     navigationResult.from = first_site;
@@ -886,7 +1048,7 @@ bool BRAIN_DEFINE::_find_bidirectional(
 
     if (firstNeuron == lastNeuron)
     {
-        navigationResult.status = NavigationStatus::Opened;
+        navigationResult.status = navigation_status::Opened;
         navigationResult.connections.clear();
         BLOCK_SITE
         navigationResult.connections.push_back(first_site);
@@ -1110,7 +1272,7 @@ bool BRAIN_DEFINE::_find_bidirectional(
 
     if (meeting_neuron != nullptr)
     {
-        navigationResult.status = NavigationStatus::Opened;
+        navigationResult.status = navigation_status::Opened;
 
         std::vector<INeuron *> fwd_nodes;
         INeuron *curr = meeting_neuron;
