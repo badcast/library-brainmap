@@ -172,6 +172,25 @@ public:
                 }
             }
 
+        // lower bound of the cost of one manhattan unit: every step moves |dx| + |dy| units for its cost
+        _unit_cost = unreachable;
+        for (int s = 0; s < map.identity.length; ++s)
+        {
+            const int span = std::abs(map.identity.horizontal[s]) + std::abs(map.identity.vertical[s]);
+            _unit_cost = std::min<weight_t>(_unit_cost, map.identity.g_weight[s] / span);
+        }
+        if (_unit_cost >= unreachable || map.identity.length == 0)
+            _unit_cost = 0;
+
+        // buffers for the queries
+        const std::size_t slots = _sites.size() + 2;
+        _query = 0;
+        _best.assign(slots, unreachable);
+        _goal_cost.assign(slots, unreachable);
+        _prev.assign(slots, -1);
+        _best_stamp.assign(slots, 0);
+        _goal_stamp.assign(slots, 0);
+
         _built = true;
         return true;
     }
@@ -218,12 +237,24 @@ public:
 
         const int n_nodes = static_cast<int>(_sites.size());
         const int S = n_nodes, G = n_nodes + 1;
-        std::vector<std::vector<edge>> extra(n_nodes + 2);
         std::vector<weight_t> dist;
         std::vector<int> parent;
 
+        // The query state lives in reusable buffers: a query id marks the entries that belong to this query, so the
+        // work of a query depends on the clusters of the start and of the goal, not on the size of the whole graph.
+        ++_query;
+        std::vector<edge> from_start; // temporary edges S -> entrance nodes of the start cluster (and S -> G)
+        auto seen = [&](int node) {
+            if (_best_stamp[node] != _query)
+            {
+                _best_stamp[node] = _query;
+                _best[node] = unreachable;
+                _prev[node] = -1;
+            }
+        };
+
         // temporary edges of the start and of the goal
-        auto attach = [&](const ISite &cell, int virtual_node, bool outgoing) {
+        auto attach = [&](const ISite &cell, bool outgoing) {
             local_dijkstra(cell, dist, parent);
             rect r = cluster_rect(cell);
             for (int y = r.y0; y <= r.y1; ++y)
@@ -234,57 +265,71 @@ public:
                         continue;
                     int node = _node_of[index_of({x, y})];
                     if (node >= 0)
-                        (outgoing ? extra[virtual_node] : extra[node]).push_back({outgoing ? node : virtual_node, c});
+                    {
+                        if (outgoing)
+                            from_start.push_back({node, c});
+                        else
+                        {
+                            _goal_stamp[node] = _query;
+                            _goal_cost[node] = c;
+                        }
+                    }
                     if (x == to.x && y == to.y && outgoing && same_cluster(from, to))
-                        extra[S].push_back({G, c});
+                        from_start.push_back({G, c});
                 }
         };
-        attach(from, S, true);
-        attach(to, G, false);
+        attach(from, true);
+        attach(to, false);
 
-        // Dijkstra over the abstract graph
-        struct entry
-        {
-            weight_t cost;
-            int node;
+        // A* over the abstract graph. The heuristic is a lower bound of the real cost (a step moves at most
+        // two cells in the manhattan metric), so the cost stays exact.
+        auto heuristic = [&](int node) -> weight_t {
+            if (node == G)
+                return 0;
+            const ISite &site = node == S ? from : _sites[node];
+            return _unit_cost * (std::abs(site.x - to.x) + std::abs(site.y - to.y));
         };
-        auto worse = [](const entry &a, const entry &b) {
-            return a.cost > b.cost;
-        };
-        std::priority_queue<entry, std::vector<entry>, decltype(worse)> open(worse);
-        std::vector<weight_t> best(n_nodes + 2, unreachable);
-        std::vector<int> prev(n_nodes + 2, -1);
-        best[S] = 0;
-        open.push({0, S});
+        immune_system::cost_queue open;
+        seen(S);
+        _best[S] = 0;
+        open.push({heuristic(S), S});
         while (!open.empty())
         {
-            entry e = open.top();
+            immune_system::cost_entry e = open.top();
             open.pop();
-            if (e.cost != best[e.node])
-                continue;
-            if (e.node == G)
+            if (e.cost != _best[e.id] + heuristic(e.id))
+                continue; // stale entry
+            if (e.id == G)
                 break;
+            const weight_t g = _best[e.id];
             auto relax = [&](const edge &ed) {
-                weight_t c = e.cost + ed.cost;
-                if (c < best[ed.to])
+                weight_t c = g + ed.cost;
+                seen(ed.to);
+                if (c < _best[ed.to])
                 {
-                    best[ed.to] = c;
-                    prev[ed.to] = e.node;
-                    open.push({c, ed.to});
+                    _best[ed.to] = c;
+                    _prev[ed.to] = e.id;
+                    open.push({c + heuristic(ed.to), ed.to});
                 }
             };
-            if (e.node < n_nodes)
-                for (const edge &ed : _adj[e.node])
+            if (e.id == S)
+                for (const edge &ed : from_start)
                     relax(ed);
-            for (const edge &ed : extra[e.node])
-                relax(ed);
+            else
+            {
+                for (const edge &ed : _adj[e.id])
+                    relax(ed);
+                if (_goal_stamp[e.id] == _query)
+                    relax({G, _goal_cost[e.id]});
+            }
         }
-        if (best[G] >= unreachable)
+        seen(G);
+        if (_best[G] >= unreachable)
             return _sparse ? fallback(from, to, out, cost_out) : false;
 
         // refine the abstract path into cells
         std::vector<int> chain;
-        for (int n = G; n != -1; n = prev[n])
+        for (int n = G; n != -1; n = _prev[n])
             chain.push_back(n);
         std::reverse(chain.begin(), chain.end());
         auto site_of = [&](int n) {
@@ -312,26 +357,62 @@ public:
                 out.push_back(hop[k]);
         }
         if (cost_out)
-            *cost_out = best[G];
+            *cost_out = _best[G];
         return true;
     }
 
 private:
-    // sparse graphs may miss a route: ask the plain search of the map
+    // sparse graphs may miss a route: search the whole map with Dijkstra. The neurons of the map are not touched.
     template <typename list_type>
     bool fallback(const ISite &from, const ISite &to, list_type &out, weight_t *cost_out)
     {
-        navigate_result<list_type> result;
-        if (!_map->find(pathfinder_algo::AStar, result, from, to, search_mode::UniDirectional))
+        const std::size_t total = static_cast<std::size_t>(_w) * _h;
+        std::vector<weight_t> dist(total, unreachable);
+        std::vector<int> parent(total, -1);
+
+        immune_system::cost_queue open;
+
+        const int start = static_cast<int>(index_of(from)), goal = static_cast<int>(index_of(to));
+        dist[start] = 0;
+        open.push({0, start});
+        while (!open.empty())
+        {
+            immune_system::cost_entry e = open.top();
+            open.pop();
+            if (e.cost != dist[e.id])
+                continue;
+            if (e.id == goal)
+                break;
+            ISite cur {e.id % _w, e.id / _w};
+            for (int s = 0; s < _map->identity.length; ++s)
+            {
+                ISite nb {cur.x + _map->identity.horizontal[s], cur.y + _map->identity.vertical[s]};
+                if (!inside(nb) || _map->has_lock(nb) || !_map->_find_can_step(cur, s))
+                    continue;
+                const weight_t c = e.cost + _map->identity.g_weight[s];
+                const int nb_cell = static_cast<int>(index_of(nb));
+                if (c < dist[nb_cell])
+                {
+                    dist[nb_cell] = c;
+                    parent[nb_cell] = e.id;
+                    open.push({c, nb_cell});
+                }
+            }
+        }
+        if (dist[goal] >= unreachable)
             return false;
-        for (const auto &p : result.connections)
-            out.push_back(p);
+
+        std::vector<ISite> cells;
+        for (int cell = goal; cell != -1; cell = parent[cell])
+            cells.push_back(ISite {cell % _w, cell / _w});
+        for (auto it = cells.rbegin(); it != cells.rend(); ++it)
+            out.push_back(*it);
         if (cost_out)
-            *cost_out = _map->get(to)->g;
+            *cost_out = dist[goal];
         return true;
     }
 
-    static constexpr weight_t unreachable = std::numeric_limits<weight_t>::max() / 2;
+    static constexpr weight_t unreachable = immune_system::unreachable_cost;
 
     struct edge
     {
@@ -400,26 +481,18 @@ private:
         dist.assign(static_cast<std::size_t>(rw) * r.height(), unreachable);
         parent.assign(dist.size(), -1);
 
-        struct entry
-        {
-            weight_t cost;
-            int cell;
-        };
-        auto worse = [](const entry &a, const entry &b) {
-            return a.cost > b.cost;
-        };
-        std::priority_queue<entry, std::vector<entry>, decltype(worse)> open(worse);
+        immune_system::cost_queue open;
 
         int start = (src.y - r.y0) * rw + (src.x - r.x0);
         dist[start] = 0;
         open.push({0, start});
         while (!open.empty())
         {
-            entry e = open.top();
+            immune_system::cost_entry e = open.top();
             open.pop();
-            if (e.cost != dist[e.cell])
+            if (e.cost != dist[e.id])
                 continue;
-            ISite cur {r.x0 + e.cell % rw, r.y0 + e.cell / rw};
+            ISite cur {r.x0 + e.id % rw, r.y0 + e.id / rw};
             for (int s = 0; s < _map->identity.length; ++s)
             {
                 ISite nb {cur.x + _map->identity.horizontal[s], cur.y + _map->identity.vertical[s]};
@@ -431,7 +504,7 @@ private:
                 if (c < dist[nb_cell])
                 {
                     dist[nb_cell] = c;
-                    parent[nb_cell] = e.cell;
+                    parent[nb_cell] = e.id;
                     open.push({c, nb_cell});
                 }
             }
@@ -445,6 +518,13 @@ private:
     std::vector<ISite> _sites;
     std::vector<int> _node_of;
     std::vector<std::vector<edge>> _adj;
+
+    // scratch buffers of find(), indexed by the abstract node (the last two are the start and the goal)
+    std::uint32_t _query = 0;
+    weight_t _unit_cost = 0; // lower bound of the cost per manhattan unit, the heuristic of the abstract search
+    std::vector<weight_t> _best, _goal_cost;
+    std::vector<int> _prev;
+    std::vector<std::uint32_t> _best_stamp, _goal_stamp;
 };
 
 #endif

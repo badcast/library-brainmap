@@ -39,3 +39,23 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
 
+
+  sanitizers:
+    # AddressSanitizer and UndefinedBehaviorSanitizer on the tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install OpenGL and GLFW dependencies
+      run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-dev libglfw3-dev pkg-config
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build-san -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBRAIN_SANITIZE=ON
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build-san
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build-san
+      run: ctest --output-on-failure

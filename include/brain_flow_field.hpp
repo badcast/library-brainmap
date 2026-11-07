@@ -26,7 +26,7 @@ public:
     using map_type = basic_brain_map<ISite, INeuron>;
 
     /// cost of the cells the goal can not be reached from
-    static constexpr weight_t unreachable = std::numeric_limits<weight_t>::max() / 2;
+    static constexpr weight_t unreachable = immune_system::unreachable_cost;
 
     /**
      * @brief build the field
@@ -48,15 +48,7 @@ public:
             return false;
         _goal = goal;
 
-        struct entry
-        {
-            weight_t cost;
-            int index;
-        };
-        auto worse = [](const entry &lhs, const entry &rhs) {
-            return lhs.cost > rhs.cost;
-        };
-        std::priority_queue<entry, std::vector<entry>, decltype(worse)> open(worse);
+        immune_system::cost_queue open;
 
         const int goal_index = index_of(goal);
         _cost[goal_index] = 0;
@@ -64,12 +56,12 @@ public:
 
         while (!open.empty())
         {
-            entry e = open.top();
+            immune_system::cost_entry e = open.top();
             open.pop();
-            if (e.cost != _cost[e.index])
+            if (e.cost != _cost[e.id])
                 continue; // stale entry
 
-            ISite site {e.index % _width, e.index / _width};
+            ISite site {e.id % _width, e.id / _width};
             for (int s = 0; s < map.identity.length; ++s)
             {
                 ISite nb {site.x + map.identity.horizontal[s], site.y + map.identity.vertical[s]};
@@ -82,7 +74,7 @@ public:
                 if (cost < _cost[nb_index])
                 {
                     _cost[nb_index] = cost;
-                    _next[nb_index] = e.index;
+                    _next[nb_index] = e.id;
                     open.push({cost, nb_index});
                 }
             }

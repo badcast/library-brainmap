@@ -150,7 +150,7 @@ int main()
         std::cout << "\tLoaded from scores: " << scores << std::endl;
         std::cout << "\tCalculated from scores: " << results.connections.size() << std::endl << std::endl;
 
-        if(results.connections.size() != scores)
+        if(results.connections.size() != static_cast<std::size_t>(scores))
         {
             ++errors;
         }

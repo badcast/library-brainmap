@@ -16,6 +16,9 @@
 #define _BRAIN_MAP_HPP_
 
 #include <cstdint>
+#include <cstdlib>
+#include <new>
+#include <type_traits>
 #include <cmath>
 #include <vector>
 #include <set>
@@ -25,6 +28,7 @@
 #include <algorithm>
 #include <functional>
 #include <queue>
+#include <unordered_map>
 #include <tuple>
 #include <utility>
 
@@ -106,10 +110,11 @@ typedef weight_t (*heuristic_function)(weight_t dx, weight_t dy);
 struct the_neuron
 {
     std::uint8_t flags;
-    weight_t g;         // - стоимость пути от начальной_точки до текущей_точки
-    weight_t h;         // - оценка эвристики (обычно расстояние до конечной_точки)
-    weight_t f;         // - общая оценка стоимости (f = g + h)
-    the_neuron *parent; //
+    std::uint16_t stamp; // low 16 bits of the search id this state belongs to (see basic_brain_map::find)
+    weight_t g;          // - стоимость пути от начальной_точки до текущей_точки
+    weight_t h;          // - оценка эвристики (обычно расстояние до конечной_точки)
+    weight_t f;          // - общая оценка стоимости (f = g + h)
+    the_neuron *parent;  //
 };
 
 struct the_site
@@ -123,7 +128,7 @@ struct brain_identity
     int length;
     std::int8_t *horizontal;
     std::int8_t *vertical;
-    std::int8_t *g_weight;
+    weight_t *g_weight;
 };
 
 inline bool operator==(const the_site &lhs, const the_site &rhs);
@@ -200,6 +205,12 @@ public:
     explicit basic_brain_map(std::uint32_t xlength, std::uint32_t ylength);
 
     ~basic_brain_map();
+
+    // The map owns its raw memory: copying would free it twice, use save()/load() to duplicate the locks
+    basic_brain_map(const basic_brain_map &) = delete;
+    basic_brain_map &operator=(const basic_brain_map &) = delete;
+    basic_brain_map(basic_brain_map &&other) noexcept;
+    basic_brain_map &operator=(basic_brain_map &&other) noexcept;
 
     /**
      * @brief get the raw brain data (with locks)
@@ -516,8 +527,9 @@ public:
 protected:
     INeuron *neurons = nullptr;
     randomize_function _rand_ = std::rand;
-    heuristic_function __heuristic__;
-    std::uint32_t _seg_off;
+    heuristic_function _heuristic_fn;
+    std::uint32_t _seg_off;    // offset of the first neuron (the lock bits come first, padded for the alignment)
+    std::uint32_t _lock_bytes; // size of the lock bits in bytes
     std::uint32_t _xsize, _ysize;
     brain_identity identity;
     search_mode _search_mode = search_mode::UniDirectional;
@@ -526,10 +538,31 @@ protected:
     // set_custom_*: own step costs (indexed like the identity directions), corner cutting rule
     bool _custom_weights = false;
     weight_t _custom_orthogonal = 0, _custom_diagonal = 0;
-    std::int8_t _custom_g_weight[8] {};
+    weight_t _custom_g_weight[8] {};
     bool _corner_cutting = false;
+    // every search gets a new id, so the neuron states of the older searches are stale without a reset of the map
+    std::uint32_t _search_id = 0;
+
+    // state of the backward side of the bidirectional searches, indexed like the neurons
+    struct bwd_slot
+    {
+        weight_t g = 0, h = 0, f = 0;
+        INeuron *parent = nullptr;
+        std::uint32_t stamp = 0;
+    };
+    std::vector<bwd_slot> _bwd_cache;
+
+    void _begin_search();
+    void _touch(INeuron *neuron);
+    // get() for the searches: resets the state of a neuron that belongs to an older search
+    INeuron *_node(const ISite &site);
+    bwd_slot &_bwd_at(std::size_t index);
 
     void _apply_custom_weights();
+
+    // the lock bit of a cell by its linear index (x * height + y)
+    bool _lock_bit(std::size_t index) const;
+    void _set_lock_bit(std::size_t index, bool state);
 
     template <typename list_type = result_site>
     bool _find_unidirectional(
@@ -582,6 +615,14 @@ protected:
 
     template <typename list_type = result_site>
     void _find_build_path(navigate_result<list_type> &navResult, INeuron *last);
+
+    // writes the chain of nodes (start to goal) to the result in the site or the neuron form
+    template <typename list_type = result_site>
+    void _find_emit_nodes(navigate_result<list_type> &navResult, const std::vector<INeuron *> &nodes);
+
+    // start == goal: writes the one-node path and returns true
+    template <typename list_type = result_site>
+    bool _find_trivial(navigate_result<list_type> &navResult, INeuron *firstNeuron, INeuron *lastNeuron);
 
     bool _find_can_step(const ISite &from, int dir_index);
 

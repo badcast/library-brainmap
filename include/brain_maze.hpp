@@ -14,6 +14,17 @@
 
 namespace maze_system
 {
+/// the four orthogonal directions shared by the maze generators
+inline const brain::brain_identity &maze_plus_identity()
+{
+    static const brain::brain_identity identity = [] {
+        brain::brain_identity id {};
+        brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, id);
+        return id;
+    }();
+    return identity;
+}
+
 BRAIN_TEMPLATE
 static void maze_recursive_division(BRAIN_DEFINE *map, int l, int r, int t, int b)
 {
@@ -85,8 +96,7 @@ static void maze_recursive_division(BRAIN_DEFINE *map, int l, int r, int t, int 
 BRAIN_TEMPLATE
 static void maze_recursive_backtrace(BRAIN_DEFINE *map, ISite start)
 {
-    static brain::brain_identity maze_identity;
-    static auto __g_bss__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, maze_identity)};
+    const brain::brain_identity &maze_identity = maze_plus_identity();
 
     int dx, dy;
     INeuron *free_neighbours[4];
@@ -124,6 +134,9 @@ static void maze_recursive_backtrace(BRAIN_DEFINE *map, ISite start)
 
         if (!dy)
         {
+            // nothing to backtrack to (tiny maps): the carving is finished
+            if (stack.empty())
+                break;
             current = stack.back();
             stack.pop_back();
         }
@@ -174,6 +187,37 @@ static void maze_recursive_backtrace(BRAIN_DEFINE *map, ISite start)
     } while (!stack.empty());
 }
 
+/**
+ * @brief Open every locked cell that has no locked neighbour (plus method), so the random walls have no lone pillars
+ */
+BRAIN_TEMPLATE
+static void maze_clear_lone_walls(BRAIN_DEFINE *map)
+{
+    const int w = static_cast<int>(map->get_width());
+    const int h = static_cast<int>(map->get_height());
+    for (int x = 0; x < w; ++x)
+    {
+        for (int y = 0; y < h; ++y)
+        {
+            ISite site {x, y};
+            if (!map->has_lock(site))
+                continue;
+
+            bool has_wall_neighbour = false;
+            for (const ISite &p : map->get_neighbours(brain::matrix_identity::PlusMethod, site))
+            {
+                if (map->has_lock(p))
+                {
+                    has_wall_neighbour = true;
+                    break;
+                }
+            }
+            if (!has_wall_neighbour)
+                map->set_lock(site, false);
+        }
+    }
+}
+
 BRAIN_TEMPLATE
 static void maze_storm_space(BRAIN_DEFINE *map, ISite start)
 {
@@ -200,7 +244,7 @@ static void maze_storm_space(BRAIN_DEFINE *map, ISite start)
     int dx = static_cast<int>(map->get_width());
     int dy = static_cast<int>(map->get_height());
     int max_span = std::max(dx, dy) + 2;
-    int section, s, iv, x, y;
+    int section, s, iv;
 
     map->clear(true);
 
@@ -232,39 +276,14 @@ static void maze_storm_space(BRAIN_DEFINE *map, ISite start)
         }
     }
 
-    // clear only one point (Wall only randomized)
-    dx /= 2;
-    dy /= 2;
-    for (x = 0; x < dx; ++x)
-    {
-        for (y = 0; y < dy; ++y)
-        {
-            ISite site {x + 1, y + 1};
-
-            if (!map->has_lock(site))
-                continue;
-
-            auto neighbours = map->get_neighbours(matrix_identity::PlusMethod, site);
-            iv = 0;
-            for (auto &p : neighbours)
-            {
-                if ((iv = map->has_lock(p)))
-                {
-                    break;
-                }
-            }
-
-            if (!iv)
-                map->set_lock(site, false);
-        }
-    }
+    maze_clear_lone_walls(map);
 }
 
 BRAIN_TEMPLATE
 static void maze_forced_chaos(BRAIN_DEFINE *map, ISite startOf, ISite endOf)
 {
     int lbits, rbits, segbits;
-    std::uint32_t x, y, dx = map->get_width(), dy = map->get_height();
+    std::uint32_t dx = map->get_width(), dy = map->get_height();
     std::div_t locked_data;
     decltype(map->get_neighbours(matrix_identity::PlusMethod, startOf)) neighbours;
 
@@ -284,32 +303,7 @@ static void maze_forced_chaos(BRAIN_DEFINE *map, ISite startOf, ISite endOf)
         rbits -= std::min(rbits, static_cast<int>(sizeof(lbits)));
     } while (rbits > 0);
 
-    // clear only one point (Wall only randomized)
-    dx /= 2;
-    dy /= 2;
-    for (x = 0; x < dx; ++x)
-    {
-        for (y = 0; y < dy; ++y)
-        {
-            ISite site {static_cast<int>(x) + 1, static_cast<int>(y) + 1};
-
-            if (!map->has_lock(site))
-                continue;
-
-            neighbours = map->get_neighbours(matrix_identity::PlusMethod, site);
-            bool catched = false;
-            for (auto &p : neighbours)
-            {
-                if (catched = map->has_lock(p))
-                {
-                    break;
-                }
-            }
-
-            if (!catched)
-                map->set_lock(site, false);
-        }
-    }
+    maze_clear_lone_walls(map);
     // Start
     if (map->contains(startOf))
     {
@@ -336,8 +330,7 @@ static void maze_forced_chaos(BRAIN_DEFINE *map, ISite startOf, ISite endOf)
 BRAIN_TEMPLATE
 static void maze_randomized_prim(BRAIN_DEFINE *map, ISite start)
 {
-    static brain::brain_identity maze_identity;
-    static auto __g_bss__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, maze_identity)};
+    const brain::brain_identity &maze_identity = maze_plus_identity();
 
     if (!map->contains(start))
         start = {0, 0};
@@ -589,8 +582,7 @@ static void maze_ellers(BRAIN_DEFINE *map, ISite start = {0, 0})
 BRAIN_TEMPLATE
 static void maze_hunt_and_kill(BRAIN_DEFINE *map, ISite start)
 {
-    static brain::brain_identity maze_identity;
-    static auto __g_bss__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, maze_identity)};
+    const brain::brain_identity &maze_identity = maze_plus_identity();
 
     if (!map->contains(start))
         start = {0, 0};
@@ -774,8 +766,7 @@ static void maze_sidewinder(BRAIN_DEFINE *map, ISite start = {0, 0})
 BRAIN_TEMPLATE
 static void maze_aldous_broder(BRAIN_DEFINE *map, ISite start)
 {
-    static brain::brain_identity maze_identity;
-    static auto __g_bss__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, maze_identity)};
+    const brain::brain_identity &maze_identity = maze_plus_identity();
 
     if (!map->contains(start))
         start = {0, 0};
@@ -838,8 +829,7 @@ static void maze_aldous_broder(BRAIN_DEFINE *map, ISite start)
 BRAIN_TEMPLATE
 static void maze_wilsons(BRAIN_DEFINE *map, ISite start)
 {
-    static brain::brain_identity maze_identity;
-    static auto __g_bss__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, maze_identity)};
+    const brain::brain_identity &maze_identity = maze_plus_identity();
 
     if (!map->contains(start))
         start = {0, 0};
@@ -981,8 +971,7 @@ static void maze_cellular_automata(BRAIN_DEFINE *map, ISite startOf, ISite endOf
 
     // Connect disconnected cave chambers so startOf and endOf are mutually reachable
     map->clear(false);
-    static brain::brain_identity plus_id;
-    static auto __g_plus__ {brain::immune_system::get_matrix(brain::matrix_identity::PlusMethod, plus_id)};
+    const brain::brain_identity &plus_id = maze_plus_identity();
 
     ISite seed = map->contains(startOf) ? startOf : ISite {1, 1};
     if (map->contains(seed))
@@ -1105,19 +1094,14 @@ void BRAIN_DEFINE::create_maze_ex(brain::maze_algorithm mazeAlgoritm, ISite star
         {
             this->clear(true);
             int l = 0, r = static_cast<int>(_xsize) - 1, t = 0, b = static_cast<int>(_ysize) - 1;
-            if (startOf.x < endOf.x && startOf.y < endOf.y)
+            // a start/end pair that spans a rectangle limits the division to it
+            if (contains(startOf) && contains(effective_end) && startOf.x < effective_end.x
+                && startOf.y < effective_end.y)
             {
                 l = startOf.x;
-                r = endOf.x;
+                r = effective_end.x;
                 t = startOf.y;
-                b = endOf.y;
-            }
-            else if (startOf.x < startOf.y && endOf.x < endOf.y)
-            {
-                l = startOf.x;
-                r = startOf.y;
-                t = endOf.x;
-                b = endOf.y;
+                b = effective_end.y;
             }
             maze_system::maze_recursive_division(this, l, r, t, b);
             break;

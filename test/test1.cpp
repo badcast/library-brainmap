@@ -23,7 +23,7 @@ int main()
     iterate = 0;
     for(n1 = map.front(), n2 = map.back(); n1 <= n2; ++n1)
     {
-        if(n1->g != 2 + iterate || n1->h != 3 + iterate || n1->f != 4 + iterate || n1->flags != 128)
+        if(std::size_t(n1->g) != 2 + iterate || std::size_t(n1->h) != 3 + iterate || std::size_t(n1->f) != 4 + iterate || n1->flags != 128)
         {
             errors++;
             t1 = map.get_point(n1);
