@@ -1,0 +1,406 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.15.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>library-brainmap: Класс brain::basic_flow_field</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">library-brainmap<span id="projectnumber">&#160;1.1.0</span>
+   </div>
+   <div id="projectbrief">Maze generation and path finding on a neuron grid (A*, Dijkstra, BFS, DFS)</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.15.0 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+</script>
+<script type="text/javascript">
+$(function() { codefold.init(); });
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Поиск',true);
+  $(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(function(){initNavTree('classbrain_1_1basic__flow__field.html','','classbrain_1_1basic__flow__field-members'); });
+</script>
+<div id="container">
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Загрузка...</div>
+<div class="SRStatus" id="Searching">Поиск...</div>
+<div class="SRStatus" id="NoMatches">Не найдено</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">Класс brain::basic_flow_field</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Flow Field (a.k.a.  
+ <a href="#details">Подробнее...</a></p>
+
+<p><code>#include &lt;<a class="el" href="brain__map_8hpp_source.html">brain_map.hpp</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-types" class="groupheader"><a id="pub-types" name="pub-types"></a>
+Открытые типы</h2></td></tr>
+<tr class="memitem:ac197948a0f4d8a18d6a102eb35968530" id="r_ac197948a0f4d8a18d6a102eb35968530"><td class="memItemLeft" align="right" valign="top"><a id="ac197948a0f4d8a18d6a102eb35968530" name="ac197948a0f4d8a18d6a102eb35968530"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>map_type</b> = <a class="el" href="classbrain_1_1basic__brain__map.html">basic_brain_map</a>&lt;ISite, INeuron&gt;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Открытые члены</h2></td></tr>
+<tr class="memitem:af3e3c005504557806a9d0802ea129798" id="r_af3e3c005504557806a9d0802ea129798"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af3e3c005504557806a9d0802ea129798">build</a> (map_type &amp;map, const ISite &amp;<a class="el" href="#a41403811731dde031a4346564dc238a7">goal</a>)</td></tr>
+<tr class="memdesc:af3e3c005504557806a9d0802ea129798"><td class="mdescLeft">&#160;</td><td class="mdescRight">build the field  <br /></td></tr>
+<tr class="memitem:a5846ef90b09e4bffa6cfab871b25cbf2" id="r_a5846ef90b09e4bffa6cfab871b25cbf2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5846ef90b09e4bffa6cfab871b25cbf2">is_built</a> () const</td></tr>
+<tr class="memitem:a41403811731dde031a4346564dc238a7" id="r_a41403811731dde031a4346564dc238a7"><td class="memItemLeft" align="right" valign="top">ISite&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a41403811731dde031a4346564dc238a7">goal</a> () const</td></tr>
+<tr class="memitem:a1c1f6d63b3843431b87c1808f44c3006" id="r_a1c1f6d63b3843431b87c1808f44c3006"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1c1f6d63b3843431b87c1808f44c3006">reachable</a> (const ISite &amp;site) const</td></tr>
+<tr class="memitem:aa5f56fcaa5883168b77a9e2ef57ef2a9" id="r_aa5f56fcaa5883168b77a9e2ef57ef2a9"><td class="memItemLeft" align="right" valign="top">weight_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa5f56fcaa5883168b77a9e2ef57ef2a9">cost</a> (const ISite &amp;site) const</td></tr>
+<tr class="memitem:a30bc3ecdff8140011d18cb9d6602b2d6" id="r_a30bc3ecdff8140011d18cb9d6602b2d6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a30bc3ecdff8140011d18cb9d6602b2d6">next</a> (const ISite &amp;site, ISite &amp;out) const</td></tr>
+<tr class="memdesc:a30bc3ecdff8140011d18cb9d6602b2d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">the next cell of the cheapest path toward the goal  <br /></td></tr>
+<tr class="memitem:a125f57a2a3e8afb05b3e7427b86039c1" id="r_a125f57a2a3e8afb05b3e7427b86039c1"><td class="memItemLeft" align="right" valign="top"><a id="a125f57a2a3e8afb05b3e7427b86039c1" name="a125f57a2a3e8afb05b3e7427b86039c1"></a>
+ISite&#160;</td><td class="memItemRight" valign="bottom"><b>direction</b> (const ISite &amp;site) const</td></tr>
+<tr class="memdesc:a125f57a2a3e8afb05b3e7427b86039c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">the unit step (dx, dy) toward the goal, (0, 0) at the goal or if there is no path <br /></td></tr>
+<tr class="memitem:a0e18497262de2c19e6270ac73225e0e6" id="r_a0e18497262de2c19e6270ac73225e0e6"><td class="memTemplParams" colspan="2">template&lt;typename list_type&gt; </td></tr>
+<tr class="memitem:a0e18497262de2c19e6270ac73225e0e6 template"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0e18497262de2c19e6270ac73225e0e6">path</a> (const ISite &amp;from, list_type &amp;out) const</td></tr>
+<tr class="memdesc:a0e18497262de2c19e6270ac73225e0e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">the whole path from a cell to the goal (both ends included)  <br /></td></tr>
+<tr class="memitem:a1376823007c2202c6993bccbd1e597f9" id="r_a1376823007c2202c6993bccbd1e597f9"><td class="memItemLeft" align="right" valign="top">weight_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1376823007c2202c6993bccbd1e597f9">max_cost</a> () const</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-static-attribs" class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Статические открытые данные</h2></td></tr>
+<tr class="memitem:a943639890974b091c0bbbb0d2e923e8c" id="r_a943639890974b091c0bbbb0d2e923e8c"><td class="memItemLeft" align="right" valign="top"><a id="a943639890974b091c0bbbb0d2e923e8c" name="a943639890974b091c0bbbb0d2e923e8c"></a>
+static constexpr weight_t&#160;</td><td class="memItemRight" valign="bottom"><b>unreachable</b> = immune_system::unreachable_cost</td></tr>
+<tr class="memdesc:a943639890974b091c0bbbb0d2e923e8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">cost of the cells the goal can not be reached from <br /></td></tr>
+</table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Подробное описание</h2>
+<div class="textblock"><p>Flow Field (a.k.a. </p>
+<p>Dijkstra map) toward one goal.</p>
+<p>One Dijkstra run from the goal fills the whole map: every reachable cell gets the cost to the goal and the next cell on a cheapest path. After <a class="el" href="#af3e3c005504557806a9d0802ea129798" title="build the field">build()</a> any number of agents can read their way in O(1) per step or extract a whole path, no search is needed. Use it when many units move to the same target.</p>
+<p>The field uses the identity (neighbour matrix), the step costs, the locks and the corner cutting rule of the map at the moment of <a class="el" href="#af3e3c005504557806a9d0802ea129798" title="build the field">build()</a>. Call <a class="el" href="#af3e3c005504557806a9d0802ea129798" title="build the field">build()</a> again after the map changes. The field stores its own data, so the map can be searched while the field is alive. </p>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Методы</h2>
+<a id="af3e3c005504557806a9d0802ea129798" name="af3e3c005504557806a9d0802ea129798"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3e3c005504557806a9d0802ea129798">&#9670;&#160;</a></span>build()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_flow_field::build </td>
+          <td>(</td>
+          <td class="paramtype">map_type &amp;</td>          <td class="paramname"><span class="paramname"><em>map</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>goal</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>build the field </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">map</td><td>the map to read, it is not modified </td></tr>
+    <tr><td class="paramname">goal</td><td>the target of the field </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>false if the goal is outside of the map or locked </dd></dl>
+
+</div>
+</div>
+<a id="aa5f56fcaa5883168b77a9e2ef57ef2a9" name="aa5f56fcaa5883168b77a9e2ef57ef2a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa5f56fcaa5883168b77a9e2ef57ef2a9">&#9670;&#160;</a></span>cost()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">weight_t brain::basic_flow_field::cost </td>
+          <td>(</td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>site</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Возвращает</dt><dd>the cost of the cheapest path from the cell to the goal, or unreachable </dd></dl>
+
+</div>
+</div>
+<a id="a41403811731dde031a4346564dc238a7" name="a41403811731dde031a4346564dc238a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41403811731dde031a4346564dc238a7">&#9670;&#160;</a></span>goal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">ISite brain::basic_flow_field::goal </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Возвращает</dt><dd>the goal of the field </dd></dl>
+
+</div>
+</div>
+<a id="a5846ef90b09e4bffa6cfab871b25cbf2" name="a5846ef90b09e4bffa6cfab871b25cbf2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5846ef90b09e4bffa6cfab871b25cbf2">&#9670;&#160;</a></span>is_built()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_flow_field::is_built </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Возвращает</dt><dd>true once <a class="el" href="#af3e3c005504557806a9d0802ea129798" title="build the field">build()</a> succeeded </dd></dl>
+
+</div>
+</div>
+<a id="a1376823007c2202c6993bccbd1e597f9" name="a1376823007c2202c6993bccbd1e597f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1376823007c2202c6993bccbd1e597f9">&#9670;&#160;</a></span>max_cost()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">weight_t brain::basic_flow_field::max_cost </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Возвращает</dt><dd>the cost of the most distant reachable cell (useful to scale a heat map) </dd></dl>
+
+</div>
+</div>
+<a id="a30bc3ecdff8140011d18cb9d6602b2d6" name="a30bc3ecdff8140011d18cb9d6602b2d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a30bc3ecdff8140011d18cb9d6602b2d6">&#9670;&#160;</a></span>next()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_flow_field::next </td>
+          <td>(</td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>site</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>out</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>the next cell of the cheapest path toward the goal </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">site</td><td>the current cell </td></tr>
+    <tr><td class="paramname">out</td><td>the next cell (equals site at the goal) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>false if the goal can not be reached from the cell </dd></dl>
+
+</div>
+</div>
+<a id="a0e18497262de2c19e6270ac73225e0e6" name="a0e18497262de2c19e6270ac73225e0e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e18497262de2c19e6270ac73225e0e6">&#9670;&#160;</a></span>path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename list_type&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_flow_field::path </td>
+          <td>(</td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>from</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">list_type &amp;</td>          <td class="paramname"><span class="paramname"><em>out</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>the whole path from a cell to the goal (both ends included) </p>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from</td><td>the start cell </td></tr>
+    <tr><td class="paramname">out</td><td>receives the cells, cleared before </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Возвращает</dt><dd>false if the goal can not be reached from the start </dd></dl>
+
+</div>
+</div>
+<a id="a1c1f6d63b3843431b87c1808f44c3006" name="a1c1f6d63b3843431b87c1808f44c3006"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c1f6d63b3843431b87c1808f44c3006">&#9670;&#160;</a></span>reachable()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool brain::basic_flow_field::reachable </td>
+          <td>(</td>
+          <td class="paramtype">const ISite &amp;</td>          <td class="paramname"><span class="paramname"><em>site</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Возвращает</dt><dd>true if the cell is inside the map and the goal can be reached from it </dd></dl>
+
+</div>
+</div>
+<hr/>Объявления и описания членов класса находятся в файле:<ul>
+<li>include/<a class="el" href="brain__map_8hpp_source.html">brain_map.hpp</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<div id="page-nav" class="page-nav-panel">
+<div id="page-nav-resize-handle"></div>
+<div id="page-nav-tree">
+<div id="page-nav-contents">
+</div><!-- page-nav-contents -->
+</div><!-- page-nav-tree -->
+</div><!-- page-nav -->
+</div><!-- container -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><b>brain</b></li><li class="navelem"><a href="classbrain_1_1basic__flow__field.html">basic_flow_field</a></li>
+    <li class="footer">Создано системой <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
+  </ul>
+</div>
+</body>
+</html>
