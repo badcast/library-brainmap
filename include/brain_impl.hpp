@@ -137,7 +137,8 @@ struct cost_entry_worse
 {
     bool operator()(const cost_entry &lhs, const cost_entry &rhs) const
     {
-        return lhs.cost > rhs.cost;
+        // equal costs pop by cell id: the order (and so every result) is the same with any STL heap implementation
+        return lhs.cost > rhs.cost || (lhs.cost == rhs.cost && lhs.id > rhs.id);
     }
 };
 
